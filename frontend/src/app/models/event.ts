@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { Adapter } from "../helpers/adapter";
 import * as moment from "moment";
 import { each, find } from "lodash";
+import { environment } from "src/environments/environment";
 
 export class Event implements EventI {
   id?: number;
@@ -16,7 +17,7 @@ export class Event implements EventI {
   disabled: boolean;
 
   downloadLink(): string {
-    return "http://localhost:4201/secure/events/" + this.id + "/pdf";
+    return `${environment.apiUrl}/secure/events/${this.id}/pdf`;
   }
 
   displayTime(): string {

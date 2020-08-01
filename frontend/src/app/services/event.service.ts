@@ -7,6 +7,7 @@ import { EventI } from "../../../../common/event";
 import { ParticipantI } from "../../../../common/participant";
 import { Participant, ParticipantAdapter } from "../models/participant";
 import { saveAs } from "file-saver";
+import { environment } from "src/environments/environment";
 
 @Injectable({ providedIn: "root" })
 export class EventService {
@@ -17,27 +18,27 @@ export class EventService {
   ) {}
 
   getEvents(): Observable<Event[]> {
-    return this.http.get("http://localhost:4201/events").pipe(
+    return this.http.get(`${environment.apiUrl}/secure/events`).pipe(
       // Adapt the raw items
       map((data: any[]) => data.map((item) => this.adapter.adapt(item)))
     );
   }
 
   createEvent(event: EventI): Observable<Event> {
-    return this.http.post(`http://localhost:4201/secure/events`, event).pipe(
+    return this.http.post(`${environment.apiUrl}/secure/events`, event).pipe(
       // Adapt the raw items
       map((data) => this.adapter.adapt(data))
     );
   }
 
   deleteEvent(id: number): Observable<any> {
-    return this.http.delete(`http://localhost:4201/secure/events/${id}`);
+    return this.http.delete(`${environment.apiUrl}/secure/events/${id}`);
   }
 
   setDisabled(id: number, disabled: boolean): Observable<Event> {
     return this.http
       .put(
-        `http://localhost:4201/secure/events/${id}/disabled/${disabled}`,
+        `${environment.apiUrl}/secure/events/${id}/disabled/${disabled}`,
         event
       )
       .pipe(
@@ -49,7 +50,7 @@ export class EventService {
   addParticipant(participant: ParticipantI): Observable<Participant> {
     return this.http
       .post(
-        `http://localhost:4201/events/${participant.EventId}/participant`,
+        `${environment.apiUrl}/secure/events/${participant.EventId}/participant`,
         participant
       )
       .pipe(
