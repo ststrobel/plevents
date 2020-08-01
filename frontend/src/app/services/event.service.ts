@@ -18,7 +18,7 @@ export class EventService {
   ) {}
 
   getEvents(): Observable<Event[]> {
-    return this.http.get(`${environment.apiUrl}/secure/events`).pipe(
+    return this.http.get(`${environment.apiUrl}/events`).pipe(
       // Adapt the raw items
       map((data: any[]) => data.map((item) => this.adapter.adapt(item)))
     );

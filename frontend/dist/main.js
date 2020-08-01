@@ -1516,7 +1516,7 @@ let EventService = class EventService {
         this.participantAdapter = participantAdapter;
     }
     getEvents() {
-        return this.http.get(`${src_environments_environment__WEBPACK_IMPORTED_MODULE_7__["environment"].apiUrl}/secure/events`).pipe(
+        return this.http.get(`${src_environments_environment__WEBPACK_IMPORTED_MODULE_7__["environment"].apiUrl}/events`).pipe(
         // Adapt the raw items
         Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["map"])((data) => data.map((item) => this.adapter.adapt(item))));
     }
