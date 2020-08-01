@@ -1,0 +1,16 @@
+{
+  "name": "cvjm-planner",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "server": "ts-node-dev backend/src/server.ts",
+    "fullstack": "concurrently \"cd backend && ts-node-dev src/server.ts\" \"cd frontend && ng serve\""
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^5.2.0",
+    "ts-node-dev": "^1.0.0-pre.56",
+    "typescript": "^3.9.7"
+  }
+}
