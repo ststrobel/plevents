@@ -1,0 +1,135 @@
+<p>Übersicht über alle anstehenden Events</p>
+<table style="width: 100%;">
+  <thead>
+    <tr>
+      <th [ngStyle]="{ style: 100 / (uniqueEvents.length + 1) + '%' }">KW</th>
+      <th
+        [ngStyle]="{ style: 100 / (uniqueEvents.length + 1) + '%' }"
+        style="text-align: center;"
+        *ngFor="let uniqueEvent of uniqueEvents"
+      >
+        {{ uniqueEvent.name }}
+        <br />
+        {{ uniqueEvent.displayTime() }}
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let week of weeks">
+      <td>{{ week.number }}</td>
+      <td
+        class="greyedOut"
+        style="
+          border: 1px solid white;
+          height: 25px;
+          line-height: 25px;
+          text-align: center;
+        "
+        [ngClass]="{
+          happening: eventAt(time, week.events) !== undefined,
+          unavailable:
+            eventAt(time, week.events) !== undefined &&
+            eventAt(time, week.events).takenSeats >=
+              eventAt(time, week.events).maxSeats
+        }"
+        *ngFor="let time of timeColumns"
+      >
+        <div
+          *ngIf="eventAt(time, week.events) !== undefined"
+          [ngClass]="{ disabled: eventAt(time, week.events).disabled }"
+          style="position: relative;"
+        >
+          <br />
+          <small
+            >{{ eventAt(time, week.events).takenSeats }} /
+            {{ eventAt(time, week.events).maxSeats }} </small
+          ><i
+            class="fas fa-2x fa-file-pdf downloadIcon"
+            (click)="downloadPdf(eventAt(time, week.events))"
+            title="Download Teilnehmerliste"
+          ></i>
+          <small class="stateToggler">
+            <i
+              *ngIf="!eventAt(time, week.events).disabled"
+              (click)="toggleDisabled(eventAt(time, week.events))"
+              >aktiv</i
+            >
+            <i
+              *ngIf="eventAt(time, week.events).disabled"
+              (click)="toggleDisabled(eventAt(time, week.events))"
+              >inaktiv</i
+            >
+          </small>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td></td>
+      <td *ngFor="let uniqueEvent of uniqueEvents; let i = index">
+        <button
+          class="btn btn-sm btn-block btn-outline-danger my-2 my-sm-0"
+          (click)="deleteEventSeries(i)"
+        >
+          Löschen
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div style="margin-top: 40px; margin-bottom: 150px;">
+  <h5>Hier können Sie ein neues Reihenevent anlegen:</h5>
+  <form [formGroup]="newEventForm" (ngSubmit)="addNewEvent()">
+    <div class="row">
+      <div class="col-4">
+        <label for="name">Event-Name</label>
+        <br />
+        <input
+          class="form-control"
+          id="name"
+          type="text"
+          formControlName="name"
+        />
+      </div>
+      <div class="col-4">
+        <label for="fromDate">frühester Termin</label>
+        <br />
+        <input
+          class="form-control"
+          id="fromDate"
+          type="date"
+          formControlName="fromDate"
+        />
+      </div>
+      <div class="col-4"></div>
+      <div class="col-4">
+        <label for="name">Startzeit</label>
+        <br />
+        <input
+          class="form-control"
+          id="time"
+          type="time"
+          formControlName="time"
+        />
+      </div>
+      <div class="col-4">
+        <label for="maxSeats">max. Teilnehmer</label>
+        <br />
+        <input
+          class="form-control"
+          id="maxSeats"
+          type="number"
+          formControlName="maxSeats"
+        />
+      </div>
+      <div class="col-4">
+        <button
+          class="btn btn-block btn-outline-success my-2 my-sm-0 ml-3"
+          type="submit"
+        >
+          Event erstellen
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

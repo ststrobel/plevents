@@ -1,0 +1,157 @@
+<p>
+  Registrieren Sie sich für <b>eine</b> der folgenden Aktivitäten in der
+  nächsten Woche:
+</p>
+<table style="width: 100%;">
+  <thead>
+    <tr>
+      <th
+        [ngStyle]="{ width: 100 / (uniqueEvents.length + 1) + '%' }"
+        style="padding-left: 100px;"
+      >
+        KW
+      </th>
+      <th
+        [ngStyle]="{ width: 100 / (uniqueEvents.length + 1) + '%' }"
+        style="text-align: center;"
+        *ngFor="let uniqueEvent of uniqueEvents"
+      >
+        {{ uniqueEvent.name }}
+        <br />
+        {{ uniqueEvent.displayTime() }}
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let week of weeks; let i = index">
+      <td style="padding-left: 100px;">
+        {{ week.number }}
+        <small *ngIf="i === 0">(diese Woche)</small>
+        <small *ngIf="i === 1">(nächste Woche)</small>
+      </td>
+      <td
+        class="greyedOut"
+        style="
+          border: 1px solid white;
+          height: 25px;
+          line-height: 25px;
+          text-align: center;
+        "
+        [ngClass]="{
+          happening: eventAt(time, week.events) !== undefined,
+          unavailable:
+            eventAt(time, week.events) !== undefined &&
+            eventAt(time, week.events).takenSeats >=
+              eventAt(time, week.events).maxSeats
+        }"
+        *ngFor="let time of timeColumns"
+      >
+        <div
+          *ngIf="eventAt(time, week.events) !== undefined"
+          [ngClass]="{
+            disabled: eventAt(time, week.events).disabled,
+            selected:
+              selectedEvent &&
+              eventAt(time, week.events) === selectedEvent &&
+              selectedEvent.takenSeats < selectedEvent.maxSeats,
+            unavailable:
+              selectedEvent &&
+              eventAt(time, week.events) === selectedEvent &&
+              selectedEvent.takenSeats >= selectedEvent.maxSeats
+          }"
+          style="position: relative;"
+          (click)="selectEvent(eventAt(time, week.events))"
+        >
+          <br />
+          <small
+            >{{ eventAt(time, week.events).takenSeats }} /
+            {{ eventAt(time, week.events).maxSeats }}
+          </small>
+          <br />
+          <br />
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div
+  style="margin-top: 40px; margin-bottom: 150px;"
+  [hidden]="selectedEvent === null"
+>
+  <div
+    [hidden]="
+      selectedEvent && selectedEvent.takenSeats < selectedEvent.maxSeats
+    "
+    class="alert alert-danger"
+  >
+    Dieses Event ist bereits leider ausgebucht!
+  </div>
+  <div
+    [hidden]="
+      selectedEvent && selectedEvent.takenSeats >= selectedEvent.maxSeats
+    "
+  >
+    <h5>Angaben zu Teilnehmer:</h5>
+    <form [formGroup]="registerForm" (ngSubmit)="registerParticipant()">
+      <div class="row">
+        <div class="col-4">
+          <label for="name">Name des Teilnehmers</label>
+          <br />
+          <input
+            class="form-control"
+            id="name"
+            type="text"
+            formControlName="name"
+          />
+        </div>
+        <div class="col-4">
+          <label for="street">Straße & Hausnummer</label>
+          <br />
+          <input
+            class="form-control"
+            id="street"
+            type="text"
+            formControlName="street"
+          />
+        </div>
+        <div class="col-4"></div>
+        <div class="col-4">
+          <label for="zip">PLZ</label>
+          <br />
+          <input
+            class="form-control"
+            id="zip"
+            type="text"
+            formControlName="zip"
+          />
+        </div>
+        <div class="col-4">
+          <label for="city">Ort</label>
+          <br />
+          <input
+            class="form-control"
+            id="city"
+            type="text"
+            formControlName="city"
+          />
+        </div>
+        <div class="col-4">
+          <button
+            class="btn btn-block btn-success my-2 my-sm-0 ml-3"
+            type="submit"
+          >
+            Zum Event anmelden
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div *ngIf="successfullyRegistered" class="alert alert-success successBox">
+  Sie haben sich erfolgreich angemeldet!
+  <br />
+  Bitte beachten Sie, dass Sie sich nicht für weitere Events in dieser Woche
+  anmelden können.
+</div>

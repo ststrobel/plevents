@@ -1,0 +1,43 @@
+.greyedOut {
+  background-color: lightgray;
+  color: gray;
+}
+
+.happening {
+  background-color: lightgreen;
+  color: darkgreen;
+  font-weight: bold;
+}
+
+.active-toggle {
+  cursor: pointer;
+  position: absolute;
+  top: 3px;
+  right: 3px;
+}
+
+.disabled {
+  background-color: #b7b7b7;
+}
+
+.stateToggler {
+  position: absolute;
+  top: 0;
+  right: 6px;
+  text-align: right;
+  cursor: pointer;
+}
+
+.unavailable {
+  border: 4px solid #780000;
+  background-color: #fecccc;
+  color: #780000;
+  font-weight: bold;
+}
+
+.downloadIcon {
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  cursor: pointer;
+}
