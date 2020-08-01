@@ -7,7 +7,7 @@ export class EmailController {
       res.send(await Email.findAll());
     });
 
-    app.delete('/secure/email/:id', async (req, res) => {
+    app.delete('/secure/emails/:id', async (req, res) => {
       await Email.destroy({
         where: {
           id: req.params.id,
@@ -16,7 +16,7 @@ export class EmailController {
       res.status(200).send({ message: 'Email deleted' });
     });
 
-    app.post('/secure/email', async (req, res) => {
+    app.post('/secure/emails', async (req, res) => {
       const email = await Email.findOrCreate({
         where: { address: req.body.mail },
       });

@@ -7,13 +7,17 @@ import { EmailController } from './controllers/email.controller';
 import { EventController } from './controllers/event.controller';
 import { PdfController } from './controllers/pdf.controller';
 
+// read configuration:
+const dotenv = require('dotenv');
+dotenv.config();
+
 const app = express(); // Allow any method from any host and log requests
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header(
     'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept, Authorization, CVJM-Security'
+    `Origin, X-Requested-With, Content-Type, Accept, Authorization, ${process.env.SECURITY_HEADER}`
   );
   res.header('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, DELETE');
   if ('OPTIONS' === req.method) {
@@ -54,7 +58,7 @@ EventController.register(app);
 PdfController.register(app);
 
 // start our server on port 4201
-app.listen(4201, '127.0.0.1', async function () {
-  console.log('\x1b[32mServer now listening on 4201\x1b[0m');
+app.listen(parseInt(process.env.HTTP_PORT), process.env.HTTP_HOSTNAME, async function () {
+  console.log('\x1b[32mServer now listening on ' + process.env.HTTP_PORT + '\x1b[0m');
   DBConnection.init();
 });

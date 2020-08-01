@@ -6,7 +6,7 @@ import { Log } from '../models/log';
 export class AuthController {
   public static register(app: express.Application): void {
     app.post('/createUser', (request, response) => {
-      if (request.get('CVJM-Security') === 'ABCD1234') {
+      if (request.get(process.env.SECURITY_HEADER) === process.env.SECURITY_TOKEN) {
         try {
           const newUserData = <UserI>request.body;
           UserService.createUser(newUserData.username, newUserData.password);

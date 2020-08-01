@@ -1,8 +1,10 @@
 import { UserI } from '../../../common/user';
 const { Sequelize, DataTypes, Model } = require('sequelize');
-const sequelize = new Sequelize('cvjm', 'cvjm', 'cvjm', {
-  host: 'localhost',
-  dialect: 'mysql',
+const dotenv = require('dotenv');
+dotenv.config();
+const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
+  host: process.env.DB_HOST,
+  dialect: process.env.DB_TYPE,
   logging: false,
 });
 const bcrypt = require('bcrypt');
