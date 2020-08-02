@@ -32,6 +32,7 @@ export class DBConnection {
       console.log('\x1b[32mTables set up successfully.\x1b[0m');
     } catch (error) {
       console.error('\x1b[31mUnable to connect to the database\x1b[0m', error);
+      throw error;
     }
   }
 }

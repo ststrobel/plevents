@@ -1,4 +1,5 @@
 import { EventI } from '../../../common/event';
+import { Participant } from './participant';
 const { Sequelize, DataTypes, Model } = require('sequelize');
 const dotenv = require('dotenv');
 dotenv.config();
@@ -42,3 +43,9 @@ Event.init(
     freezeTableName: true,
   }
 );
+
+Event.hasMany(Participant, {
+  constraints: true,
+  onDelete: 'cascade',
+  foreignKey: 'EventId',
+});

@@ -53,5 +53,8 @@ Participant.init(
     freezeTableName: true,
   }
 );
-
-Participant.event = Participant.belongsTo(Event);
+/*
+Participant.event = Participant.belongsTo(Event, {
+  constraints: true,
+  onDelete: 'CASCADE',
+});*/

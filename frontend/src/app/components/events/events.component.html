@@ -131,7 +131,7 @@
     <h5>Angaben zu Teilnehmer:</h5>
     <form [formGroup]="registerForm" (ngSubmit)="registerParticipant()">
       <div class="row">
-        <div class="col-4">
+        <div class="col-6 col-md-4">
           <label for="name">Name des Teilnehmers</label>
           <br />
           <input
@@ -141,7 +141,7 @@
             formControlName="name"
           />
         </div>
-        <div class="col-4">
+        <div class="col-6 col-md-4">
           <label for="email">Email</label>
           <br />
           <input
@@ -151,7 +151,7 @@
             formControlName="email"
           />
         </div>
-        <div class="col-4">
+        <div class="col-6 col-md-4">
           <label for="phone">Telefonnummer</label>
           <br />
           <input
@@ -161,7 +161,7 @@
             formControlName="phone"
           />
         </div>
-        <div class="col-4">
+        <div class="col-6 col-md-4">
           <label for="street">Straße & Hausnummer</label>
           <br />
           <input
@@ -171,8 +171,7 @@
             formControlName="street"
           />
         </div>
-        <div class="col-4"></div>
-        <div class="col-4">
+        <div class="col-6 col-md-4">
           <label for="zip">PLZ</label>
           <br />
           <input
@@ -182,7 +181,7 @@
             formControlName="zip"
           />
         </div>
-        <div class="col-4">
+        <div class="col-6 col-md-4 mb-3">
           <label for="city">Ort</label>
           <br />
           <input
@@ -192,11 +191,8 @@
             formControlName="city"
           />
         </div>
-        <div class="col-4">
-          <button
-            class="btn btn-block btn-success my-2 my-sm-0 ml-3"
-            type="submit"
-          >
+        <div class="col-12 col-md-4 offset-md-8">
+          <button class="btn btn-block btn-success" type="submit">
             Zum Event anmelden
           </button>
         </div>

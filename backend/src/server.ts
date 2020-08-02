@@ -6,6 +6,7 @@ import { UserService } from './services/user.service';
 import { EmailController } from './controllers/email.controller';
 import { EventController } from './controllers/event.controller';
 import { PdfController } from './controllers/pdf.controller';
+import { CronService } from './cron.service';
 
 // read configuration:
 const dotenv = require('dotenv');
@@ -60,4 +61,6 @@ PdfController.register(app);
 app.listen(parseInt(process.env.HTTP_PORT), process.env.HTTP_HOSTNAME, async function () {
   console.log('\x1b[32mServer now listening on ' + process.env.HTTP_PORT + '\x1b[0m');
   DBConnection.init();
+  const cronService = new CronService();
+  cronService.removeParticipantsData();
 });
