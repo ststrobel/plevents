@@ -42,7 +42,10 @@
           unavailable:
             eventAt(time, week.events) !== undefined &&
             eventAt(time, week.events).takenSeats >=
-              eventAt(time, week.events).maxSeats
+              eventAt(time, week.events).maxSeats,
+          greyedOut:
+            eventAt(time, week.events) !== undefined &&
+            eventAt(time, week.events).isInPast()
         }"
         *ngFor="let time of timeColumns"
       >
@@ -69,6 +72,53 @@
           </small>
           <br />
           <br />
+          <span *ngIf="!eventAt(time, week.events).isInPast()">
+            <span
+              *ngIf="
+                eventAt(time, week.events).maxSeats -
+                  eventAt(time, week.events).takenSeats >
+                3
+              "
+              class="badge badge-success top-right"
+              >noch
+              {{
+                eventAt(time, week.events).maxSeats -
+                  eventAt(time, week.events).takenSeats
+              }}
+              freie Plätze</span
+            >
+            <span
+              *ngIf="
+                eventAt(time, week.events).maxSeats -
+                  eventAt(time, week.events).takenSeats <=
+                  3 &&
+                eventAt(time, week.events).maxSeats -
+                  eventAt(time, week.events).takenSeats >
+                  0
+              "
+              class="badge badge-warning top-right"
+              >noch
+              {{
+                eventAt(time, week.events).maxSeats -
+                  eventAt(time, week.events).takenSeats
+              }}
+              freie Plätze</span
+            >
+            <span
+              *ngIf="
+                eventAt(time, week.events).maxSeats -
+                  eventAt(time, week.events).takenSeats <=
+                0
+              "
+              class="badge badge-danger top-right"
+              >ausgebucht</span
+            >
+          </span>
+          <span *ngIf="eventAt(time, week.events).isInPast()">
+            <span class="badge badge-secondary top-right"
+              >bereits vergangen</span
+            >
+          </span>
         </div>
       </td>
     </tr>
@@ -80,8 +130,16 @@
   [hidden]="selectedEvent === null"
 >
   <div
+    [hidden]="selectedEvent && !selectedEvent.isInPast()"
+    class="alert alert-secondary"
+  >
+    Dieses Event liegt in der Vergangenheit. Keine Aktion möglich.
+  </div>
+
+  <div
     [hidden]="
-      selectedEvent && selectedEvent.takenSeats < selectedEvent.maxSeats
+      (selectedEvent && selectedEvent.isInPast()) ||
+      selectedEvent.takenSeats < selectedEvent.maxSeats
     "
     class="alert alert-danger"
   >
@@ -89,7 +147,8 @@
   </div>
   <div
     [hidden]="
-      selectedEvent && selectedEvent.takenSeats >= selectedEvent.maxSeats
+      (selectedEvent && selectedEvent.isInPast()) ||
+      selectedEvent.takenSeats >= selectedEvent.maxSeats
     "
   >
     <h5>Angaben zu Teilnehmer:</h5>

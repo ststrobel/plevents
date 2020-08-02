@@ -25,6 +25,11 @@ export class Event implements EventI {
     return m.format("ddd HH:mm");
   }
 
+  isInPast(): boolean {
+    const now = moment();
+    return now.isAfter(moment(this.date));
+  }
+
   static unique(events: Event[]): Event[] {
     const uniqueEvents = new Array<Event>();
     each(events, (event: Event) => {

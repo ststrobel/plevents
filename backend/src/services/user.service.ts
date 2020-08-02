@@ -13,7 +13,7 @@ export class UserService {
       } else {
         const newUser = User.build({ username: username, password: password });
         newUser.save();
-        console.log('user ' + existingUser.username + ' created');
+        console.log('user ' + username + ' created');
       }
     } catch (e) {
       throw e;

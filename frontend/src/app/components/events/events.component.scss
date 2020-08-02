@@ -1,3 +1,4 @@
+.happening.greyedOut,
 .greyedOut {
   background-color: lightgray;
   color: gray;
@@ -34,4 +35,10 @@
   text-align: center;
   margin-top: 100px;
   margin-bottom: 50px;
+}
+
+.top-right {
+  position: absolute;
+  top: 4px;
+  right: 4px;
 }

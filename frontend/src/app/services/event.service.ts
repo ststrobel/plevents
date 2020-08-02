@@ -50,7 +50,7 @@ export class EventService {
   addParticipant(participant: ParticipantI): Observable<Participant> {
     return this.http
       .post(
-        `${environment.apiUrl}/secure/events/${participant.EventId}/participant`,
+        `${environment.apiUrl}/events/${participant.EventId}/participant`,
         participant
       )
       .pipe(

@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <a class="navbar-brand" routerLink="/events">CVJM Planner</a>
+  <a class="navbar-brand" routerLink="/events">plEvents</a>
   <button
     class="navbar-toggler"
     type="button"
@@ -8,6 +8,7 @@
     aria-controls="navbarSupportedContent"
     aria-expanded="false"
     aria-label="Toggle navigation"
+    *ngIf="isLoggedIn()"
   >
     <span class="navbar-toggler-icon"></span>
   </button>
