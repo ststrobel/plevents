@@ -1,33 +1,37 @@
-.happening.greyedOut,
-.greyedOut {
+table tbody tr td:not(:first-child) div {
+  text-align: center;
   background-color: lightgray;
-  color: gray;
-}
-
-.happening {
-  background-color: lightgreen;
-  color: darkgreen;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.happening.unavailable {
-  background-color: #fecccc;
-  color: 780000;
-  font-weight: bold;
-  cursor: pointer;
+  border: 3px solid white;
+  position: relative;
+  &.happening {
+    background-color: lightgreen;
+    color: darkgreen;
+    font-weight: bold;
+    cursor: pointer;
+    &.selected {
+      border: 3px solid #005712;
+      background-color: #6dc86d;
+    }
+    &.full {
+      background-color: #fecccc;
+      color: #780000;
+      &.selected {
+        border: 3px solid #780000;
+        background-color: #f3a2a2;
+      }
+    }
+    &.greyedOut {
+      background-color: lightgray;
+      color: gray;
+      &.selected {
+        border: 3px solid #313131;
+        background-color: #a1a1a1;
+      }
+    }
+  }
 }
 
 .selected {
-  border: 4px solid #005712;
-  background-color: #6dc86d;
-  font-weight: bold;
-}
-
-.unavailable {
-  border: 4px solid #780000;
-  background-color: #fecccc;
-  color: #780000;
   font-weight: bold;
 }
 

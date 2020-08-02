@@ -91,6 +91,8 @@ export class EventsComponent implements OnInit {
   createRegisterForm(): void {
     this.registerForm = new FormGroup({
       name: new FormControl("", Validators.required),
+      email: new FormControl("", [Validators.required, Validators.email]),
+      phone: new FormControl("", Validators.required),
       street: new FormControl("", Validators.required),
       zip: new FormControl("", Validators.required),
       city: new FormControl("", Validators.required),
@@ -111,6 +113,8 @@ export class EventsComponent implements OnInit {
     }
     const participant = new Participant();
     participant.name = this.registerForm.get("name").value;
+    participant.email = this.registerForm.get("email").value;
+    participant.phone = this.registerForm.get("phone").value;
     participant.street = this.registerForm.get("street").value;
     participant.zip = this.registerForm.get("zip").value;
     participant.city = this.registerForm.get("city").value;

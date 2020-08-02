@@ -10,6 +10,8 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, pr
 });
 
 export class Participant extends Model implements ParticipantI {
+  email: string;
+  phone: string;
   name: string;
   street: string;
   zip: string;
@@ -21,6 +23,14 @@ Participant.init(
   {
     // Model attributes are defined here
     name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    phone: {
       type: DataTypes.STRING,
       allowNull: false,
     },

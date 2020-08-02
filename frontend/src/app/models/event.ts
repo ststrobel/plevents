@@ -25,6 +25,11 @@ export class Event implements EventI {
     return m.format("ddd HH:mm");
   }
 
+  displayDate(): string {
+    const m = moment(this.date);
+    return m.format("DD.MM");
+  }
+
   isInPast(): boolean {
     const now = moment();
     return now.isAfter(moment(this.date));

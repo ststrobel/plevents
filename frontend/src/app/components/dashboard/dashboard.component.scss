@@ -22,10 +22,17 @@
 
 .stateToggler {
   position: absolute;
-  top: 0;
+  top: 3px;
   right: 6px;
   text-align: right;
   cursor: pointer;
+  border: 1px solid gray;
+  padding: 0px 10px;
+  border-radius: 15px;
+  background-color: #eee;
+  &:hover {
+    background-color: #bbb;
+  }
 }
 
 .unavailable {

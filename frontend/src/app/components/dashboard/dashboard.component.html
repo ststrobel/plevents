@@ -39,7 +39,7 @@
           [ngClass]="{ disabled: eventAt(time, week.events).disabled }"
           style="position: relative;"
         >
-          <br />
+          {{ eventAt(time, week.events).displayDate() }}<br />
           <small
             >{{ eventAt(time, week.events).takenSeats }} /
             {{ eventAt(time, week.events).maxSeats }} </small
@@ -48,17 +48,12 @@
             (click)="downloadPdf(eventAt(time, week.events))"
             title="Download Teilnehmerliste"
           ></i>
-          <small class="stateToggler">
-            <i
-              *ngIf="!eventAt(time, week.events).disabled"
-              (click)="toggleDisabled(eventAt(time, week.events))"
-              >aktiv</i
-            >
-            <i
-              *ngIf="eventAt(time, week.events).disabled"
-              (click)="toggleDisabled(eventAt(time, week.events))"
-              >inaktiv</i
-            >
+          <small
+            class="stateToggler"
+            (click)="toggleDisabled(eventAt(time, week.events))"
+          >
+            <i *ngIf="!eventAt(time, week.events).disabled">aktiv</i>
+            <i *ngIf="eventAt(time, week.events).disabled">inaktiv</i>
           </small>
         </div>
       </td>

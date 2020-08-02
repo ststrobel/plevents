@@ -29,43 +29,20 @@
         <small *ngIf="i === 0">(diese Woche)</small>
         <small *ngIf="i === 1">(nächste Woche)</small>
       </td>
-      <td
-        class="greyedOut"
-        style="
-          border: 1px solid white;
-          height: 25px;
-          line-height: 25px;
-          text-align: center;
-        "
-        [ngClass]="{
-          happening: eventAt(time, week.events) !== undefined,
-          unavailable:
-            eventAt(time, week.events) !== undefined &&
-            eventAt(time, week.events).takenSeats >=
-              eventAt(time, week.events).maxSeats,
-          greyedOut:
-            eventAt(time, week.events) !== undefined &&
-            eventAt(time, week.events).isInPast()
-        }"
-        *ngFor="let time of timeColumns"
-      >
+      <td *ngFor="let time of timeColumns">
         <div
           *ngIf="eventAt(time, week.events) !== undefined"
+          class="happening"
           [ngClass]="{
-            disabled: eventAt(time, week.events).disabled,
-            selected:
-              selectedEvent &&
-              eventAt(time, week.events) === selectedEvent &&
-              selectedEvent.takenSeats < selectedEvent.maxSeats,
-            unavailable:
-              selectedEvent &&
-              eventAt(time, week.events) === selectedEvent &&
-              selectedEvent.takenSeats >= selectedEvent.maxSeats
+            greyedOut: eventAt(time, week.events).isInPast(),
+            full:
+              eventAt(time, week.events).takenSeats >=
+              eventAt(time, week.events).maxSeats,
+            selected: eventAt(time, week.events) === selectedEvent
           }"
-          style="position: relative;"
           (click)="selectEvent(eventAt(time, week.events))"
         >
-          <br />
+          {{ eventAt(time, week.events).displayDate() }}<br />
           <small
             >{{ eventAt(time, week.events).takenSeats }} /
             {{ eventAt(time, week.events).maxSeats }}
@@ -139,7 +116,7 @@
   <div
     [hidden]="
       (selectedEvent && selectedEvent.isInPast()) ||
-      selectedEvent.takenSeats < selectedEvent.maxSeats
+      (selectedEvent && selectedEvent.takenSeats < selectedEvent.maxSeats)
     "
     class="alert alert-danger"
   >
@@ -148,7 +125,7 @@
   <div
     [hidden]="
       (selectedEvent && selectedEvent.isInPast()) ||
-      selectedEvent.takenSeats >= selectedEvent.maxSeats
+      (selectedEvent && selectedEvent.takenSeats >= selectedEvent.maxSeats)
     "
   >
     <h5>Angaben zu Teilnehmer:</h5>
@@ -162,6 +139,26 @@
             id="name"
             type="text"
             formControlName="name"
+          />
+        </div>
+        <div class="col-4">
+          <label for="email">Email</label>
+          <br />
+          <input
+            class="form-control"
+            id="email"
+            type="email"
+            formControlName="email"
+          />
+        </div>
+        <div class="col-4">
+          <label for="phone">Telefonnummer</label>
+          <br />
+          <input
+            class="form-control"
+            id="phone"
+            type="phone"
+            formControlName="phone"
           />
         </div>
         <div class="col-4">
