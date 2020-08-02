@@ -1,0 +1,14 @@
+RewriteBase /
+
+RewriteEngine On
+
+# the target was not a file or folder, so we route the request to the index.html (angular client-side routing!)
+#RewriteCond %{REQUEST_URI} !^/api/
+#RewriteCond /frontend/dist/%{REQUEST_URI} !-d
+#RewriteCond /frontend/dist/%{REQUEST_URI} !-f
+#RewriteRule (.*) /frontend/dist/index.html [L]
+
+# first check if the request is targeting a file or folder. if so, let it through
+RewriteCond %{REQUEST_URI} !^/api/
+RewriteCond %{REQUEST_URI} !^/frontend/dist/
+RewriteRule (.*) /frontend/dist/$1 [L]

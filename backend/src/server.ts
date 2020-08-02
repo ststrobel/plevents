@@ -23,7 +23,6 @@ app.use((req, res, next) => {
   if ('OPTIONS' === req.method) {
     res.sendStatus(200);
   } else {
-    console.log(`${req.ip} ${req.method} ${req.url}`);
     next();
   }
 });
