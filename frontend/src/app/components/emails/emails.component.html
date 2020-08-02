@@ -4,28 +4,22 @@
 </p>
 
 <div *ngFor="let email of emails" class="row emailEntry">
-  <div class="col-10">
+  <div class="col-8">
     {{ email.address }}
   </div>
-  <div class="col-2">
-    <button
-      class="btn btn-sm btn-outline-danger my-2 my-sm-0 ml-3"
-      (click)="delete(email.id)"
-    >
+  <div class="col-4">
+    <button class="btn btn-sm btn-outline-danger" (click)="delete(email.id)">
       Email löschen
     </button>
   </div>
 </div>
 <hr />
 <form class="row" [formGroup]="newEmailForm" (ngSubmit)="addEmail()">
-  <div class="col-10">
+  <div class="col-8">
     <input type="text" class="form-control" formControlName="email" />
   </div>
-  <div class="col-2">
-    <button
-      class="btn btn-sm btn-outline-success my-2 my-sm-0 ml-3"
-      type="submit"
-    >
+  <div class="col-4">
+    <button class="btn btn-sm btn-block btn-outline-success" type="submit">
       Hinzufügen
     </button>
   </div>
