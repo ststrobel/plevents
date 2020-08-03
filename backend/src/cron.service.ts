@@ -19,7 +19,7 @@ export class CronService {
     Day of Week: 0-6 (Sun-Sat)
     */
     const job = new CronJob(
-      '*/15 * * * * *',
+      '0 0 0 * * *',
       () => {
         const fourWeeksAgo = moment().hours(0).minutes(0).seconds(0).subtract(4, 'weeks');
         // find all events older than 4 weeks and delete them.
