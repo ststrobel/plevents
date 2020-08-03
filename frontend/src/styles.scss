@@ -1,3 +1,6 @@
+// import custom color overrides
+@import "styles-variables.scss";
+
 /* You can add global styles to this file, and also import other style files */
 @import "~bootstrap/scss/bootstrap";
 
@@ -5,3 +8,12 @@
 $fa-font-path: "~src/../node_modules/@fortawesome/fontawesome-free/webfonts";
 @import "../node_modules/@fortawesome/fontawesome-free/scss/fontawesome.scss";
 @import "../node_modules/@fortawesome/fontawesome-free/scss/solid.scss";
+
+@font-face {
+  font-family: "source-sans-pro";
+  src: url("assets/source-sans-pro/SourceSansPro-Regular.otf");
+}
+
+* {
+  font-family: source-sans-pro;
+}

@@ -1,5 +1,14 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <a class="navbar-brand" routerLink="/events">plEvents</a>
+  <a class="nav-link nav-logo" routerLink="/events">
+    <img src="assets/cvjm-logo.png" />
+  </a>
+  <ul class="navbar-nav">
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/events" routerLinkActive="active"
+        >plEvents</a
+      >
+    </li>
+  </ul>
   <button
     class="navbar-toggler"
     type="button"
@@ -48,6 +57,9 @@
   <div class="row" style="margin-top: 30px;">
     <div class="col-12 col-md-10 offset-md-1 col-lg-8 offset-lg-2">
       <router-outlet></router-outlet>
+    </div>
+    <div class="col-8 offset-4 col-lg-2 offset-lg-0">
+      <img src="assets/cvjm-triangles.png" />
     </div>
   </div>
 </div>

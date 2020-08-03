@@ -1,0 +1,32 @@
+@import "../styles-variables.scss";
+
+nav.navbar {
+  background-color: $plevents-grey-light !important;
+  * {
+    color: $plevents-grey-dark;
+    &:hover {
+      color: $plevents-red;
+    }
+  }
+  .nav-logo {
+    margin: -0.5rem -1rem;
+    margin-right: 25px;
+    border: 1px solid $plevents-grey-light;
+    background-color: white;
+    img {
+      margin: 0px 30px;
+      max-height: 50px;
+    }
+  }
+  *.active {
+    color: $plevents-red;
+  }
+}
+
+.container-fluid div img {
+  width: auto;
+  position: absolute;
+  bottom: 0px;
+  max-height: 220px;
+  right: 0px;
+}

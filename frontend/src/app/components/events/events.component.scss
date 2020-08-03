@@ -1,31 +1,42 @@
-table tbody tr td:not(:first-child) div {
-  text-align: center;
-  background-color: lightgray;
-  border: 3px solid white;
-  position: relative;
-  &.happening {
-    background-color: lightgreen;
-    color: darkgreen;
-    font-weight: bold;
-    cursor: pointer;
-    &.selected {
-      border: 3px solid #005712;
-      background-color: #6dc86d;
+@import "../../../styles-variables.scss";
+
+table tbody tr {
+  border-top: 1px solid $plevents-grey-dark;
+  height: 78px;
+  td:not(:first-child) div {
+    small {
+      text-align: center;
+      display: inline-block;
+      width: 100%;
     }
-    &.full {
-      background-color: #fecccc;
-      color: #780000;
+    padding: 3px;
+    background-color: lightgray;
+    border: 3px solid white;
+    position: relative;
+    &.happening {
+      background-color: lightgreen;
+      color: darkgreen;
+      font-weight: bold;
+      cursor: pointer;
       &.selected {
-        border: 3px solid #780000;
-        background-color: #f3a2a2;
+        border: 3px solid #005712;
+        background-color: #6dc86d;
       }
-    }
-    &.greyedOut {
-      background-color: lightgray;
-      color: gray;
-      &.selected {
-        border: 3px solid #313131;
-        background-color: #a1a1a1;
+      &.full {
+        background-color: #fecccc;
+        color: #780000;
+        &.selected {
+          border: 3px solid #780000;
+          background-color: #f3a2a2;
+        }
+      }
+      &.greyedOut {
+        background-color: lightgray;
+        color: gray;
+        &.selected {
+          border: 3px solid #313131;
+          background-color: #a1a1a1;
+        }
       }
     }
   }
