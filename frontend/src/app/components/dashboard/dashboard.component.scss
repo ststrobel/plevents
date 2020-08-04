@@ -1,8 +1,8 @@
 @import "../../../styles-variables.scss";
 
 .greyedOut {
-  background-color: lightgray;
-  color: gray;
+  background-color: $plevents-grey-light;
+  color: $plevents-grey-dark;
 }
 
 .happening {
@@ -19,7 +19,7 @@
 }
 
 .disabled {
-  background-color: #b7b7b7;
+  background-color: $plevents-grey-light;
 }
 
 .stateToggler {
@@ -28,12 +28,13 @@
   right: 6px;
   text-align: right;
   cursor: pointer;
-  border: 1px solid gray;
+  border: 1px solid $plevents-grey-dark;
+
   padding: 0px 10px;
   border-radius: 15px;
-  background-color: #eee;
+  background-color: lighten($plevents-grey-light, 5%);
   &:hover {
-    background-color: #bbb;
+    background-color: $plevents-grey-light;
   }
 }
 

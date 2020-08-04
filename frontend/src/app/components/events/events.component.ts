@@ -99,6 +99,17 @@ export class EventsComponent implements OnInit {
     });
   }
 
+  availableSeatsText(event: Event): string {
+    const free = event.maxSeats - event.takenSeats;
+    if (free > 3) {
+      return `${free} freie Plätze`;
+    }
+    if (free > 1) {
+      return `nur ${free} freie Plätze`;
+    }
+    return `noch 1 freier Platz`;
+  }
+
   selectEvent(event: Event): void {
     if (this.selectedEvent === event) {
       this.selectedEvent = null;

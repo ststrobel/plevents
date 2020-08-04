@@ -1,7 +1,7 @@
 @import "../../../styles-variables.scss";
 
 table tbody tr {
-  border-top: 1px solid $plevents-grey-dark;
+  border-top: 1px solid lighten($plevents-grey-dark, 45%);
   height: 78px;
   td:not(:first-child) div {
     small {
@@ -31,11 +31,11 @@ table tbody tr {
         }
       }
       &.greyedOut {
-        background-color: lightgray;
-        color: gray;
+        background-color: $plevents-grey-light;
+        color: $plevents-grey-dark;
         &.selected {
-          border: 3px solid #313131;
-          background-color: #a1a1a1;
+          border: 3px solid $plevents-grey-dark;
+          background-color: darken($plevents-grey-light, 5%);
         }
       }
     }

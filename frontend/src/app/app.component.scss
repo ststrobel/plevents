@@ -13,9 +13,10 @@ nav.navbar {
     margin-right: 25px;
     border: 1px solid $plevents-grey-light;
     background-color: white;
+    padding: 0px;
     img {
       margin: 0px 30px;
-      max-height: 50px;
+      max-height: 75px;
     }
   }
   *.active {
