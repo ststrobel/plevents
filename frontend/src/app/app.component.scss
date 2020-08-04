@@ -4,7 +4,7 @@ nav.navbar {
   background-color: $plevents-grey-light !important;
   * {
     color: $plevents-grey-dark;
-    &:hover {
+    &:is(a):hover {
       color: $plevents-red;
     }
   }
@@ -20,6 +20,25 @@ nav.navbar {
   }
   *.active {
     color: $plevents-red;
+    border-bottom: 1px solid $plevents-red;
+  }
+  button {
+    color: $plevents-red;
+    &:hover {
+      color: white;
+    }
+  }
+  ul.navbar-nav {
+    @media screen and (max-width: 992px) {
+      margin: 7px 0px 10px;
+      li {
+        margin: 0px -15px;
+        padding: 0px 15px;
+        &:hover {
+          background-color: lighten($plevents-grey-light, 3%);
+        }
+      }
+    }
   }
 }
 
