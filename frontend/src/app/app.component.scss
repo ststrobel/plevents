@@ -57,11 +57,23 @@ footer {
   div.credits {
     text-align: center;
     flex: 1 1 auto;
-    line-height: 100px;
-    padding: 0px 100px;
+    padding: 25px 10px;
     width: auto;
     background-color: $plevents-grey-light;
     color: $plevents-red;
+    a {
+      color: $plevents-red;
+      font-weight: bold;
+      text-decoration: underline;
+      &:hover {
+        color: darken($plevents-red, 15%);
+      }
+    }
+    br {
+      @media screen and (min-width: 550px) {
+        display: none;
+      }
+    }
   }
   div.logo-container {
     flex: 1 1 auto;
