@@ -33,6 +33,10 @@ export class DashboardComponent implements OnInit {
     this.loadAllEvents();
   }
 
+  currentCW(): number {
+    return moment().isoWeek();
+  }
+
   loadAllEvents(): void {
     this.weeks = new Array<Week>();
     this.uniqueEvents = new Array<Event>();

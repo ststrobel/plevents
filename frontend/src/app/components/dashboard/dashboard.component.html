@@ -1,11 +1,10 @@
-<p>Übersicht über alle anstehenden Events</p>
-<table style="width: 100%;">
+<h2>Übersicht über alle anstehenden Events</h2>
+<table style="max-width: 100%;">
   <thead>
     <tr>
-      <th [ngStyle]="{ style: 100 / (uniqueEvents.length + 1) + '%' }">KW</th>
+      <th style="width: 100px;">KW</th>
       <th
-        [ngStyle]="{ style: 100 / (uniqueEvents.length + 1) + '%' }"
-        style="text-align: center;"
+        style="width: 300px; text-align: center;"
         *ngFor="let uniqueEvent of uniqueEvents"
       >
         {{ uniqueEvent.name }}
@@ -16,7 +15,10 @@
   </thead>
   <tbody>
     <tr *ngFor="let week of weeks">
-      <td>{{ week.number }}</td>
+      <td [ngClass]="{ currentCW: week.number === currentCW() }">
+        {{ week.number }}
+        <small *ngIf="week.number === currentCW()"><br />aktuelle Woche</small>
+      </td>
       <td
         class="greyedOut"
         style="
@@ -72,7 +74,7 @@
   </tbody>
 </table>
 
-<div style="margin-top: 40px; margin-bottom: 150px;">
+<div style="margin-top: 40px;">
   <h5>Hier können Sie ein neues Reihenevent anlegen:</h5>
   <form [formGroup]="newEventForm" (ngSubmit)="addNewEvent()">
     <div class="row">

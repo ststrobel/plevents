@@ -1,3 +1,5 @@
+@import "../../../styles-variables.scss";
+
 .greyedOut {
   background-color: lightgray;
   color: gray;
@@ -47,4 +49,12 @@
   left: 6px;
   top: 2px;
   cursor: pointer;
+}
+
+table tr {
+  height: 53px;
+}
+td.currentCW {
+  background-color: $plevents-red;
+  color: white;
 }

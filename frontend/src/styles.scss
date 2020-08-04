@@ -17,3 +17,24 @@ $fa-font-path: "~src/../node_modules/@fortawesome/fontawesome-free/webfonts";
 * {
   font-family: source-sans-pro;
 }
+
+html,
+body {
+  height: 100%;
+}
+
+body app-root {
+  display: flex;
+  flex-flow: column;
+  min-height: 100%;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-align: center;
+  color: $plevents-red;
+}
