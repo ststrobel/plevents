@@ -63,17 +63,17 @@ export class PdfService {
     const tableBody: any[] = [
       [
         { text: 'Teilnehmer', bold: true, border: [true, true, false, true] },
-        { text: 'Straße', bold: true, border: [false, true, false, true] },
-        { text: 'PLZ', bold: true, border: [false, true, false, true] },
-        { text: 'Ort', bold: true, border: [false, true, true, true] },
+        { text: 'Adresse', bold: true, border: [false, true, false, true] },
+        { text: 'Email', bold: true, border: [false, true, false, true] },
+        { text: 'Telefon', bold: true, border: [false, true, true, true] },
       ],
     ];
     each(participants, (participant: Participant) => {
       tableBody.push([
         { text: participant.name, border: [true, true, false, true] },
-        { text: participant.street, border: [false, true, false, true] },
-        { text: participant.zip, border: [false, true, false, true] },
-        { text: participant.city, border: [false, true, true, true] },
+        { text: `${participant.street}, ${participant.zip} ${participant.city}`, border: [false, true, false, true] },
+        { text: participant.email, border: [false, true, false, true] },
+        { text: participant.phone, border: [false, true, true, true] },
       ]);
     });
     return {
