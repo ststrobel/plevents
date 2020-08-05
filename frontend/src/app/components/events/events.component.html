@@ -1,8 +1,5 @@
 <h2>Anmeldung zu Aktivität</h2>
-<p>
-  Registrieren Sie sich für <b>maximal eine</b> der folgenden Aktivitäten pro
-  Woche:
-</p>
+<p>Registrieren Sie sich für <b>maximal eine</b> der folgenden Aktivitäten:</p>
 <table style="width: 100%;">
   <thead>
     <tr>
@@ -24,12 +21,8 @@
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let week of weeks; let i = index">
-      <td style="padding-left: 100px;">
-        {{ week.number }}
-        <small *ngIf="i === 0">(diese Woche)</small>
-        <small *ngIf="i === 1">(nächste Woche)</small>
-      </td>
+    <tr *ngIf="week != null">
+      <td style="padding-left: 100px;">{{ week.number }} (nächste Woche)</td>
       <td *ngFor="let time of timeColumns">
         <div
           *ngIf="eventAt(time, week.events) !== undefined"

@@ -38,3 +38,14 @@ h6 {
   text-align: center;
   color: $plevents-red;
 }
+
+form div.invalid {
+  color: $danger;
+  input {
+    border-color: $danger;
+    &:focus {
+      border-color: $danger;
+      box-shadow: 0 0 0 0.2rem lighten($danger, 30%);
+    }
+  }
+}

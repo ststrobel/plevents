@@ -78,7 +78,7 @@
   <h5>Hier können Sie ein neues Reihenevent anlegen:</h5>
   <form [formGroup]="newEventForm" (ngSubmit)="addNewEvent()">
     <div class="row">
-      <div class="col-6 col-md-4">
+      <div class="col-6 col-md-4 invalid">
         <label for="name">Event-Name</label>
         <br />
         <input
@@ -98,7 +98,16 @@
           formControlName="fromDate"
         />
       </div>
-      <div class="col-12 col-md-4"></div>
+      <div class="col-12 col-md-4">
+        <label for="targetClass">für Klasse</label>
+        <br />
+        <input
+          class="form-control"
+          id="targetClass"
+          type="text"
+          formControlName="class"
+        />
+      </div>
       <div class="col-6 col-md-4">
         <label for="name">Startzeit</label>
         <br />
@@ -109,7 +118,7 @@
           formControlName="time"
         />
       </div>
-      <div class="col-6 col-md-4 mb-3">
+      <div class="col-6 col-md-4">
         <label for="maxSeats">max. Teilnehmer</label>
         <br />
         <input
@@ -120,7 +129,11 @@
         />
       </div>
       <div class="col-12 col-md-4">
-        <button class="btn btn-block btn-outline-success" type="submit">
+        <button
+          class="btn btn-block btn-outline-success"
+          type="submit"
+          style="margin-top: 32px;"
+        >
           Event erstellen
         </button>
       </div>

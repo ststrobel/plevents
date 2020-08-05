@@ -85,6 +85,7 @@ export class DashboardComponent implements OnInit {
   createNewEventForm(): void {
     this.newEventForm = new FormGroup({
       name: new FormControl("", Validators.required),
+      class: new FormControl("", Validators.required),
       fromDate: new FormControl("", Validators.required),
       time: new FormControl("", Validators.required),
       maxSeats: new FormControl(""),

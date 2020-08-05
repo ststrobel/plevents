@@ -14,7 +14,7 @@ import { HttpHeaders } from "@angular/common/http";
   styleUrls: ["./events.component.scss"],
 })
 export class EventsComponent implements OnInit {
-  weeks: Week[] = new Array<Week>();
+  week: Week = null;
   uniqueEvents: Event[] = new Array<Event>();
   timeColumns: string[] = new Array<string>();
   registerForm: FormGroup;
@@ -36,7 +36,6 @@ export class EventsComponent implements OnInit {
   }
 
   loadEvents(): void {
-    this.weeks = new Array<Week>();
     this.uniqueEvents = new Array<Event>();
     this.timeColumns = new Array<string>();
     this.eventService.getEvents().subscribe((events: Event[]) => {
@@ -50,32 +49,18 @@ export class EventsComponent implements OnInit {
       });
       // prepare the weeks, calculate the past 3 weeks until the end of the year:
       const today = moment();
-      const startOfWeek = today.clone().startOf("week");
-      const endOfWeek = today.clone().endOf("week");
-      let week = new Week(startOfWeek.isoWeek());
-      // add all events for this week
-      week.events = filter(events, (event: Event) => {
-        return moment(event.date).isBetween(
-          startOfWeek,
-          endOfWeek,
-          undefined,
-          "[]"
-        );
-      });
-      this.weeks.push(week);
-      startOfWeek.add(1, "week");
-      endOfWeek.add(1, "week");
-      week = new Week(startOfWeek.isoWeek());
+      const startOfNextWeek = today.clone().startOf("week").add(1, "week");
+      const endOfNextWeek = today.clone().endOf("week").add(1, "week");
+      this.week = new Week(startOfNextWeek.isoWeek());
       // add all events for next week
-      week.events = filter(events, (event: Event) => {
+      this.week.events = filter(events, (event: Event) => {
         return moment(event.date).isBetween(
-          startOfWeek,
-          endOfWeek,
+          startOfNextWeek,
+          endOfNextWeek,
           undefined,
           "[]"
         );
       });
-      this.weeks.push(week);
     });
   }
 

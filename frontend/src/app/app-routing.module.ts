@@ -6,7 +6,6 @@ import { HTTP_INTERCEPTORS } from "@angular/common/http";
 import { BasicAuthInterceptor } from "./helpers/basic-auth.interceptor";
 import { ErrorInterceptor } from "./helpers/error.interceptor";
 import { AuthGuard } from "./helpers/auth.guard";
-import { EmailsComponent } from "./components/emails/emails.component";
 import { EventsComponent } from "./components/events/events.component";
 
 const routes: Routes = [
@@ -18,12 +17,12 @@ const routes: Routes = [
     path: "dashboard",
     component: DashboardComponent,
     canActivate: [AuthGuard],
-  },
+  } /*
   {
     path: "emails",
     component: EmailsComponent,
     canActivate: [AuthGuard],
-  },
+  },*/,
   {
     path: "events",
     component: EventsComponent,
