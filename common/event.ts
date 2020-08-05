@@ -4,4 +4,5 @@ export interface EventI {
   maxSeats: number;
   takenSeats: number;
   disabled: boolean;
+  targetClass: string;
 }

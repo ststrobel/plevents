@@ -11,6 +11,7 @@ export class Event implements EventI {
   maxSeats: number;
   takenSeats: number;
   name: string;
+  targetClass: string;
   weekDay: number;
   // time in seconds on that day
   time: number;
@@ -18,6 +19,13 @@ export class Event implements EventI {
 
   downloadLink(): string {
     return `${environment.apiUrl}/secure/events/${this.id}/pdf`;
+  }
+
+  displayName(): string {
+    if (this.targetClass) {
+      return `${this.name} (Klasse ${this.targetClass})`;
+    }
+    return this.name;
   }
 
   displayTime(): string {
@@ -42,6 +50,7 @@ export class Event implements EventI {
         return (
           uniqueEvent.name === event.name &&
           uniqueEvent.weekDay === event.weekDay &&
+          uniqueEvent.targetClass === event.targetClass &&
           uniqueEvent.time === event.time
         );
       });
@@ -61,6 +70,7 @@ export class EventAdapter implements Adapter<Event> {
     const event = new Event();
     event.id = item.id;
     event.name = item.name;
+    event.targetClass = item.targetClass;
     const m = moment(item.date);
     event.date = m.toDate();
     // compute the week day and the time in seconds on that day:

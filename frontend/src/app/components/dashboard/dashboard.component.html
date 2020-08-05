@@ -7,7 +7,7 @@
         style="width: 300px; text-align: center;"
         *ngFor="let uniqueEvent of uniqueEvents"
       >
-        {{ uniqueEvent.name }}
+        {{ uniqueEvent.displayName() }}
         <br />
         {{ uniqueEvent.displayTime() }}
       </th>
@@ -78,7 +78,7 @@
   <h5>Hier können Sie ein neues Reihenevent anlegen:</h5>
   <form [formGroup]="newEventForm" (ngSubmit)="addNewEvent()">
     <div class="row">
-      <div class="col-6 col-md-4 invalid">
+      <div class="col-6 col-md-4" [ngClass]="{ invalid: isInvalid('name') }">
         <label for="name">Event-Name</label>
         <br />
         <input
@@ -88,7 +88,10 @@
           formControlName="name"
         />
       </div>
-      <div class="col-6 col-md-4">
+      <div
+        class="col-6 col-md-4"
+        [ngClass]="{ invalid: isInvalid('fromDate') }"
+      >
         <label for="fromDate">frühester Termin</label>
         <br />
         <input
@@ -98,7 +101,7 @@
           formControlName="fromDate"
         />
       </div>
-      <div class="col-12 col-md-4">
+      <div class="col-12 col-md-4" [ngClass]="{ invalid: isInvalid('class') }">
         <label for="targetClass">für Klasse</label>
         <br />
         <input
@@ -108,7 +111,7 @@
           formControlName="class"
         />
       </div>
-      <div class="col-6 col-md-4">
+      <div class="col-6 col-md-4" [ngClass]="{ invalid: isInvalid('time') }">
         <label for="name">Startzeit</label>
         <br />
         <input
@@ -118,7 +121,10 @@
           formControlName="time"
         />
       </div>
-      <div class="col-6 col-md-4">
+      <div
+        class="col-6 col-md-4"
+        [ngClass]="{ invalid: isInvalid('maxSeats') }"
+      >
         <label for="maxSeats">max. Teilnehmer</label>
         <br />
         <input

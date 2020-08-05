@@ -1,12 +1,12 @@
-import { NgModule } from "@angular/core";
-import { Routes, RouterModule } from "@angular/router";
 import { LoginComponent } from "./components/login/login.component";
 import { DashboardComponent } from "./components/dashboard/dashboard.component";
-import { HTTP_INTERCEPTORS } from "@angular/common/http";
 import { BasicAuthInterceptor } from "./helpers/basic-auth.interceptor";
 import { ErrorInterceptor } from "./helpers/error.interceptor";
 import { AuthGuard } from "./helpers/auth.guard";
 import { EventsComponent } from "./components/events/events.component";
+import { Routes, RouterModule } from "@angular/router";
+import { NgModule } from "@angular/core";
+import { HTTP_INTERCEPTORS } from "@angular/common/http";
 
 const routes: Routes = [
   {

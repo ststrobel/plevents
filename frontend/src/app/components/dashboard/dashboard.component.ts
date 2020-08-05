@@ -85,15 +85,16 @@ export class DashboardComponent implements OnInit {
   createNewEventForm(): void {
     this.newEventForm = new FormGroup({
       name: new FormControl("", Validators.required),
-      class: new FormControl("", Validators.required),
+      class: new FormControl(""),
       fromDate: new FormControl("", Validators.required),
       time: new FormControl("", Validators.required),
-      maxSeats: new FormControl(""),
+      maxSeats: new FormControl("", Validators.required),
     });
   }
 
   addNewEvent(): void {
     if (!this.newEventForm.valid) {
+      this.newEventForm.markAllAsTouched();
       return;
     }
     const m = moment(this.newEventForm.get("fromDate").value);
@@ -106,6 +107,7 @@ export class DashboardComponent implements OnInit {
     for (let cw = currentWeek; cw <= 52; cw++) {
       const event = new Event();
       event.name = this.newEventForm.get("name").value;
+      event.targetClass = this.newEventForm.get("class").value;
       event.maxSeats = this.newEventForm.get("maxSeats").value;
       event.date = m.toDate();
       observables.push(this.eventService.createEvent(event));
@@ -115,6 +117,13 @@ export class DashboardComponent implements OnInit {
     forkJoin(observables).subscribe(() => {
       this.loadAllEvents();
     });
+  }
+
+  isInvalid(formControlName: string): boolean {
+    return (
+      this.newEventForm.get(formControlName).invalid &&
+      this.newEventForm.get(formControlName).touched
+    );
   }
 
   toggleDisabled(event: Event): void {

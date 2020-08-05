@@ -41,6 +41,7 @@ export class EventController {
         where: {
           name: eventToCreate.name,
           date: eventToCreate.date,
+          targetClass: eventToCreate.targetClass,
           maxSeats: eventToCreate.maxSeats,
         },
       });

@@ -1,190 +1,259 @@
 <h2>Anmeldung zu Aktivität</h2>
-<p>Registrieren Sie sich für <b>maximal eine</b> der folgenden Aktivitäten:</p>
-<table style="width: 100%;">
-  <thead>
-    <tr>
-      <th
-        [ngStyle]="{ width: 100 / (uniqueEvents.length + 1) + '%' }"
-        style="padding-left: 100px;"
-      >
-        KW
-      </th>
-      <th
-        [ngStyle]="{ width: 100 / (uniqueEvents.length + 1) + '%' }"
-        style="text-align: center;"
-        *ngFor="let uniqueEvent of uniqueEvents"
-      >
-        {{ uniqueEvent.name }}
-        <br />
-        {{ uniqueEvent.displayTime() }}
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngIf="week != null">
-      <td style="padding-left: 100px;">{{ week.number }} (nächste Woche)</td>
-      <td *ngFor="let time of timeColumns">
-        <div
-          *ngIf="eventAt(time, week.events) !== undefined"
-          class="happening"
-          [ngClass]="{
-            greyedOut: eventAt(time, week.events).isInPast(),
-            full:
-              eventAt(time, week.events).takenSeats >=
-              eventAt(time, week.events).maxSeats,
-            selected: eventAt(time, week.events) === selectedEvent
-          }"
-          (click)="selectEvent(eventAt(time, week.events))"
+<div *ngIf="!successfullyRegistered && classOptions != null">
+  <form (change)="selectClass($event.target.value)">
+    <div class="form-group">
+      <label for="classSelect">In welcher Klasse bist du?</label>
+      <select class="form-control" id="classSelect">
+        <option>--- bitte auswählen ---</option>
+        <option *ngFor="let classOption of classOptions">{{
+          classOption
+        }}</option>
+      </select>
+    </div>
+  </form>
+</div>
+<div
+  *ngIf="
+    !successfullyRegistered &&
+    selectedClass != null &&
+    selectedClass != '--- bitte auswählen ---'
+  "
+>
+  <p>
+    Registriere dich bitte für <b>maximal eine</b> der folgenden Aktivitäten:
+  </p>
+  <table style="width: 100%;">
+    <thead>
+      <tr>
+        <th
+          [ngStyle]="{ width: 100 / (week.events.length + 1) + '%' }"
+          style="padding-left: 100px;"
         >
-          {{ eventAt(time, week.events).displayDate() }}<br />
-          <small
-            >{{ eventAt(time, week.events).takenSeats }} /
-            {{ eventAt(time, week.events).maxSeats }} Teilnehmer
-          </small>
+          KW
+        </th>
+        <th
+          [ngStyle]="{ width: 100 / (week.events.length + 1) + '%' }"
+          style="text-align: center;"
+          *ngFor="let uniqueEvent of week.events"
+        >
+          {{ uniqueEvent.displayName() }}
           <br />
-          <br />
-          <span *ngIf="!eventAt(time, week.events).isInPast()">
-            <span
-              *ngIf="
-                eventAt(time, week.events).maxSeats -
-                  eventAt(time, week.events).takenSeats >
-                3
-              "
-              class="badge badge-success top-right"
-              >{{ availableSeatsText(eventAt(time, week.events)) }}</span
-            >
-            <span
-              *ngIf="
-                eventAt(time, week.events).maxSeats -
-                  eventAt(time, week.events).takenSeats <=
-                  3 &&
-                eventAt(time, week.events).maxSeats -
-                  eventAt(time, week.events).takenSeats >
+          {{ uniqueEvent.displayTime() }}
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngIf="week != null">
+        <td style="padding-left: 100px;">{{ week.number }} (nächste Woche)</td>
+        <td *ngFor="let time of timeColumns">
+          <div
+            *ngIf="eventAt(time, week.events) !== undefined"
+            class="happening"
+            [ngClass]="{
+              greyedOut: eventAt(time, week.events).isInPast(),
+              full:
+                eventAt(time, week.events).takenSeats >=
+                eventAt(time, week.events).maxSeats,
+              selected: eventAt(time, week.events) === selectedEvent
+            }"
+            (click)="selectEvent(eventAt(time, week.events))"
+          >
+            {{ eventAt(time, week.events).displayDate() }}<br />
+            <small
+              >{{ eventAt(time, week.events).takenSeats }} /
+              {{ eventAt(time, week.events).maxSeats }} Teilnehmer
+            </small>
+            <br />
+            <br />
+            <span *ngIf="!eventAt(time, week.events).isInPast()">
+              <span
+                *ngIf="
+                  eventAt(time, week.events).maxSeats -
+                    eventAt(time, week.events).takenSeats >
+                  3
+                "
+                class="badge badge-success top-right"
+                >{{ availableSeatsText(eventAt(time, week.events)) }}</span
+              >
+              <span
+                *ngIf="
+                  eventAt(time, week.events).maxSeats -
+                    eventAt(time, week.events).takenSeats <=
+                    3 &&
+                  eventAt(time, week.events).maxSeats -
+                    eventAt(time, week.events).takenSeats >
+                    0
+                "
+                class="badge badge-warning top-right"
+                >{{ availableSeatsText(eventAt(time, week.events)) }}</span
+              >
+              <span
+                *ngIf="
+                  eventAt(time, week.events).maxSeats -
+                    eventAt(time, week.events).takenSeats <=
                   0
-              "
-              class="badge badge-warning top-right"
-              >{{ availableSeatsText(eventAt(time, week.events)) }}</span
-            >
-            <span
-              *ngIf="
-                eventAt(time, week.events).maxSeats -
-                  eventAt(time, week.events).takenSeats <=
-                0
-              "
-              class="badge badge-danger top-right"
-              >ausgebucht</span
-            >
-          </span>
-          <span *ngIf="eventAt(time, week.events).isInPast()">
-            <span class="badge badge-secondary top-right"
-              >bereits vergangen</span
-            >
-          </span>
-        </div>
-      </td>
-    </tr>
-  </tbody>
-</table>
+                "
+                class="badge badge-danger top-right"
+                >ausgebucht</span
+              >
+            </span>
+            <span *ngIf="eventAt(time, week.events).isInPast()">
+              <span class="badge badge-secondary top-right"
+                >bereits vergangen</span
+              >
+            </span>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 
-<div style="margin-top: 40px;" [hidden]="selectedEvent === null">
-  <div
-    [hidden]="selectedEvent && !selectedEvent.isInPast()"
-    class="alert alert-secondary"
-  >
-    Dieses Event liegt in der Vergangenheit. Keine Aktion möglich.
-  </div>
+  <div style="margin-top: 40px;" [hidden]="selectedEvent === null">
+    <div
+      [hidden]="selectedEvent && !selectedEvent.isInPast()"
+      class="alert alert-secondary"
+    >
+      Dieses Event liegt in der Vergangenheit. Keine Aktion möglich.
+    </div>
 
-  <div
-    [hidden]="
-      (selectedEvent && selectedEvent.isInPast()) ||
-      (selectedEvent && selectedEvent.takenSeats < selectedEvent.maxSeats)
-    "
-    class="alert alert-danger"
-  >
-    Dieses Event ist bereits leider ausgebucht!
-  </div>
-  <div
-    [hidden]="
-      (selectedEvent && selectedEvent.isInPast()) ||
-      (selectedEvent && selectedEvent.takenSeats >= selectedEvent.maxSeats)
-    "
-  >
-    <h5>Angaben zu Teilnehmer:</h5>
-    <form [formGroup]="registerForm" (ngSubmit)="registerParticipant()">
-      <div class="row">
-        <div class="col-6 col-md-4">
-          <label for="name">Name des Teilnehmers</label>
-          <br />
-          <input
-            class="form-control"
-            id="name"
-            type="text"
-            formControlName="name"
-          />
+    <div
+      [hidden]="
+        (selectedEvent && selectedEvent.isInPast()) ||
+        (selectedEvent && selectedEvent.takenSeats < selectedEvent.maxSeats)
+      "
+      class="alert alert-danger"
+    >
+      Dieses Event ist bereits leider ausgebucht!
+    </div>
+    <div
+      [hidden]="
+        (selectedEvent && selectedEvent.isInPast()) ||
+        (selectedEvent && selectedEvent.takenSeats >= selectedEvent.maxSeats)
+      "
+    >
+      <h5>Angaben zu Teilnehmer:</h5>
+      <form [formGroup]="registerForm" (ngSubmit)="registerParticipant()">
+        <div class="row">
+          <div
+            class="col-6 col-md-4"
+            [ngClass]="{ invalid: isInvalid('name') }"
+          >
+            <label for="name">Name des Teilnehmers</label>
+            <br />
+            <input
+              class="form-control"
+              id="name"
+              type="text"
+              formControlName="name"
+            />
+          </div>
+          <div
+            class="col-6 col-md-4"
+            [ngClass]="{ invalid: isInvalid('email') }"
+          >
+            <label for="email">Email</label>
+            <br />
+            <input
+              class="form-control"
+              id="email"
+              type="email"
+              formControlName="email"
+            />
+          </div>
+          <div
+            class="col-6 col-md-4"
+            [ngClass]="{ invalid: isInvalid('phone') }"
+          >
+            <label for="phone">Telefonnummer</label>
+            <br />
+            <input
+              class="form-control"
+              id="phone"
+              type="phone"
+              formControlName="phone"
+            />
+          </div>
+          <div
+            class="col-6 col-md-4"
+            [ngClass]="{ invalid: isInvalid('street') }"
+          >
+            <label for="street">Straße & Hausnummer</label>
+            <br />
+            <input
+              class="form-control"
+              id="street"
+              type="text"
+              formControlName="street"
+            />
+          </div>
+          <div class="col-6 col-md-4" [ngClass]="{ invalid: isInvalid('zip') }">
+            <label for="zip">PLZ</label>
+            <br />
+            <input
+              class="form-control"
+              id="zip"
+              type="text"
+              formControlName="zip"
+            />
+          </div>
+          <div
+            class="col-6 col-md-4"
+            [ngClass]="{ invalid: isInvalid('city') }"
+          >
+            <label for="city">Ort</label>
+            <br />
+            <input
+              class="form-control"
+              id="city"
+              type="text"
+              formControlName="city"
+            />
+          </div>
+          <div
+            class="col-12 col-md-8 form-check"
+            [ngClass]="{
+              invalid:
+                registerForm.touched &&
+                registerForm.get('consent').value === false
+            }"
+            style="padding-top: 26px; padding-left: 1.25rem;"
+          >
+            <input
+              class="form-check-input"
+              id="consent"
+              type="checkbox"
+              formControlName="consent"
+              style="margin-left: 0px;"
+            />
+            <label
+              class="form-check-label"
+              for="consent"
+              style="margin-bottom: 0; margin-left: 1.25rem; cursor: pointer;"
+              >Ich erkläre mich zur Speicherung meiner Daten im Zuge der
+              Corona-Verordnung einverstanden. Ich verstehe, dass meine Daten 4
+              Wochen nach Stattfinden der Aktivität DSGVO-konform gelöscht
+              werden.</label
+            >
+          </div>
+          <div class="col-12 col-md-4">
+            <button
+              class="btn btn-block btn-success"
+              type="submit"
+              style="margin-top: 32px;"
+            >
+              Zum Event anmelden
+            </button>
+          </div>
         </div>
-        <div class="col-6 col-md-4">
-          <label for="email">Email</label>
-          <br />
-          <input
-            class="form-control"
-            id="email"
-            type="email"
-            formControlName="email"
-          />
-        </div>
-        <div class="col-6 col-md-4">
-          <label for="phone">Telefonnummer</label>
-          <br />
-          <input
-            class="form-control"
-            id="phone"
-            type="phone"
-            formControlName="phone"
-          />
-        </div>
-        <div class="col-6 col-md-4">
-          <label for="street">Straße & Hausnummer</label>
-          <br />
-          <input
-            class="form-control"
-            id="street"
-            type="text"
-            formControlName="street"
-          />
-        </div>
-        <div class="col-6 col-md-4">
-          <label for="zip">PLZ</label>
-          <br />
-          <input
-            class="form-control"
-            id="zip"
-            type="text"
-            formControlName="zip"
-          />
-        </div>
-        <div class="col-6 col-md-4 mb-3">
-          <label for="city">Ort</label>
-          <br />
-          <input
-            class="form-control"
-            id="city"
-            type="text"
-            formControlName="city"
-          />
-        </div>
-        <div class="col-12 col-md-4 offset-md-8">
-          <button class="btn btn-block btn-success" type="submit">
-            Zum Event anmelden
-          </button>
-        </div>
-      </div>
-    </form>
+      </form>
+    </div>
   </div>
 </div>
 
 <div *ngIf="successfullyRegistered" class="alert alert-success successBox">
-  Sie haben sich erfolgreich angemeldet!
+  Du hast dich erfolgreich zu <b>{{ selectedEvent.name }}</b> angemeldet!
   <br />
-  Bitte beachten Sie, dass Sie sich nicht für weitere Events in dieser Woche
-  anmelden können.
+  <br />
+  Bitte beachte, dass du dich nicht für weitere Events in dieser Woche anmelden
+  kannst.
 </div>

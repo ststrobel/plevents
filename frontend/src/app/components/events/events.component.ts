@@ -2,11 +2,10 @@ import { Component, OnInit } from "@angular/core";
 import { EventService } from "src/app/services/event.service";
 import { Week } from "src/app/models/week";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { sortBy, each, filter, find } from "lodash";
+import { sortBy, each, filter, find, uniq, map } from "lodash";
 import * as moment from "moment";
 import { Event } from "src/app/models/event";
 import { Participant } from "src/app/models/participant";
-import { HttpHeaders } from "@angular/common/http";
 
 @Component({
   selector: "app-events",
@@ -15,11 +14,13 @@ import { HttpHeaders } from "@angular/common/http";
 })
 export class EventsComponent implements OnInit {
   week: Week = null;
-  uniqueEvents: Event[] = new Array<Event>();
+  eventsInTimeframe: Event[] = new Array<Event>();
   timeColumns: string[] = new Array<string>();
   registerForm: FormGroup;
   selectedEvent: Event = null;
   successfullyRegistered = false;
+  classOptions: string[] = null;
+  selectedClass: string = null;
 
   constructor(private eventService: EventService) {}
 
@@ -36,37 +37,49 @@ export class EventsComponent implements OnInit {
   }
 
   loadEvents(): void {
-    this.uniqueEvents = new Array<Event>();
     this.timeColumns = new Array<string>();
     this.eventService.getEvents().subscribe((events: Event[]) => {
       // filter out all events that are disabled
       events = filter(events, { disabled: false });
-      events = this.eventsInThisAndNextWeek(events);
-      this.uniqueEvents = Event.unique(events);
-      this.uniqueEvents = sortBy(this.uniqueEvents, ["weekDay", "time"]);
-      each(this.uniqueEvents, (event: Event) => {
-        this.timeColumns.push(event.displayTime());
-      });
-      // prepare the weeks, calculate the past 3 weeks until the end of the year:
-      const today = moment();
-      const startOfNextWeek = today.clone().startOf("week").add(1, "week");
-      const endOfNextWeek = today.clone().endOf("week").add(1, "week");
-      this.week = new Week(startOfNextWeek.isoWeek());
-      // add all events for next week
-      this.week.events = filter(events, (event: Event) => {
-        return moment(event.date).isBetween(
-          startOfNextWeek,
-          endOfNextWeek,
-          undefined,
-          "[]"
-        );
-      });
+      this.eventsInTimeframe = this.eventsInNextWeek(events);
+      // first, check for what classes we have events:
+      this.classOptions = new Array<string>();
+      this.classOptions.push("alle");
+      this.classOptions.push(
+        ...filter(
+          <string[]>uniq(map(this.eventsInTimeframe, "targetClass")),
+          (targetClass: string) =>
+            targetClass !== null &&
+            targetClass.length > 0 &&
+            targetClass !== "alle"
+        )
+      );
+      this.week = new Week(moment().isoWeek());
     });
   }
 
-  eventsInThisAndNextWeek(events: Event[]): Event[] {
+  selectClass(className: string): void {
+    this.selectedClass = className;
+    this.selectedEvent = null;
+    this.registerForm.markAsUntouched();
+    this.week.events = <Event[]>(
+      filter(this.eventsInTimeframe, (event: Event) => {
+        if (className === "alle") {
+          return true;
+        }
+        return event.targetClass === className;
+      })
+    );
+    this.week.events = sortBy(this.week.events, ["weekDay", "time"]);
+    this.timeColumns = [];
+    each(this.week.events, (event: Event) => {
+      this.timeColumns.push(event.displayTime());
+    });
+  }
+
+  eventsInNextWeek(events: Event[]): Event[] {
     const today = moment();
-    const start = today.clone().startOf("week");
+    const start = today.clone().startOf("week").add(1, "week");
     const end = today.clone().endOf("week").add(1, "week");
     return filter(events, (event: Event) => {
       return moment(event.date).isBetween(start, end, undefined, "[]");
@@ -81,6 +94,7 @@ export class EventsComponent implements OnInit {
       street: new FormControl("", Validators.required),
       zip: new FormControl("", Validators.required),
       city: new FormControl("", Validators.required),
+      consent: new FormControl(false, Validators.required),
     });
   }
 
@@ -96,6 +110,7 @@ export class EventsComponent implements OnInit {
   }
 
   selectEvent(event: Event): void {
+    this.registerForm.markAsUntouched();
     if (this.selectedEvent === event) {
       this.selectedEvent = null;
     } else {
@@ -103,8 +118,16 @@ export class EventsComponent implements OnInit {
     }
   }
 
+  isInvalid(formControlName: string): boolean {
+    return (
+      this.registerForm.get(formControlName).invalid &&
+      this.registerForm.get(formControlName).touched
+    );
+  }
+
   registerParticipant(): void {
     if (this.registerForm.invalid) {
+      this.registerForm.markAllAsTouched();
       return;
     }
     const participant = new Participant();
@@ -118,8 +141,6 @@ export class EventsComponent implements OnInit {
     this.eventService.addParticipant(participant).subscribe(() => {
       this.successfullyRegistered = true;
       this.registerForm.reset();
-      this.selectedEvent = null;
-      this.loadEvents();
     });
   }
 }

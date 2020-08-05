@@ -15,6 +15,7 @@ export class Event extends Model implements EventI {
   maxSeats: number;
   takenSeats: number;
   disabled: boolean;
+  targetClass: string;
 }
 
 Event.init(
@@ -31,6 +32,10 @@ Event.init(
     maxSeats: {
       type: DataTypes.INTEGER,
       allowNull: false,
+    },
+    targetClass: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     disabled: {
       type: DataTypes.BOOLEAN,
