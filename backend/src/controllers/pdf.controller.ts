@@ -11,7 +11,7 @@ export class PdfController {
       try {
         const event = await Event.findByPk(parseInt(req.params.eventid));
         const logMessage = `Zugriff auf Teilnehmerliste zu Event ${event.id}`;
-        Log.build({ user: UserService.currentUser(req), message: logMessage }).save();
+        Log.log(UserService.currentTenant(req), UserService.currentUser(req), logMessage);
         const participants = await Participant.findAll({ where: { EventId: event.id } });
         const binaryResult = await PdfService.generate(event, participants);
         res.contentType('application/pdf').send(binaryResult);

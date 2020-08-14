@@ -7,6 +7,8 @@ import { EmailController } from './controllers/email.controller';
 import { EventController } from './controllers/event.controller';
 import { PdfController } from './controllers/pdf.controller';
 import { CronService } from './cron.service';
+import { TenantController } from './controllers/tenant.controller';
+import { UserController } from './controllers/user.controller';
 
 // read configuration:
 const dotenv = require('dotenv');
@@ -52,10 +54,12 @@ app.use(async (req, res, next) => {
   }
 });
 
+TenantController.register(app);
 AuthController.register(app);
 EmailController.register(app);
 EventController.register(app);
 PdfController.register(app);
+UserController.register(app);
 
 // start our server on port 4201
 app.listen(parseInt(process.env.HTTP_PORT), process.env.HTTP_HOSTNAME, async function () {

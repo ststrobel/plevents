@@ -16,6 +16,7 @@ export class Event extends Model implements EventI {
   takenSeats: number;
   disabled: boolean;
   targetClass: string;
+  tenantId: number;
 }
 
 Event.init(

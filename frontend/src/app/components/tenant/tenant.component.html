@@ -1,0 +1,92 @@
+<h2>Verwaltung</h2>
+<p>
+  Verwalten Sie hier den Namen und den Pfad Ihrer Organisation. Zudem können Sie
+  ein Logo hinterlegen und Administratoren verwalten.
+</p>
+
+<hr />
+<h4>Organisation</h4>
+<form [formGroup]="tenantForm">
+  <div class="row">
+    <div class="col-12 col-md-6" [ngClass]="{ invalid: isInvalid('name') }">
+      <label for="name">Name</label>
+      <br />
+      <input
+        class="form-control"
+        id="name"
+        type="text"
+        formControlName="name"
+      />
+    </div>
+    <div class="col-12 col-md-6" [ngClass]="{ invalid: isInvalid('path') }">
+      <label for="name">Pfad</label>
+      <br />
+      <input
+        class="form-control"
+        id="path"
+        type="text"
+        formControlName="path"
+      />
+    </div>
+  </div>
+  <div class="col-12 col-md-3 offset-md-9">
+    <button
+      class="btn btn-block btn-outline-success"
+      (click)="updateTenant()"
+      style="margin-top: 32px;"
+    >
+      Speichern
+    </button>
+  </div>
+</form>
+
+<hr />
+
+<h4>Administratoren</h4>
+<div *ngFor="let user of users" class="row emailEntry">
+  <div class="col-8">
+    {{ user.name }}<br />
+    <small
+      ><a href="mailto:{{ user.email }}">{{ user.email }}</a></small
+    >
+  </div>
+  <div class="col-4">
+    <button
+      *ngIf="!user.active"
+      class="float-right btn btn-sm btn-success"
+      (click)="activate(user)"
+    >
+      Zulassen
+    </button>
+    <button
+      class="float-right btn btn-sm btn-outline-danger"
+      (click)="delete(user)"
+    >
+      Admin löschen
+    </button>
+  </div>
+</div>
+
+<hr />
+
+<h4>Löschung</h4>
+<div class="row">
+  <div class="col-12 col-md-8">
+    Falls Sie Ihren Account und Ihre Organisation nicht mehr benötigen, können
+    Sie hier jegliche Daten löschen. Hierzu gehören:
+    <ul>
+      <li>alle Admin Accounts</li>
+      <li>alle Events</li>
+      <li>alle Teilnehmerdaten</li>
+    </ul>
+    Die Löschung erfolgt sofort und kann <b>nicht</b> rückgängig gemacht werden!
+  </div>
+  <div class="col-12 col-md-4">
+    <button
+      class="btn btn-block btn-sm btn-outline-danger"
+      (click)="deleteTenant()"
+    >
+      Organisation löschen
+    </button>
+  </div>
+</div>

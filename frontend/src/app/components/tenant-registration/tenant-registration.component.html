@@ -1,0 +1,49 @@
+<h1>Jetzt Account anlegen</h1>
+<p>
+  Legen Sie sich in wenigen Minuten Ihre eigene kostenlose Terminbuchungs-Seite
+  an, mit DSGVO-konformer Datensparsamkeit und automatischer -löschung.
+</p>
+<form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
+  <div class="form-group">
+    <label for="name">Name Ihres Accounts / Organisation</label>
+    <input
+      id="name"
+      type="text"
+      formControlName="name"
+      class="form-control"
+      [ngClass]="{
+        'is-invalid': isInvalid('name')
+      }"
+    />
+    <div *ngIf="isInvalid('name')" class="invalid-feedback">
+      <div *ngIf="isInvalid('name')">
+        Bitte einen kurzen beschreibenden Namen angeben
+      </div>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="path">Pfad</label>
+    <input
+      id="path"
+      type="text"
+      formControlName="path"
+      class="form-control"
+      [ngClass]="{
+        'is-invalid': isInvalid('path')
+      }"
+    />
+    <div *ngIf="isInvalid('path')" class="invalid-feedback">
+      <div *ngIf="isInvalid('path')">
+        Bitte einen Pfad angeben, der dann in der URL zu sehen sein wird. Max.
+        40 Zeichen
+      </div>
+    </div>
+  </div>
+  <button [disabled]="loading" class="btn btn-primary">
+    <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+    Account holen
+  </button>
+  <div *ngIf="error" class="alert alert-danger mt-3 mb-0">
+    {{ error }}
+  </div>
+</form>

@@ -6,6 +6,8 @@ import { sortBy, each, filter, find, uniq, map } from "lodash";
 import * as moment from "moment";
 import { Event } from "src/app/models/event";
 import { Participant } from "src/app/models/participant";
+import { TenantService } from "src/app/services/tenant.service";
+import { ActivatedRoute } from "@angular/router";
 
 @Component({
   selector: "app-events",
@@ -22,9 +24,14 @@ export class EventsComponent implements OnInit {
   classOptions: string[] = null;
   selectedClass: string = null;
 
-  constructor(private eventService: EventService) {}
+  constructor(
+    private eventService: EventService,
+    private tenantService: TenantService,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit() {
+    this.tenantService.load(this.route.snapshot.params.tenantPath);
     this.createRegisterForm();
     this.loadEvents();
   }

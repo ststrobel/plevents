@@ -1,5 +1,9 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <a class="nav-link nav-logo" routerLink="/events">
+  <a
+    class="nav-link nav-logo"
+    *ngIf="tenantPath()"
+    [routerLink]="[tenantPath(), 'events']"
+  >
     <img src="assets/cvjm-logo.png" />
   </a>
   <button
@@ -15,9 +19,12 @@
     <span class="navbar-toggler-icon"></span>
   </button>
 
-  <ul class="navbar-nav ml-auto" *ngIf="!isLoggedIn()">
+  <ul class="navbar-nav ml-auto" *ngIf="!isLoggedIn() && tenantPath()">
     <li class="nav-item">
-      <a class="nav-link" routerLink="/login" routerLinkActive="active"
+      <a
+        class="nav-link"
+        [routerLink]="[tenantPath(), 'login']"
+        routerLinkActive="active"
         >Login</a
       >
     </li>
@@ -28,15 +35,29 @@
     id="navbarSupportedContent"
     *ngIf="isLoggedIn()"
   >
-    <ul class="navbar-nav mr-auto">
+    <ul class="navbar-nav mr-auto" *ngIf="tenantPath()">
       <li class="nav-item">
-        <a class="nav-link" routerLink="/events" routerLinkActive="active"
+        <a
+          class="nav-link"
+          [routerLink]="[tenantPath(), 'events']"
+          routerLinkActive="active"
           >plEvents</a
         >
       </li>
       <li class="nav-item">
-        <a class="nav-link" routerLink="/dashboard" routerLinkActive="active"
+        <a
+          class="nav-link"
+          [routerLink]="[tenantPath(), 'dashboard']"
+          routerLinkActive="active"
           >Dashboard</a
+        >
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          [routerLink]="[tenantPath(), 'verwaltung']"
+          routerLinkActive="active"
+          >Verwaltung</a
         >
       </li>
       <!--
@@ -47,7 +68,11 @@
       </li>-->
     </ul>
     angemeldet als:&nbsp;<u>{{ username() }}</u>
-    <button class="btn btn-outline-danger my-2 my-sm-0 ml-3" (click)="logout()">
+    <button
+      class="btn btn-outline-danger my-2 my-sm-0 ml-3"
+      *ngIf="tenantPath()"
+      (click)="logout()"
+    >
       Logout
     </button>
   </div>

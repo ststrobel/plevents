@@ -2,14 +2,15 @@ import { UserService } from '../services/user.service';
 import * as express from 'express';
 import { UserI } from '../../../common/user';
 import { Log } from '../models/log';
+import { User } from '../models/user';
 
 export class AuthController {
   public static register(app: express.Application): void {
-    app.post('/createUser', (request, response) => {
+    app.post('/createUser', async (request, response) => {
       if (request.get(process.env.SECURITY_HEADER) === process.env.SECURITY_TOKEN) {
         try {
           const newUserData = <UserI>request.body;
-          UserService.createUser(newUserData.username, newUserData.password);
+          await UserService.createUser(newUserData.tenantId, newUserData.email, newUserData.name, newUserData.password);
           response.sendStatus(200);
         } catch (e) {
           console.log(e);
@@ -24,16 +25,17 @@ export class AuthController {
       let authRequest = null;
       try {
         authRequest = <UserI>request.body;
-        if (await UserService.checkCredentials(authRequest.username, authRequest.password)) {
+        if (await UserService.checkCredentials(authRequest.email, authRequest.password)) {
           const logMessage = `Erfolgreicher Login`;
-          Log.build({ user: authRequest.username, message: logMessage }).save();
-          response.status(200).send({ username: authRequest.username });
+          const user = await User.findOne({ where: { email: authRequest.email } });
+          Log.log(user.tenantId, authRequest.email, logMessage);
+          response.status(200).send(user);
         } else {
-          let username = '"unbekannter Benutzer"';
-          if (authRequest.username) {
-            username = authRequest.username;
+          let email = '"unbekannter Benutzer"';
+          if (authRequest.email) {
+            email = authRequest.email;
           }
-          console.log('\x1b[33mAnmeldung fehlgeschlagen für ' + username + '\x1b[0m');
+          console.log('\x1b[33mAnmeldung fehlgeschlagen für ' + email + '\x1b[0m');
           response.status(401).send({ message: 'Nutzername oder Passwort falsch' });
         }
       } catch (e) {

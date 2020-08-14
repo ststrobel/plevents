@@ -3,6 +3,7 @@ import { User } from './models/user';
 import { Event } from './models/event';
 import { Participant } from './models/participant';
 import { Log } from './models/log';
+import { Tenant } from './models/tenant';
 const { Sequelize } = require('sequelize');
 
 export class DBConnection {
@@ -24,8 +25,9 @@ export class DBConnection {
       const connection = DBConnection.getConnection();
       await connection.authenticate();
       console.log('\x1b[32mDB Connection has been established successfully.\x1b[0m');
+      await Tenant.sync({ alter: true });
       await User.sync({ alter: true });
-      await Email.sync({ alter: false });
+      //await Email.sync({ alter: false });
       await Event.sync({ alter: true });
       await Participant.sync({ alter: true });
       await Log.sync({ alter: true });

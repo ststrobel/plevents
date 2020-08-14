@@ -1,0 +1,13 @@
+.emailEntry {
+  padding: 15px 5px;
+  &:nth-child(even) {
+    background: #eee;
+  }
+  &:nth-child(odd) {
+    background: #fff;
+  }
+}
+
+h4 {
+  text-align: left;
+}

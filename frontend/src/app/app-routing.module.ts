@@ -7,29 +7,49 @@ import { EventsComponent } from "./components/events/events.component";
 import { Routes, RouterModule } from "@angular/router";
 import { NgModule } from "@angular/core";
 import { HTTP_INTERCEPTORS } from "@angular/common/http";
+import { TenantComponent } from "./components/tenant/tenant.component";
+import { RegistrationComponent } from "./components/registration/registration.component";
+import { TenantRegistrationComponent } from "./components/tenant-registration/tenant-registration.component";
 
 const routes: Routes = [
   {
-    path: "login",
-    component: LoginComponent,
+    path: "registrierung",
+    component: TenantRegistrationComponent,
   },
   {
-    path: "dashboard",
-    component: DashboardComponent,
-    canActivate: [AuthGuard],
-  } /*
-  {
-    path: "emails",
-    component: EmailsComponent,
-    canActivate: [AuthGuard],
-  },*/,
-  {
-    path: "events",
-    component: EventsComponent,
+    path: ":tenantPath",
+    children: [
+      {
+        path: "login",
+        component: LoginComponent,
+      },
+      {
+        path: "dashboard",
+        component: DashboardComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: "verwaltung",
+        component: TenantComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: "events",
+        component: EventsComponent,
+      },
+      {
+        path: "registrierung",
+        component: RegistrationComponent,
+      },
+      {
+        path: "**",
+        redirectTo: "events",
+      },
+    ],
   },
   {
     path: "**",
-    redirectTo: "events",
+    redirectTo: "registrierung",
   },
 ];
 
