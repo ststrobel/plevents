@@ -32,13 +32,19 @@ export class TenantService {
       this.currentTenantSubject.next(this.currentTenantValue);
     } else {
       // we must load the tenant from server-side
-      this.http
-        .get<User>(`${environment.apiUrl}/tenants/${tenantPath}`)
-        .pipe(map((item) => this.tenantAdapter.adapt(item)))
-        .subscribe((tenant: Tenant) => {
-          this.currentTenantSubject.next(tenant);
-        });
+      this.getByPath(tenantPath).subscribe((tenant: Tenant) => {
+        this.currentTenantSubject.next(tenant);
+      });
     }
+  }
+
+  getByPath(tenantPath: string): Observable<Tenant> {
+    return this.http
+      .get<User>(`${environment.apiUrl}/tenants/${tenantPath}`)
+      .pipe(
+        // Adapt the raw item
+        map((item) => this.tenantAdapter.adapt(item))
+      );
   }
 
   get(tenantId: number): Observable<Tenant> {
