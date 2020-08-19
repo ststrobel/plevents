@@ -1,6 +1,6 @@
 import { CronJob } from 'cron';
 import { Event } from './models/event';
-import { Op } from 'sequelize';
+import { getConnection } from 'typeorm';
 const moment = require('moment');
 
 export class CronService {
@@ -24,13 +24,12 @@ export class CronService {
         const fourWeeksAgo = moment().hours(0).minutes(0).seconds(0).subtract(4, 'weeks');
         // find all events older than 4 weeks and delete them.
         // this will also cascade down to the participants
-        Event.destroy({
-          where: {
-            date: {
-              [Op.lt]: fourWeeksAgo.toDate(),
-            },
-          },
-        });
+        getConnection()
+          .createQueryBuilder()
+          .delete()
+          .from(Event)
+          .where(`date < ${fourWeeksAgo.format('yyyy-MM-DD')}`)
+          .execute();
         console.log(
           '\x1b[33mRemoving events and corresponding participants older than ' +
             fourWeeksAgo.format('DD.MM.yyyy') +

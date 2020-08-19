@@ -5,15 +5,15 @@ export class UserService {
   public static async createUser(username: string, password: string) {
     try {
       // check first if user already exists
-      const existingUser = await User.findByPk(username);
+      const existingUser = await User.findOne({username});
       if (existingUser) {
         existingUser.password = password;
         existingUser.save();
-        console.log('user ' + existingUser.username + ' updated');
       } else {
-        const newUser = User.build({ username: username, password: password });
+        const newUser = new User();
+        newUser.username = username;
+        newUser.password = password;
         newUser.save();
-        console.log('user ' + username + ' created');
       }
     } catch (e) {
       throw e;
@@ -23,12 +23,11 @@ export class UserService {
   public static async checkCredentials(username: string, password: string): Promise<boolean> {
     try {
       // check first if user already exists
-      const existingUser = await User.findByPk(username);
+      const existingUser = await User.findOne({username});
       if (existingUser) {
-        const authResult = await existingUser.validPassword(password);
+        const authResult = existingUser.validPassword(password);
         if (!authResult) {
-          const logMessage = `Fehlgeschlagener Login-Versuch`;
-          Log.build({ user: username, message: logMessage }).save();
+          Log.write(existingUser.id, 'Fehlgeschlagener Login-Versuch');
         }
         return authResult;
       }

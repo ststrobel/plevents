@@ -26,7 +26,10 @@ export class AuthController {
         authRequest = <UserI>request.body;
         if (await UserService.checkCredentials(authRequest.username, authRequest.password)) {
           const logMessage = `Erfolgreicher Login`;
-          Log.build({ user: authRequest.username, message: logMessage }).save();
+          const log = new Log();
+          log.userId = authRequest.username;
+          log.message = logMessage;
+          log.save();
           response.status(200).send({ username: authRequest.username });
         } else {
           let username = '"unbekannter Benutzer"';

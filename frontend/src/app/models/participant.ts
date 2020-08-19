@@ -9,7 +9,7 @@ export class Participant implements ParticipantI {
   street: string;
   zip: string;
   city: string;
-  EventId: number;
+  eventId: number;
 }
 
 @Injectable({
@@ -24,7 +24,7 @@ export class ParticipantAdapter implements Adapter<Participant> {
     participant.street = item.street;
     participant.zip = item.zip;
     participant.city = item.city;
-    participant.EventId = item.eventId;
+    participant.eventId = item.eventId;
     return participant;
   }
 }
