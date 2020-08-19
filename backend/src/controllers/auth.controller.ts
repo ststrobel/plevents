@@ -27,9 +27,11 @@ export class AuthController {
         authRequest = <UserI>request.body;
         if (await UserService.checkCredentials(authRequest.email, authRequest.password)) {
           const logMessage = `Erfolgreicher Login`;
-          const user = await User.findOne({ where: { email: authRequest.email } });
-          Log.log(user.tenantId, authRequest.email, logMessage);
-          response.status(200).send(user);
+          const log = new Log();
+          log.userId = authRequest.username;
+          log.message = logMessage;
+          log.save();
+          response.status(200).send({ username: authRequest.username });
         } else {
           let email = '"unbekannter Benutzer"';
           if (authRequest.email) {

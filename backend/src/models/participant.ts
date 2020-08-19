@@ -1,60 +1,23 @@
 import { ParticipantI } from '../../../common/participant';
+import { BaseEntity, PrimaryGeneratedColumn, Column, Entity, ManyToOne } from 'typeorm';
 import { Event } from './event';
-const { Sequelize, DataTypes, Model } = require('sequelize');
-const dotenv = require('dotenv');
-dotenv.config();
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
-  host: process.env.DB_HOST,
-  dialect: process.env.DB_TYPE,
-  logging: false,
-});
 
-export class Participant extends Model implements ParticipantI {
+@Entity()
+export class Participant extends BaseEntity implements ParticipantI {
+  @PrimaryGeneratedColumn()
+  id: number;
+  @Column()
   email: string;
+  @Column()
   phone: string;
+  @Column()
   name: string;
+  @Column()
   street: string;
+  @Column()
   zip: string;
+  @Column()
   city: string;
-  EventId: number;
+  @ManyToOne(type => Event, { cascade: true, onDelete: "CASCADE" })
+  event: Event
 }
-
-Participant.init(
-  {
-    // Model attributes are defined here
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    phone: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    street: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    zip: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    city: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-  },
-  {
-    sequelize, // pass the connection instance
-    modelName: 'Participant',
-    freezeTableName: true,
-  }
-);
-/*
-Participant.event = Participant.belongsTo(Event, {
-  constraints: true,
-  onDelete: 'CASCADE',
-});*/

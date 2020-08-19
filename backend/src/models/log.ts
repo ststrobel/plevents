@@ -1,48 +1,35 @@
-import { Tenant } from './tenant';
-import { isNumber } from 'lodash';
+import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToMany, ManyToOne } from "typeorm";
+import { User } from "./user";
+import { Tenant } from "./tenant";
 
-const { Sequelize, DataTypes, Model } = require('sequelize');
-const dotenv = require('dotenv');
-dotenv.config();
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
-  host: process.env.DB_HOST,
-  dialect: process.env.DB_TYPE,
-  logging: false,
-});
+@Entity()
+export class Log extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-export class Log extends Model {
-  static log(tenant: number | Tenant | Promise<Tenant>, user: string, message: string): void {
-    if (isNumber(tenant)) {
-      Log.build({ tenant, user, message }).save();
-    } else if (tenant instanceof Tenant) {
-      Log.build({ tenant: tenant.id, user, message }).save();
-    } else {
-      (tenant as Promise<Tenant>).then((tenant: Tenant) => {
-        Log.build({ tenant: tenant.id, user, message }).save();
+  @ManyToOne((type) => Tenant, { cascade: true, onDelete: "NO ACTION" })
+  tenant: Tenant;
+
+  @Column()
+  userId: number;
+
+  @Column()
+  message: string;
+
+  static write(user: string | number, message: string) {
+    if (typeof user === "string") {
+      // we have a username, find the user ID first
+      User.findOne({ where: { username: user } }).then((user: User) => {
+        const log = new Log();
+        log.message = message;
+        log.userId = user.id;
+        log.save();
       });
+    } else if (typeof user === "number") {
+      const log = new Log();
+      log.message = message;
+      log.userId = user;
+      log.save();
     }
   }
 }
-
-Log.init(
-  {
-    // Model attributes are defined here
-    tenant: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    user: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    message: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-  },
-  {
-    sequelize, // pass the connection instance
-    modelName: 'Log',
-    freezeTableName: true,
-  }
-);

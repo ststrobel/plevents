@@ -6,15 +6,16 @@ export class UserService {
   public static async createUser(tenantId: number, email: string, name: string, password: string) {
     try {
       // check first if user already exists
-      const existingUser = (await User.findByPk(email)) as User;
+      const existingUser = await User.findOne( { email  });
       if (existingUser) {
         existingUser.password = password;
         existingUser.save();
-        console.log('user ' + existingUser.email + ' updated');
       } else {
-        const newUser = User.build({ tenantId, email, name, password });
-        await newUser.save();
-        console.log('user ' + email + ' created');
+        const newUser = new User();
+        newUser.email = email;
+        newUser.name = name;
+        newUser.password = password;
+        newUser.save();
       }
     } catch (e) {
       throw e;
@@ -24,21 +25,22 @@ export class UserService {
   public static async checkCredentials(email: string, password: string): Promise<boolean> {
     try {
       // check first if user already exists
-      const existingUser = (await User.findOne({ where: { email } })) as User;
+const existingUser = (await User.findOne({ where: { email } })) as User;
       if (existingUser) {
         // check if user is active or not
         if (existingUser.active) {
-          const authResult = await existingUser.validPassword(password);
-          if (!authResult) {
-            const logMessage = `Fehlgeschlagener Login-Versuch`;
-            Log.log(existingUser.tenantId, email, logMessage);
+          const existingUser = await User.findOne({ email });
+          if (existingUser) {
+            const authResult = existingUser.validPassword(password);
+            if (!authResult) {
+              Log.write(existingUser.id, 'Fehlgeschlagener Login-Versuch');
+            } else {
+              return false;
+            }
           }
-          return authResult;
-        } else {
-          return false;
         }
       }
-      return false;
+        return false;
     } catch (e) {
       console.log(e);
       return false;

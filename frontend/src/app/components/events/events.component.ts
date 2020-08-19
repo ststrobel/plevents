@@ -144,7 +144,7 @@ export class EventsComponent implements OnInit {
     participant.street = this.registerForm.get("street").value;
     participant.zip = this.registerForm.get("zip").value;
     participant.city = this.registerForm.get("city").value;
-    participant.EventId = this.selectedEvent.id;
+    participant.eventId = this.selectedEvent.id;
     this.eventService.addParticipant(participant).subscribe(() => {
       this.successfullyRegistered = true;
       this.registerForm.reset();

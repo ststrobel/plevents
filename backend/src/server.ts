@@ -1,6 +1,6 @@
+import "reflect-metadata";
 // equivalent of older: const express = require('express')
 import express from 'express';
-import { DBConnection } from './db.connection';
 import { AuthController } from './controllers/auth.controller';
 import { UserService } from './services/user.service';
 import { EmailController } from './controllers/email.controller';
@@ -9,6 +9,8 @@ import { PdfController } from './controllers/pdf.controller';
 import { CronService } from './cron.service';
 import { TenantController } from './controllers/tenant.controller';
 import { UserController } from './controllers/user.controller';
+import { createConnection } from "typeorm";
+
 
 // read configuration:
 const dotenv = require('dotenv');
@@ -61,10 +63,15 @@ EventController.register(app);
 PdfController.register(app);
 UserController.register(app);
 
-// start our server on port 4201
-app.listen(parseInt(process.env.HTTP_PORT), process.env.HTTP_HOSTNAME, async function () {
-  console.log('\x1b[32mServer now listening on ' + process.env.HTTP_PORT + '\x1b[0m');
-  DBConnection.init();
-  const cronService = new CronService();
-  cronService.removeParticipantsData();
+// connect to the database:
+createConnection().then(() => {
+  console.log('\x1b[32mDatabase connection established\x1b[0m');
+  // start our server on port 4201
+  app.listen(parseInt(process.env.HTTP_PORT), process.env.HTTP_HOSTNAME, async function () {
+    console.log('\x1b[32mServer now listening on ' + process.env.HTTP_PORT + '\x1b[0m');
+    const cronService = new CronService();
+    cronService.removeParticipantsData();
+  });
+}).catch(e =>{
+  console.log('\x1b[31m'+e+'\x1b[0m');
 });
