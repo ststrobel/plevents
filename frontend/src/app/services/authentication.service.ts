@@ -28,9 +28,10 @@ export class AuthenticationService {
     return this.userSubject.value;
   }
 
-  login(email: string, password: string) {
+  login(tenantId: number, email: string, password: string) {
     const user = new User(email);
     user.password = password;
+    user.tenantId = tenantId;
     return this.http
       .post<User>(`${environment.apiUrl}/authenticate`, user)
       .pipe(

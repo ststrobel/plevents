@@ -6,7 +6,6 @@ import { Participant } from '../models/participant';
 import { each, find } from 'lodash';
 import { Log } from '../models/log';
 import { UserService } from '../services/user.service';
-import { User } from '../models/user';
 import { getConnection } from 'typeorm';
 
 export class EventController {
@@ -46,7 +45,11 @@ export class EventController {
       event.maxSeats = eventToCreate.maxSeats;
       event.tenantId = (await UserService.currentTenant(req)).id,
       event.save();
-      Log.write(UserService.currentUser(req), `Event ${event[0].id} erstellt`);
+      Log.write(
+        UserService.currentTenant(req),
+        UserService.currentUser(req),
+        `Event ${event[0].id} erstellt`
+      );
       res.status(200).send(event);
     });
 
@@ -57,7 +60,13 @@ export class EventController {
         if (event.tenantId === (await UserService.currentTenant(req)).id) {
           event.disabled = req.params.disabled === "true";
           event.save();
-          Log.write(UserService.currentUser(req), `Event ${req.params.id} wurde auf ${event.disabled ? 'disabled' : 'enabled'} gesetzt`);
+          Log.write(
+            UserService.currentTenant(req),
+            UserService.currentUser(req),
+            `Event ${req.params.id} wurde auf ${
+              event.disabled ? "disabled" : "enabled"
+            } gesetzt`
+          );
           res.status(200).send(event);
         } else {
           res.status(403).send({ error: 'You are not authorized to delete this event' });
@@ -79,7 +88,11 @@ export class EventController {
             .from(Event)
             .where(`id = ${req.params.id}`)
             .execute();
-          Log.write(UserService.currentUser(req), `Event ${req.params.id} gelöscht`);
+          Log.write(
+            UserService.currentTenant(req),
+            UserService.currentUser(req),
+            `Event ${req.params.id} gelöscht`
+          );
           res.status(200).send({ message: 'Event deleted' });
       } else {
           res.status(403).send({ error: 'You are not authorized to delete this event' });

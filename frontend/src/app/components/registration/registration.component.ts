@@ -2,7 +2,8 @@ import { Component, OnInit } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { User } from "src/app/models/user";
 import { TenantService } from "src/app/services/tenant.service";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
+import { AuthenticationService } from 'src/app/services/authentication.service';
 
 @Component({
   selector: "app-registration",
@@ -17,7 +18,9 @@ export class RegistrationComponent implements OnInit {
 
   constructor(
     private tenantService: TenantService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authenticationService: AuthenticationService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -44,8 +47,23 @@ export class RegistrationComponent implements OnInit {
     const user = new User(this.registrationForm.get("email").value);
     user.name = this.registrationForm.get("name").value;
     user.password = this.registrationForm.get("password").value;
-    this.tenantService.addUser(user, 1).subscribe((user: User) => {
-      this.success = true;
+    this.tenantService.addUser(user, this.tenantService.currentTenantValue.id).subscribe((createdUser: User) => {
+      // if the user is active immediatly, log him in. else, show a notification
+      if (createdUser.active) {
+        this.authenticationService
+          .login(
+            this.tenantService.currentTenantValue.id,
+            user.email,
+            user.password
+          )
+          .subscribe(
+            (data) => {
+              this.router.navigate([this.route.snapshot.params.tenantPath, 'dashboard']);
+            }
+          );
+      } else {
+        this.success = true;
+      }
     });
   }
 }

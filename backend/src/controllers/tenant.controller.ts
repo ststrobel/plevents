@@ -5,6 +5,7 @@ import { Tenant } from '../models/tenant';
 import { UserI } from '../../../common/user';
 import { User } from '../models/user';
 import { TenantI } from '../../../common/tenant';
+import { getConnection } from 'typeorm';
 
 export class TenantController {
   public static register(app: express.Application): void {
@@ -13,25 +14,30 @@ export class TenantController {
      */
     app.post('/tenants', async (req, res) => {
       const tenantToCreate = <TenantI>req.body;
-      const tenant = await Tenant.findOrCreate({
-        where: {
-          name: tenantToCreate.name,
-          path: tenantToCreate.path,
-        },
+      let tenant = await Tenant.findOne({
+        path: tenantToCreate.path,
       });
-      const logMessage = `Tenant ${tenant[0].id} erstellt`;
-      res.status(200).send(tenant[0]);
+      if (!tenant) {
+        tenant = new Tenant();
+        tenant.name = tenantToCreate.name;
+        tenant.path = tenantToCreate.path;
+        await tenant.save();
+        const logMessage = `Tenant ${tenant.id} erstellt`;
+        res.status(200).send(tenant);
+      } else {
+        res.status(404).send({ error: "Tenant already exists" });
+      }
     });
 
     /*
      * retrieve a tenant based on its id
      */
     app.get('/secure/tenants/:id', async (req, res) => {
-      const tenant = (await Tenant.findByPk(req.params.id)) as Tenant;
-      if (tenant === null) {
-        res.status(404).send({ error: 'Tenant not existing' });
-      } else {
+      const tenant = await Tenant.findOne(req.params.id);
+      if (tenant) {
         res.status(200).send(tenant);
+      } else {
+        res.status(404).send({ error: 'Tenant not existing' });
       }
     });
 
@@ -39,15 +45,13 @@ export class TenantController {
      * retrieve a tenant based on its path name
      */
     app.get('/tenants/:path', async (req, res) => {
-      const tenant = (await Tenant.findOne({
-        where: {
-          path: req.params.path,
-        },
-      })) as Tenant;
-      if (tenant === null) {
-        res.status(404).send({ error: 'Tenant not existing' });
-      } else {
+      const tenant = await Tenant.findOne({
+          path: req.params.path
+      });
+      if (tenant) {
         res.status(200).send(tenant);
+      } else {
+        res.status(404).send({ error: 'Tenant not existing' });
       }
     });
 
@@ -55,21 +59,20 @@ export class TenantController {
      * update a tenant
      */
     app.put('/secure/tenants/:id', async (req, res) => {
-      const tenant = (await Tenant.findByPk(req.params.id)) as Tenant;
-      if (tenant === null) {
-        res.status(404).send({ error: 'Tenant not existing' });
-      } else {
+      const tenant = await Tenant.findOne(req.params.id);
+      if (tenant) {
         // check if the user is allowed to update this tenant's information:
         if (tenant.id === (await UserService.currentTenant(req)).id) {
-          const tenantChange = req.body as Tenant;
-          tenant.name = tenantChange.name;
-          tenant.path = tenantChange.path;
-          tenant.logo = tenantChange.logo;
+          tenant.name = req.body.name;
+          tenant.path = req.body.path;
+          tenant.logo = req.body.logo;
           tenant.save();
           res.status(200).send(tenant);
         } else {
-          res.status(403).send({ message: 'You are not allowed to delete this tenant' });
+          res.status(403).send({ message: 'You are not allowed to update this tenant' });
         }
+      } else {
+        res.status(404).send({ error: 'Tenant not existing' });
       }
     });
 
@@ -78,18 +81,16 @@ export class TenantController {
      */
     app.delete('/secure/tenants/:id', async (request, res) => {
       // first, check if the client is connected to the tenant he/she wants to delete:
-      const tenantOfLoggedInUser = (await Tenant.findOne({
-        where: { id: UserService.currentTenant(request) },
-      })) as Tenant;
+      const currentUser = (await User.findOne({ email: UserService.currentUser(request) }));
       // if the user does not belong to this tenant, deny the request
-      if (tenantOfLoggedInUser.id === parseInt(request.params.id, 10)) {
-        await Tenant.destroy({
-          where: {
-            id: request.params.id,
-          },
-        });
-        const logMessage = `Tenant ${request.params.id} gelöscht`;
-        Log.log(UserService.currentTenant(request), UserService.currentUser(request), logMessage);
+      if (currentUser.tenant.id === parseInt(request.params.id, 10)) {
+        getConnection()
+          .createQueryBuilder()
+          .delete()
+          .from(Tenant)
+          .where(`id = ${request.params.id}`)
+          .execute();
+        Log.write(currentUser.tenant.id, currentUser.id, `Tenant ${request.params.id} gelöscht`);
         res.status(200).send({ message: 'Tenant deleted' });
       } else {
         // user does not belong to this tenant. Prevent it from being deleted!
@@ -102,13 +103,24 @@ export class TenantController {
      */
     app.post('/tenants/:id/users', async (request, response) => {
       const newUser = <UserI>request.body;
-      newUser.tenantId = parseInt(request.params.id);
       // make sure user doesn't exist yet
-      const existingUser = (await User.findOne({ where: newUser })) as User;
-      if (existingUser === null) {
+      const existingUser = await User.findOne({ where: {email: newUser.email} });
+      if (!existingUser) {
         // create the user
-        await UserService.createUser(newUser.tenantId, newUser.email, newUser.name, newUser.password);
-        response.status(200).send({ message: 'Registration started' });
+        const createdUser = await UserService.createUser(parseInt(request.params.id, 10), newUser.email, newUser.name, newUser.password);
+        // check if this is the first user on this tenant. if so, activate him immediatly:
+        delete createdUser.password;
+        const currentUserCount = await getConnection()
+          .createQueryBuilder()
+          .select("user")
+          .from(User, "user")
+          .where("user.tenantId = " + request.params.id)
+          .getCount();
+        if (currentUserCount === 1) {
+          createdUser.active = true;
+          await createdUser.save();
+        }
+        response.status(201).send(createdUser);
       } else {
         // a user already exists in the system, maybe for another tenant
         response.status(409).send({ error: 'User already exists in system' });
@@ -120,17 +132,16 @@ export class TenantController {
      */
     app.get('/secure/tenants/:id/users', async (request, response) => {
       // first, check if the tenant exists
-      const tenantOfLoggedInUser = (await Tenant.findOne({
-        where: { id: (await UserService.currentTenant(request)).id },
-      })) as Tenant;
+      const tenantOfLoggedInUser = await Tenant.findOne({
+        id: (await UserService.currentTenant(request)).id },
+      );
       if (tenantOfLoggedInUser) {
         // if the user does not belong to this tenant, deny the request
         if (tenantOfLoggedInUser.id === parseInt(request.params.id, 10)) {
-          const users = (await User.findAll({
-            where: {
-              tenantId: request.params.id,
+          const users = await User.find({
+              tenant: tenantOfLoggedInUser,
             },
-          })) as User[];
+          );
           response.status(200).send(users);
         } else {
           // user does not belong to this tenant. Prevent users showing to wrong audience

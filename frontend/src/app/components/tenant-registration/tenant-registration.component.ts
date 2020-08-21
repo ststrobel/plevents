@@ -2,6 +2,8 @@ import { Component, OnInit } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { TenantService } from "src/app/services/tenant.service";
 import { Subscription } from "rxjs";
+import { Tenant } from 'src/app/models/tenant';
+import { Router } from '@angular/router';
 
 @Component({
   selector: "app-tenant-registration",
@@ -15,7 +17,7 @@ export class TenantRegistrationComponent implements OnInit {
   currentSubscription: Subscription = null;
   pathTaken: boolean = false;
 
-  constructor(private tenantService: TenantService) {}
+  constructor(private tenantService: TenantService, private router: Router) {}
 
   ngOnInit(): void {
     this.registrationForm = new FormGroup({
@@ -70,5 +72,10 @@ export class TenantRegistrationComponent implements OnInit {
       return;
     }
     // create the tenant. aftewards, forward the user to the registration for the personal login
+    const name = this.registrationForm.get("name").value;
+    const path = this.registrationForm.get("path").value;
+    this.tenantService.create(new Tenant(name, path)).subscribe((tenant: Tenant) => {
+      this.router.navigate([tenant.path, "registrierung"]);
+    });
   }
 }

@@ -24,6 +24,11 @@ export class TenantService {
     return this.currentTenantSubject.value;
   }
 
+  /**
+   * loads the tenant for the given path.
+   * if the tenant is already loaded, it is not requested at the backend again.
+   * @param tenantPath 
+   */
   load(tenantPath: string) {
     if (
       this.currentTenantValue &&
@@ -59,6 +64,15 @@ export class TenantService {
   update(tenant: Tenant): Observable<Tenant> {
     return this.http
       .put<User>(`${environment.apiUrl}/secure/tenants/${tenant.id}`, tenant)
+      .pipe(
+        // Adapt the raw item
+        map((item) => this.tenantAdapter.adapt(item))
+      );
+  }
+
+  create(tenant: Tenant): Observable<Tenant> {
+    return this.http
+      .post<User>(`${environment.apiUrl}/tenants`, tenant)
       .pipe(
         // Adapt the raw item
         map((item) => this.tenantAdapter.adapt(item))

@@ -1,21 +1,23 @@
 import { User } from '../models/user';
 import { Log } from '../models/log';
 import { Tenant } from '../models/tenant';
+import { getConnection } from 'typeorm';
 
 export class UserService {
-  public static async createUser(tenantId: number, email: string, name: string, password: string) {
+  public static async createUser(tenantId: number, email: string, name: string, password: string): Promise<User> {
     try {
       // check first if user already exists
       const existingUser = await User.findOne( { email  });
       if (existingUser) {
         existingUser.password = password;
-        existingUser.save();
+        return existingUser.save();
       } else {
         const newUser = new User();
         newUser.email = email;
         newUser.name = name;
         newUser.password = password;
-        newUser.save();
+        newUser.tenant = await Tenant.findOneOrFail(tenantId) as Tenant;
+        return newUser.save();
       }
     } catch (e) {
       throw e;
@@ -25,22 +27,31 @@ export class UserService {
   public static async checkCredentials(email: string, password: string): Promise<boolean> {
     try {
       // check first if user already exists
-const existingUser = (await User.findOne({ where: { email } })) as User;
+      const existingUser = await getConnection()
+        .createQueryBuilder()
+        .select('user')
+        .addSelect('user.password')
+        .from(User, 'user')
+        .where(`user.email = "${email}"`)
+        .leftJoinAndSelect('user.tenant', 'tenant')
+        .getOne()
       if (existingUser) {
         // check if user is active or not
         if (existingUser.active) {
-          const existingUser = await User.findOne({ email });
-          if (existingUser) {
-            const authResult = existingUser.validPassword(password);
-            if (!authResult) {
-              Log.write(existingUser.id, 'Fehlgeschlagener Login-Versuch');
-            } else {
-              return false;
-            }
+          const authResult = await existingUser.validPassword(password);
+          if (authResult) {
+            return true;
+          } else {
+            Log.write(
+              existingUser.tenant.id,
+              existingUser.id,
+              "Fehlgeschlagener Login-Versuch"
+            );
+            return false;
           }
         }
       }
-        return false;
+      return false;
     } catch (e) {
       console.log(e);
       return false;
@@ -69,12 +80,8 @@ const existingUser = (await User.findOne({ where: { email } })) as User;
   public static async currentTenant(request: any): Promise<Tenant> {
     try {
       // first get the current user, to then search for the corresponding tenant
-      const user = (await User.findOne({ where: { email: UserService.currentUser(request) } })) as User;
-      return Tenant.findOne({
-        where: {
-          id: user.tenantId,
-        },
-      }) as Promise<Tenant>;
+      const user = await User.findOne( { email: UserService.currentUser(request) });
+      return user.tenant;
     } catch (e) {
       throw e;
     }

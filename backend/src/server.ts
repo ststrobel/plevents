@@ -40,8 +40,8 @@ app.use(async (req, res, next) => {
     if (authHeader && authHeader.startsWith('Basic ')) {
       const base64Credentials = authHeader.split(' ')[1];
       const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-      const [username, password] = credentials.split(':');
-      if (await UserService.checkCredentials(username, password)) {
+      const [email, password] = credentials.split(':');
+      if (await UserService.checkCredentials(email, password)) {
         // authentication was successful
         next();
       } else {

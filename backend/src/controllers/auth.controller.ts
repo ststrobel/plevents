@@ -2,6 +2,7 @@ import { UserService } from '../services/user.service';
 import * as express from 'express';
 import { UserI } from '../../../common/user';
 import { Log } from '../models/log';
+import { userInfo } from 'os';
 import { User } from '../models/user';
 
 export class AuthController {
@@ -22,27 +23,28 @@ export class AuthController {
     });
 
     app.post('/authenticate', async (request, response) => {
-      let authRequest = null;
       try {
-        authRequest = <UserI>request.body;
+        const authRequest = <UserI>request.body;
         if (await UserService.checkCredentials(authRequest.email, authRequest.password)) {
-          const logMessage = `Erfolgreicher Login`;
-          const log = new Log();
-          log.userId = authRequest.username;
-          log.message = logMessage;
-          log.save();
-          response.status(200).send({ username: authRequest.username });
+          const user = await User.findOne({ email: authRequest.email }, { relations: ["tenant"] });
+          // now check if the user is allowed for this tenant:
+          if (user.tenant.id === authRequest.tenantId) {
+            Log.write(user.tenant.id, user.id, `Erfolgreicher Login`);
+            response.status(200).send(user);
+          } else {
+            response.status(403).send({ error: 'Login nicht diesem Acccount zugeordnet' });
+          }
         } else {
           let email = '"unbekannter Benutzer"';
           if (authRequest.email) {
             email = authRequest.email;
           }
           console.log('\x1b[33mAnmeldung fehlgeschlagen für ' + email + '\x1b[0m');
-          response.status(401).send({ message: 'Nutzername oder Passwort falsch' });
+          response.status(401).send({ error: 'Nutzername oder Passwort falsch' });
         }
       } catch (e) {
         console.log('\x1b[31mTechnischer Fehler beim Login\x1b[0m', e);
-        response.status(401).send({ message: 'Technischer Fehler beim Login' });
+        response.status(401).send({ error: 'Technischer Fehler beim Login' });
       }
     });
   }

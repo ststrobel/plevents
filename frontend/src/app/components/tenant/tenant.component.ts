@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { Tenant } from "../../models/tenant";
 import { User } from "src/app/models/user";
 import { TenantService } from "../../services/tenant.service";
@@ -7,16 +7,18 @@ import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { clone, reject, findIndex } from "lodash";
 import { UserService } from "src/app/services/user.service";
 import { ActivatedRoute } from "@angular/router";
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: "app-tenant",
   templateUrl: "./tenant.component.html",
   styleUrls: ["./tenant.component.scss"],
 })
-export class TenantComponent implements OnInit {
+export class TenantComponent implements OnInit, OnDestroy {
   tenant: Tenant = null;
   users: User[] = new Array<User>();
   tenantForm: FormGroup;
+  private tenantSubscription: Subscription;
 
   constructor(
     private authService: AuthenticationService,
@@ -26,25 +28,35 @@ export class TenantComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.tenantService.load(this.route.snapshot.params.tenantPath);
     this.tenantForm = new FormGroup({
       name: new FormControl("", Validators.required),
       path: new FormControl("", Validators.required),
     });
-    // load tenant details
-    this.tenantService
-      .get(this.authService.userValue.tenantId)
-      .subscribe((tenant: Tenant) => {
-        this.tenant = tenant;
-        this.tenantForm.get("name").setValue(this.tenant.name);
-        this.tenantForm.get("path").setValue(this.tenant.path);
-      });
-    // load users for this tenant
-    this.tenantService
-      .getUsers(this.authService.userValue.tenantId)
-      .subscribe((users: User[]) => {
-        this.users = users;
-      });
+    this.tenantSubscription = this.tenantService.currentTenant.subscribe((tenant: Tenant) => {
+      if (tenant) {
+        // load tenant details
+        this.tenantService
+          .get(tenant.id)
+          .subscribe((tenant: Tenant) => {
+            this.tenant = tenant;
+            this.tenantForm.get("name").setValue(this.tenant.name);
+            this.tenantForm.get("path").setValue(this.tenant.path);
+          });
+        // load users for this tenant
+        this.tenantService
+          .getUsers(tenant.id)
+          .subscribe((users: User[]) => {
+            this.users = users;
+          });
+      }
+    })
+    this.tenantService.load(this.route.snapshot.params.tenantPath);
+  }
+
+  ngOnDestroy(): void {
+    if (this.tenantSubscription) {
+      this.tenantSubscription.unsubscribe();
+    }
   }
 
   isInvalid(formControlName: string): boolean {

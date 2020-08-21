@@ -1,5 +1,6 @@
 import { UserI } from '../../../common/user';
-import { BaseEntity, Column, PrimaryGeneratedColumn, Entity, BeforeInsert, BeforeUpdate } from 'typeorm';
+import { BaseEntity, Column, PrimaryGeneratedColumn, Entity, BeforeInsert, BeforeUpdate, ManyToOne } from 'typeorm';
+import { Tenant } from './tenant';
 const bcrypt = require('bcrypt');
 
 @Entity()
@@ -12,24 +13,27 @@ export class User extends BaseEntity implements UserI {
   name: string;
   @Column()
   email: string;
-  @Column()
+  @Column({select: false})
   password: string;
-  tenantId?: number;
+  @ManyToOne((type) => Tenant, { cascade: true, onDelete: "CASCADE", eager: true })
+  tenant: Tenant;
 
-  validPassword(password: string): boolean {
-    return bcrypt.compare(password, this.password);
+  async validPassword(password: string): Promise<boolean> {
+    return await bcrypt.compare(password, this.password);
   }
   @BeforeInsert()
   @BeforeUpdate()
   encryptUserPW() {
-    return bcrypt
-      .hash(this.password, 10)
-      .then((hash: any) => {
-        this.password = hash;
-      })
-      .catch((error: any) => {
-        throw new Error(error);
-      });
+    if (this.password) {
+      return bcrypt
+        .hash(this.password, 10)
+        .then((hash: any) => {
+          this.password = hash;
+        })
+        .catch((error: any) => {
+          throw new Error(error);
+        }); 
+    }
   }
 }
 /*

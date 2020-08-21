@@ -17,7 +17,7 @@ export class LoginComponent implements OnInit {
   submitted = false;
   returnUrl: string;
   error = "";
-  tenantName: string;
+  tenant: Tenant;
 
   constructor(
     private route: ActivatedRoute,
@@ -34,7 +34,10 @@ export class LoginComponent implements OnInit {
   ngOnInit() {
     this.tenantService.currentTenant.subscribe((tenant: Tenant) => {
       if (tenant) {
-        this.tenantName = tenant.name;
+        this.tenant = tenant;
+        // get return url from route parameters or default to '/'
+        this.returnUrl =
+          this.route.snapshot.queryParams["returnUrl"] || this.tenant.path + "/dashboard";
       }
     });
     this.tenantService.load(this.route.snapshot.params.tenantPath);
@@ -42,10 +45,10 @@ export class LoginComponent implements OnInit {
       username: new FormControl("", Validators.required),
       password: new FormControl("", Validators.required),
     });
+  }
 
-    // get return url from route parameters or default to '/'
-    this.returnUrl =
-      this.route.snapshot.queryParams["returnUrl"] || "../dashboard";
+  tenantPath(): string {
+    return this.route.snapshot.params.tenantPath;
   }
 
   onSubmit() {
@@ -56,10 +59,10 @@ export class LoginComponent implements OnInit {
     this.loading = true;
     this.authenticationService
       .login(
+        this.tenant.id,
         this.loginForm.get("username").value,
         this.loginForm.get("password").value
       )
-      .pipe(first())
       .subscribe(
         (data) => {
           this.router.navigate(this.returnUrl.split("/"));
