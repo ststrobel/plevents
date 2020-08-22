@@ -44,11 +44,11 @@
           class="form-control"
           (keyup)="checkPath()"
           [ngClass]="{
-            'is-invalid': pathTaken || isInvalid('path'),
-            'is-valid': !pathTaken && registrationForm.get('path').valid
+            'is-invalid': pathCheck.pathTaken || isInvalid('path'),
+            'is-valid': !pathCheck.pathTaken && registrationForm.get('path').valid
           }"
         />
-        <div *ngIf="pathTaken" class="invalid-feedback">
+        <div *ngIf="pathCheck.pathTaken" class="invalid-feedback">
           Dieser Pfad ist bereits leider vergeben
         </div>
         <div class="valid-feedback">

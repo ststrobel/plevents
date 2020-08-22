@@ -3,13 +3,14 @@ import { HttpClient } from "@angular/common/http";
 import { map } from "rxjs/operators";
 import { TenantAdapter, Tenant } from "../models/tenant";
 import { UserAdapter, User } from "../models/user";
-import { Observable, BehaviorSubject } from "rxjs";
+import { Observable, BehaviorSubject, Subscription } from "rxjs";
 import { environment } from "../../environments/environment";
 
 @Injectable({ providedIn: "root" })
 export class TenantService {
   private currentTenantSubject: BehaviorSubject<Tenant>;
   public currentTenant: Observable<Tenant>;
+  private checkPathSubscription: Subscription = null;
 
   constructor(
     private http: HttpClient,
@@ -98,6 +99,42 @@ export class TenantService {
       .pipe(
         // Adapt the raw items
         map((item) => this.userAdapter.adapt(item))
+      );
+  }
+
+  /**
+   * will check if a given path is already taken by someone. the result (true|false) will be set on the parameter variable "checkResultReference"
+   * @param pathToCheck 
+   */
+  checkPath(pathToCheck: string, checkResultReference: { pathTaken: boolean }): void {
+    // unsubscribe from any potential previous request:
+    if (this.checkPathSubscription) {
+      this.checkPathSubscription.unsubscribe();
+    }
+    this.checkPathSubscription = this
+      .getByPath(pathToCheck)
+      .subscribe(
+        (potentiallyExistingTenant) => {
+          // now check if a tenant exists:
+          if (
+            potentiallyExistingTenant &&
+            potentiallyExistingTenant.path ===
+            pathToCheck
+          ) {
+            checkResultReference.pathTaken = true;
+            this.checkPathSubscription.unsubscribe();
+            this.checkPathSubscription = null;
+          } else {
+            checkResultReference.pathTaken = false;
+            this.checkPathSubscription.unsubscribe();
+            this.checkPathSubscription = null;
+          }
+        },
+        (error) => {
+          checkResultReference.pathTaken = false;
+          this.checkPathSubscription.unsubscribe();
+          this.checkPathSubscription = null;
+        }
       );
   }
 }

@@ -15,7 +15,9 @@ export class TenantRegistrationComponent implements OnInit {
   error: string = null;
   loading: boolean = false;
   currentSubscription: Subscription = null;
-  pathTaken: boolean = false;
+  pathCheck = {
+    pathTaken: false
+  };
 
   constructor(private tenantService: TenantService, private router: Router) {}
 
@@ -31,32 +33,7 @@ export class TenantRegistrationComponent implements OnInit {
   }
 
   checkPath(): void {
-    // unsubscribe from any potential previous request:
-    if (this.currentSubscription) {
-      this.currentSubscription.unsubscribe();
-    }
-    this.currentSubscription = this.tenantService
-      .getByPath(this.registrationForm.get("path").value)
-      .subscribe(
-        (potentiallyExistingTenant) => {
-          // now check if a tenant exists:
-          if (
-            potentiallyExistingTenant &&
-            potentiallyExistingTenant.path ===
-              this.registrationForm.get("path").value
-          ) {
-            this.pathTaken = true;
-            this.currentSubscription = null;
-          } else {
-            this.pathTaken = false;
-            this.currentSubscription = null;
-          }
-        },
-        (error) => {
-          this.pathTaken = false;
-          this.currentSubscription = null;
-        }
-      );
+    this.tenantService.checkPath(this.registrationForm.get("path").value, this.pathCheck);
   }
 
   isInvalid(formControlName: string): boolean {

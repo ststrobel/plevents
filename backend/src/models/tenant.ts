@@ -11,6 +11,6 @@ export class Tenant extends BaseEntity implements TenantI {
   name: string;
   @Column({ nullable: true })
   logo: string;
-  @Column()
+  @Column({ unique: true })
   path: string;
 }

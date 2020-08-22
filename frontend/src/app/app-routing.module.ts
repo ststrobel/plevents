@@ -8,6 +8,7 @@ import { Routes, RouterModule } from "@angular/router";
 import { NgModule } from "@angular/core";
 import { HTTP_INTERCEPTORS } from "@angular/common/http";
 import { TenantComponent } from "./components/tenant/tenant.component";
+import { ErrorComponent } from "./components/error/error.component";
 import { RegistrationComponent } from "./components/registration/registration.component";
 import { TenantRegistrationComponent } from "./components/tenant-registration/tenant-registration.component";
 
@@ -15,6 +16,10 @@ const routes: Routes = [
   {
     path: "registrierung",
     component: TenantRegistrationComponent,
+  },
+  {
+    path: "fehler/:errortype",
+    component: ErrorComponent,
   },
   {
     path: ":tenantPath",

@@ -66,8 +66,12 @@ export class TenantController {
           tenant.name = req.body.name;
           tenant.path = req.body.path;
           tenant.logo = req.body.logo;
-          tenant.save();
-          res.status(200).send(tenant);
+          try {
+            await tenant.save();
+            res.status(200).send(tenant);
+          } catch (e) {
+            res.status(500).send({ error: 'Error saving tenant' });
+          }
         } else {
           res.status(403).send({ message: 'You are not allowed to update this tenant' });
         }

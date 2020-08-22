@@ -6,7 +6,7 @@ import { AuthenticationService } from "src/app/services/authentication.service";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { clone, reject, findIndex } from "lodash";
 import { UserService } from "src/app/services/user.service";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -19,12 +19,16 @@ export class TenantComponent implements OnInit, OnDestroy {
   users: User[] = new Array<User>();
   tenantForm: FormGroup;
   private tenantSubscription: Subscription;
+  pathCheck = {
+    pathTaken: false
+  };
 
   constructor(
     private authService: AuthenticationService,
     private tenantService: TenantService,
     private userService: UserService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -75,15 +79,21 @@ export class TenantComponent implements OnInit, OnDestroy {
   }
 
   updateTenant(): void {
-    if (this.tenantForm.invalid) {
+    if (this.tenantForm.invalid || this.pathCheck.pathTaken) {
       this.tenantForm.markAllAsTouched();
       return;
     }
     const updatedTenant = clone(this.tenant);
     updatedTenant.name = this.tenantForm.get("name").value;
     updatedTenant.path = this.tenantForm.get("path").value;
+    const pathChanged = updatedTenant.path !== this.tenant.path;
     this.tenantService.update(updatedTenant).subscribe((tenant: Tenant) => {
-      this.tenant = tenant;
+      if (pathChanged) {
+        // the path was changed, reload the page
+        this.router.navigate([tenant.path, 'verwaltung']);
+      } else {
+        this.tenant = tenant;
+      }
     });
   }
 
@@ -105,6 +115,14 @@ export class TenantComponent implements OnInit, OnDestroy {
         alert("Account gelöscht!");
         this.authService.logout();
       });
+    }
+  }
+
+  checkPath(): void {
+    // only check the path if it is different than the already-existing one
+    const desiredNewPath = this.tenantForm.get("path").value;
+    if (desiredNewPath !== this.tenant.path) {
+      this.tenantService.checkPath(this.tenantForm.get("path").value, this.pathCheck);
     }
   }
 }

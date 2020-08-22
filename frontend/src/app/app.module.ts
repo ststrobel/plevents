@@ -12,6 +12,7 @@ import { EventsComponent } from "./components/events/events.component";
 import { TenantComponent } from "./components/tenant/tenant.component";
 import { RegistrationComponent } from './components/registration/registration.component';
 import { TenantRegistrationComponent } from './components/tenant-registration/tenant-registration.component';
+import { ErrorComponent } from './components/error/error.component';
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { TenantRegistrationComponent } from './components/tenant-registration/te
     TenantComponent,
     RegistrationComponent,
     TenantRegistrationComponent,
+    ErrorComponent
   ],
   imports: [
     BrowserModule,

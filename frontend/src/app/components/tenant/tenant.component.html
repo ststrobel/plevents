@@ -26,7 +26,13 @@
         id="path"
         type="text"
         formControlName="path"
+        (keyup)="checkPath()"
+        [ngClass]="{
+            'is-invalid': pathCheck.pathTaken
+          }"
       />
+      <div *ngIf="pathCheck.pathTaken" class="invalid-feedback"> Dieser Pfad ist bereits leider
+        vergeben </div>
     </div>
   </div>
   <div class="col-12 col-md-3 offset-md-9">
