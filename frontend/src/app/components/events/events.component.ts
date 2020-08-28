@@ -76,12 +76,14 @@ export class EventsComponent implements OnInit {
 
   loadEvents(): void {
     this.timeColumns = new Array<string>();
+    const today = moment();
+    const start = today.clone().startOf('week').add(1, 'week');
+    const end = today.clone().endOf('week').add(1, 'week');
     this.eventService
-      .getEvents(this.tenantService.currentTenantValue.id)
+      .getEvents(this.tenantService.currentTenantValue.id, start, end)
       .subscribe((events: Event[]) => {
         // filter out all events that are disabled
-        events = filter(events, { disabled: false });
-        this.eventsInTimeframe = this.eventsInNextWeek(events);
+        this.eventsInTimeframe = filter(events, { disabled: false });
         // first, check for what classes we have events:
         this.classOptions = new Array<string>();
         this.classOptions.push(
@@ -119,15 +121,6 @@ export class EventsComponent implements OnInit {
     this.timeColumns = [];
     each(this.week.events, (event: Event) => {
       this.timeColumns.push(event.displayTime());
-    });
-  }
-
-  eventsInNextWeek(events: Event[]): Event[] {
-    const today = moment();
-    const start = today.clone().startOf('week').add(1, 'week');
-    const end = today.clone().endOf('week').add(1, 'week');
-    return filter(events, (event: Event) => {
-      return moment(event.date).isBetween(start, end, undefined, '[]');
     });
   }
 

@@ -63,10 +63,10 @@ export class DashboardComponent implements OnInit {
   }
 
   loadAllEvents(tenant: Tenant): void {
-    this.weeks = new Array<Week>();
-    this.uniqueEvents = new Array<Event>();
-    this.timeColumns = new Array<string>();
     this.eventService.getEvents(tenant.id).subscribe((events: Event[]) => {
+      this.weeks = new Array<Week>();
+      this.uniqueEvents = new Array<Event>();
+      this.timeColumns = new Array<string>();
       this.allEvents = events;
       this.uniqueEvents = Event.unique(this.allEvents);
       this.uniqueEvents = sortBy(this.uniqueEvents, ['weekDay', 'time']);

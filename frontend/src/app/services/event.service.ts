@@ -13,27 +13,40 @@ import { environment } from 'src/environments/environment';
 export class EventService {
   constructor(
     private http: HttpClient,
-    private adapter: EventAdapter,
+    private eventAdapter: EventAdapter,
     private participantAdapter: ParticipantAdapter
   ) {}
 
   /**
    * get all events for a specific tenant
    * @param tenantId
+   * @param start the start date/time of the timeframe
+   * @param end the end date/time of the timeframe
    */
-  getEvents(tenantId: string): Observable<Event[]> {
+  getEvents(
+    tenantId: string,
+    start?: moment.Moment,
+    end?: moment.Moment
+  ): Observable<Event[]> {
+    const params: any = {};
+    if (start) {
+      params.start = start.format('yyyy-MM-DD');
+    }
+    if (end) {
+      params.end = end.format('yyyy-MM-DD');
+    }
     return this.http
-      .get(`${environment.apiUrl}/tenants/${tenantId}/events`)
+      .get(`${environment.apiUrl}/tenants/${tenantId}/events`, { params })
       .pipe(
         // Adapt the raw items
-        map((data: any[]) => data.map(item => this.adapter.adapt(item)))
+        map((data: any[]) => data.map(item => this.eventAdapter.adapt(item)))
       );
   }
 
   createEvent(event: EventI): Observable<Event> {
     return this.http.post(`${environment.apiUrl}/secure/events`, event).pipe(
       // Adapt the raw items
-      map(data => this.adapter.adapt(data))
+      map(data => this.eventAdapter.adapt(data))
     );
   }
 
@@ -49,7 +62,7 @@ export class EventService {
       )
       .pipe(
         // Adapt the raw items
-        map(data => this.adapter.adapt(data))
+        map(data => this.eventAdapter.adapt(data))
       );
   }
 
