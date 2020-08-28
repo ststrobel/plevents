@@ -1,4 +1,4 @@
 export const environment = {
-  production: false,
-  apiUrl: "https://plevents.uber.space/api",
+  production: true,
+  apiUrl: 'https://plevents.de/api',
 };
