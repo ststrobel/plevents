@@ -67,7 +67,9 @@
         >
       </li>-->
     </ul>
-    angemeldet als:&nbsp;<u>{{ username() }}</u>
+    <span class="mr-auto">
+      angemeldet als:&nbsp;<u>{{ username() }}</u>
+    </span>
     <button
       class="btn btn-outline-danger my-2 my-sm-0 ml-3"
       *ngIf="tenant"

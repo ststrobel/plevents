@@ -7,8 +7,9 @@ import * as moment from 'moment';
 import { Event } from 'src/app/models/event';
 import { Participant } from 'src/app/models/participant';
 import { TenantService } from 'src/app/services/tenant.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Tenant } from 'src/app/models/tenant';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-events',
@@ -29,10 +30,22 @@ export class EventsComponent implements OnInit {
   constructor(
     private eventService: EventService,
     private tenantService: TenantService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit() {
+    // load the tenant information and redirect in case tenant path does not exist:
+    this.tenantService
+      .getByPath(this.route.snapshot.params.tenantPath)
+      .subscribe(null, error => {
+        if (
+          error === 'Not Found' ||
+          (error instanceof HttpErrorResponse && error.status === 404)
+        ) {
+          this.router.navigate(['fehler', 'account-not-found']);
+        }
+      });
     this.createRegisterForm();
     this.tenantService.load(this.route.snapshot.params.tenantPath);
     this.tenantService.currentTenant.subscribe((tenant: Tenant) => {

@@ -1,22 +1,23 @@
-import { Component, OnInit } from "@angular/core";
-import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { Router, ActivatedRoute } from "@angular/router";
-import { first } from "rxjs/operators";
-import { AuthenticationService } from "src/app/services/authentication.service";
-import { TenantService } from "src/app/services/tenant.service";
-import { Tenant } from "src/app/models/tenant";
+import { Component, OnInit } from '@angular/core';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router';
+import { first } from 'rxjs/operators';
+import { AuthenticationService } from 'src/app/services/authentication.service';
+import { TenantService } from 'src/app/services/tenant.service';
+import { Tenant } from 'src/app/models/tenant';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
-  selector: "app-login",
-  templateUrl: "./login.component.html",
-  styleUrls: ["./login.component.scss"],
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   loading = false;
   submitted = false;
   returnUrl: string;
-  error = "";
+  error = '';
   tenant: Tenant;
 
   constructor(
@@ -27,23 +28,35 @@ export class LoginComponent implements OnInit {
   ) {
     // redirect to home if already logged in
     if (this.authenticationService.userValue) {
-      this.router.navigate(["/"]);
+      this.router.navigate(['/']);
     }
   }
 
   ngOnInit() {
+    // load the tenant information and redirect in case tenant path does not exist:
+    this.tenantService
+      .getByPath(this.route.snapshot.params.tenantPath)
+      .subscribe(null, error => {
+        if (
+          error === 'Not Found' ||
+          (error instanceof HttpErrorResponse && error.status === 404)
+        ) {
+          this.router.navigate(['fehler', 'account-not-found']);
+        }
+      });
     this.tenantService.currentTenant.subscribe((tenant: Tenant) => {
       if (tenant) {
         this.tenant = tenant;
         // get return url from route parameters or default to '/'
         this.returnUrl =
-          this.route.snapshot.queryParams["returnUrl"] || this.tenant.path + "/dashboard";
+          this.route.snapshot.queryParams['returnUrl'] ||
+          this.tenant.path + '/dashboard';
       }
     });
     this.tenantService.load(this.route.snapshot.params.tenantPath);
     this.loginForm = new FormGroup({
-      username: new FormControl("", Validators.required),
-      password: new FormControl("", Validators.required),
+      username: new FormControl('', Validators.required),
+      password: new FormControl('', Validators.required),
     });
   }
 
@@ -60,14 +73,14 @@ export class LoginComponent implements OnInit {
     this.authenticationService
       .login(
         this.tenant.id,
-        this.loginForm.get("username").value,
-        this.loginForm.get("password").value
+        this.loginForm.get('username').value,
+        this.loginForm.get('password').value
       )
       .subscribe(
-        (data) => {
-          this.router.navigate(this.returnUrl.split("/"));
+        data => {
+          this.router.navigate(this.returnUrl.split('/'));
         },
-        (error) => {
+        error => {
           this.error = error;
           this.loading = false;
         }
