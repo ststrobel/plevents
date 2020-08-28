@@ -1,4 +1,4 @@
-@import "../../../styles-variables.scss";
+@import '../../../styles-variables.scss';
 
 .greyedOut {
   background-color: $plevents-grey-light;
@@ -52,10 +52,19 @@
   cursor: pointer;
 }
 
-table tr {
-  height: 53px;
-}
-td.currentCW {
-  background-color: $plevents-red;
-  color: white;
+table {
+  margin-top: 40px;
+  max-width: 100%;
+  thead {
+    background-color: lightgray;
+  }
+  tbody {
+    tr {
+      height: 53px;
+      td.currentCW {
+        background-color: $plevents-red;
+        color: white;
+      }
+    }
+  }
 }

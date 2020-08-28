@@ -5,9 +5,9 @@
       <label for="classSelect">In welcher Klasse bist du?</label>
       <select class="form-control" id="classSelect">
         <option>--- bitte auswählen ---</option>
-        <option *ngFor="let classOption of classOptions">{{
-          classOption
-        }}</option>
+        <option *ngFor="let classOption of classOptions">
+          {{ classOption }}
+        </option>
       </select>
     </div>
   </form>
@@ -22,18 +22,18 @@
   <p>
     Registriere dich bitte für <b>maximal eine</b> der folgenden Aktivitäten:
   </p>
-  <table style="width: 100%;">
+  <table style="width: 100%">
     <thead>
       <tr>
         <th
           [ngStyle]="{ width: 100 / (week.events.length + 1) + '%' }"
-          style="padding-left: 100px;"
+          style="padding-left: 100px"
         >
           KW
         </th>
         <th
           [ngStyle]="{ width: 100 / (week.events.length + 1) + '%' }"
-          style="text-align: center;"
+          style="text-align: center"
           *ngFor="let uniqueEvent of week.events"
         >
           {{ uniqueEvent.displayName() }}
@@ -44,7 +44,7 @@
     </thead>
     <tbody>
       <tr *ngIf="week != null">
-        <td style="padding-left: 100px;">{{ week.number }} (nächste Woche)</td>
+        <td style="padding-left: 100px">{{ week.number }} (nächste Woche)</td>
         <td *ngFor="let time of timeColumns">
           <div
             *ngIf="eventAt(time, week.events) !== undefined"
@@ -108,7 +108,7 @@
     </tbody>
   </table>
 
-  <div style="margin-top: 40px;" [hidden]="selectedEvent === null">
+  <div style="margin-top: 40px" [hidden]="selectedEvent === null">
     <div
       [hidden]="selectedEvent && !selectedEvent.isInPast()"
       class="alert alert-secondary"
@@ -211,35 +211,33 @@
           </div>
           <div
             class="col-12 col-md-8 form-check"
+            *ngIf="consentText && consentText.length > 0"
             [ngClass]="{
               invalid:
                 registerForm.touched &&
                 registerForm.get('consent').value === false
             }"
-            style="padding-top: 26px; padding-left: 1.25rem;"
+            style="padding-top: 26px; padding-left: 1.25rem"
           >
             <input
               class="form-check-input"
               id="consent"
               type="checkbox"
               formControlName="consent"
-              style="margin-left: 0px;"
+              style="margin-left: 0px"
             />
             <label
               class="form-check-label"
               for="consent"
-              style="margin-bottom: 0; margin-left: 1.25rem; cursor: pointer;"
-              >Ich erkläre mich zur Speicherung meiner Daten im Zuge der
-              Corona-Verordnung einverstanden. Ich verstehe, dass meine Daten 4
-              Wochen nach Stattfinden der Aktivität DSGVO-konform gelöscht
-              werden.</label
+              style="margin-bottom: 0; margin-left: 1.25rem; cursor: pointer"
+              >{{ consentText }}</label
             >
           </div>
           <div class="col-12 col-md-4">
             <button
               class="btn btn-block btn-success"
               type="submit"
-              style="margin-top: 32px;"
+              style="margin-top: 32px"
             >
               Zum Event anmelden
             </button>

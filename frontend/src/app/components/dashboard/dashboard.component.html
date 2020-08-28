@@ -1,80 +1,6 @@
 <h2>Übersicht über alle anstehenden Events</h2>
-<table style="max-width: 100%;">
-  <thead>
-    <tr>
-      <th style="width: 100px;">KW</th>
-      <th
-        style="width: 300px; text-align: center;"
-        *ngFor="let uniqueEvent of uniqueEvents"
-      >
-        {{ uniqueEvent.displayName() }}
-        <br />
-        {{ uniqueEvent.displayTime() }}
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let week of weeks">
-      <td [ngClass]="{ currentCW: week.number === currentCW() }">
-        {{ week.number }}
-        <small *ngIf="week.number === currentCW()"><br />aktuelle Woche</small>
-      </td>
-      <td
-        class="greyedOut"
-        style="
-          border: 1px solid white;
-          height: 25px;
-          line-height: 25px;
-          text-align: center;
-        "
-        [ngClass]="{
-          happening: eventAt(time, week.events) !== undefined,
-          unavailable:
-            eventAt(time, week.events) !== undefined &&
-            eventAt(time, week.events).takenSeats >=
-              eventAt(time, week.events).maxSeats
-        }"
-        *ngFor="let time of timeColumns"
-      >
-        <div
-          *ngIf="eventAt(time, week.events) !== undefined"
-          [ngClass]="{ disabled: eventAt(time, week.events).disabled }"
-          style="position: relative;"
-        >
-          {{ eventAt(time, week.events).displayDate() }}<br />
-          <small
-            >{{ eventAt(time, week.events).takenSeats }} /
-            {{ eventAt(time, week.events).maxSeats }} </small
-          ><i
-            class="fas fa-2x fa-file-pdf downloadIcon"
-            (click)="downloadPdf(eventAt(time, week.events))"
-            title="Download Teilnehmerliste"
-          ></i>
-          <small
-            class="stateToggler"
-            (click)="toggleDisabled(eventAt(time, week.events))"
-          >
-            <i *ngIf="!eventAt(time, week.events).disabled">aktiv</i>
-            <i *ngIf="eventAt(time, week.events).disabled">inaktiv</i>
-          </small>
-        </div>
-      </td>
-    </tr>
-    <tr>
-      <td></td>
-      <td *ngFor="let uniqueEvent of uniqueEvents; let i = index">
-        <button
-          class="btn btn-sm btn-block btn-outline-danger my-2 my-sm-0"
-          (click)="deleteEventSeries(i)"
-        >
-          Löschen
-        </button>
-      </td>
-    </tr>
-  </tbody>
-</table>
 
-<div style="margin-top: 40px;">
+<div style="margin-top: 40px">
   <h5>Hier können Sie ein neues Reihenevent anlegen:</h5>
   <form [formGroup]="newEventForm" (ngSubmit)="addNewEvent()">
     <div class="row">
@@ -138,7 +64,7 @@
         <button
           class="btn btn-block btn-outline-success"
           type="submit"
-          style="margin-top: 32px;"
+          style="margin-top: 32px"
         >
           Event erstellen
         </button>
@@ -146,3 +72,78 @@
     </div>
   </form>
 </div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width: 100px">KW</th>
+      <th
+        style="width: 300px; text-align: center"
+        *ngFor="let uniqueEvent of uniqueEvents"
+      >
+        {{ uniqueEvent.displayName() }}
+        <br />
+        {{ uniqueEvent.displayTime() }}
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let week of weeks">
+      <td [ngClass]="{ currentCW: week.number === currentCW() }">
+        {{ week.number }}
+        <small *ngIf="week.number === currentCW()"><br />aktuelle Woche</small>
+      </td>
+      <td
+        class="greyedOut"
+        style="
+          border: 1px solid white;
+          height: 25px;
+          line-height: 25px;
+          text-align: center;
+        "
+        [ngClass]="{
+          happening: eventAt(time, week.events) !== undefined,
+          unavailable:
+            eventAt(time, week.events) !== undefined &&
+            eventAt(time, week.events).takenSeats >=
+              eventAt(time, week.events).maxSeats
+        }"
+        *ngFor="let time of timeColumns"
+      >
+        <div
+          *ngIf="eventAt(time, week.events) !== undefined"
+          [ngClass]="{ disabled: eventAt(time, week.events).disabled }"
+          style="position: relative"
+        >
+          {{ eventAt(time, week.events).displayDate() }}<br />
+          <small
+            >{{ eventAt(time, week.events).takenSeats }} /
+            {{ eventAt(time, week.events).maxSeats }} </small
+          ><i
+            class="fas fa-2x fa-file-pdf downloadIcon"
+            (click)="downloadPdf(eventAt(time, week.events))"
+            title="Download Teilnehmerliste"
+          ></i>
+          <small
+            class="stateToggler"
+            (click)="toggleDisabled(eventAt(time, week.events))"
+          >
+            <i *ngIf="!eventAt(time, week.events).disabled">aktiv</i>
+            <i *ngIf="eventAt(time, week.events).disabled">inaktiv</i>
+          </small>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td></td>
+      <td *ngFor="let uniqueEvent of uniqueEvents; let i = index">
+        <button
+          class="btn btn-sm btn-block btn-outline-danger my-2 my-sm-0"
+          (click)="deleteEventSeries(i)"
+        >
+          Löschen
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>

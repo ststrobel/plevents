@@ -1,18 +1,18 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
-import { Tenant } from "../../models/tenant";
-import { User } from "src/app/models/user";
-import { TenantService } from "../../services/tenant.service";
-import { AuthenticationService } from "src/app/services/authentication.service";
-import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { clone, reject, findIndex } from "lodash";
-import { UserService } from "src/app/services/user.service";
-import { ActivatedRoute, Router } from "@angular/router";
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Tenant } from '../../models/tenant';
+import { User } from 'src/app/models/user';
+import { TenantService } from '../../services/tenant.service';
+import { AuthenticationService } from 'src/app/services/authentication.service';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { clone, reject, findIndex } from 'lodash';
+import { UserService } from 'src/app/services/user.service';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: "app-tenant",
-  templateUrl: "./tenant.component.html",
-  styleUrls: ["./tenant.component.scss"],
+  selector: 'app-tenant',
+  templateUrl: './tenant.component.html',
+  styleUrls: ['./tenant.component.scss'],
 })
 export class TenantComponent implements OnInit, OnDestroy {
   tenant: Tenant = null;
@@ -20,7 +20,7 @@ export class TenantComponent implements OnInit, OnDestroy {
   tenantForm: FormGroup;
   private tenantSubscription: Subscription;
   pathCheck = {
-    pathTaken: false
+    pathTaken: false,
   };
 
   constructor(
@@ -33,27 +33,29 @@ export class TenantComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.tenantForm = new FormGroup({
-      name: new FormControl("", Validators.required),
-      path: new FormControl("", Validators.required),
+      name: new FormControl('', Validators.required),
+      path: new FormControl('', Validators.required),
+      consentText: new FormControl(''),
     });
-    this.tenantSubscription = this.tenantService.currentTenant.subscribe((tenant: Tenant) => {
-      if (tenant) {
-        // load tenant details
-        this.tenantService
-          .get(tenant.id)
-          .subscribe((tenant: Tenant) => {
+    this.tenantSubscription = this.tenantService.currentTenant.subscribe(
+      (tenant: Tenant) => {
+        if (tenant) {
+          // load tenant details
+          this.tenantService.get(tenant.id).subscribe((tenant: Tenant) => {
             this.tenant = tenant;
-            this.tenantForm.get("name").setValue(this.tenant.name);
-            this.tenantForm.get("path").setValue(this.tenant.path);
+            this.tenantForm.get('name').setValue(this.tenant.name);
+            this.tenantForm.get('path').setValue(this.tenant.path);
+            this.tenantForm
+              .get('consentText')
+              .setValue(this.tenant.consentText);
           });
-        // load users for this tenant
-        this.tenantService
-          .getUsers(tenant.id)
-          .subscribe((users: User[]) => {
+          // load users for this tenant
+          this.tenantService.getUsers(tenant.id).subscribe((users: User[]) => {
             this.users = users;
           });
+        }
       }
-    })
+    );
     this.tenantService.load(this.route.snapshot.params.tenantPath);
   }
 
@@ -84,10 +86,12 @@ export class TenantComponent implements OnInit, OnDestroy {
       return;
     }
     const updatedTenant = clone(this.tenant);
-    updatedTenant.name = this.tenantForm.get("name").value;
-    updatedTenant.path = this.tenantForm.get("path").value;
+    updatedTenant.name = this.tenantForm.get('name').value;
+    updatedTenant.path = this.tenantForm.get('path').value;
+    updatedTenant.consentText = this.tenantForm.get('consentText').value;
     const pathChanged = updatedTenant.path !== this.tenant.path;
     this.tenantService.update(updatedTenant).subscribe((tenant: Tenant) => {
+      this.tenantService.load(tenant.path);
       if (pathChanged) {
         // the path was changed, reload the page
         this.router.navigate([tenant.path, 'verwaltung']);
@@ -98,7 +102,7 @@ export class TenantComponent implements OnInit, OnDestroy {
   }
 
   delete(user: User): void {
-    if (confirm("Wirklich diesen Nutzer löschen?")) {
+    if (confirm('Wirklich diesen Nutzer löschen?')) {
       this.userService.delete(user.id).subscribe(() => {
         this.users = reject(this.users, user);
         // if the user deleted himself, log out explicitly:
@@ -110,9 +114,9 @@ export class TenantComponent implements OnInit, OnDestroy {
   }
 
   deleteTenant(): void {
-    if (confirm("Wirklich den gesamten Account löschen?")) {
+    if (confirm('Wirklich den gesamten Account löschen?')) {
       this.tenantService.delete(this.tenant.id).subscribe(() => {
-        alert("Account gelöscht!");
+        alert('Account gelöscht!');
         this.authService.logout();
       });
     }
@@ -120,9 +124,12 @@ export class TenantComponent implements OnInit, OnDestroy {
 
   checkPath(): void {
     // only check the path if it is different than the already-existing one
-    const desiredNewPath = this.tenantForm.get("path").value;
+    const desiredNewPath = this.tenantForm.get('path').value;
     if (desiredNewPath !== this.tenant.path) {
-      this.tenantService.checkPath(this.tenantForm.get("path").value, this.pathCheck);
+      this.tenantService.checkPath(
+        this.tenantForm.get('path').value,
+        this.pathCheck
+      );
     }
   }
 }

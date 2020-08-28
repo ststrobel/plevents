@@ -1,32 +1,29 @@
-import { Component, OnInit } from "@angular/core";
-import { AuthenticationService } from "./services/authentication.service";
-import * as moment from "moment";
-import { TenantService } from "./services/tenant.service";
-import { ActivatedRoute } from "@angular/router";
+import { Component, OnInit } from '@angular/core';
+import { AuthenticationService } from './services/authentication.service';
+import * as moment from 'moment';
+import { TenantService } from './services/tenant.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
-  selector: "app-root",
-  templateUrl: "./app.component.html",
-  styleUrls: ["./app.component.scss"],
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  title = "frontend";
-  serverResult: "";
-  receivedEmail: "";
+  title = 'frontend';
+  serverResult: '';
+  receivedEmail: '';
 
   constructor(
     private authenticationService: AuthenticationService,
     private tenantService: TenantService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) {
-    moment.locale("de");
+    moment.locale('de');
   }
 
-  ngOnInit(): void {
-    if (this.route.snapshot.params.tenantPath) {
-      this.tenantService.load(this.route.snapshot.params.tenantPath);
-    }
-  }
+  ngOnInit(): void {}
 
   isLoggedIn(): boolean {
     return this.authenticationService.userValue !== null;

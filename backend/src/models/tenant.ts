@@ -5,12 +5,14 @@ dotenv.config();
 
 @Entity()
 export class Tenant extends BaseEntity implements TenantI {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
   @Column()
   name: string;
   @Column({ nullable: true })
   logo: string;
   @Column({ unique: true })
   path: string;
+  @Column({ nullable: true })
+  consentText: string;
 }

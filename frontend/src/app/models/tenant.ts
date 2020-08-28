@@ -1,12 +1,13 @@
-import { TenantI } from "../../../../common/tenant";
-import { Injectable } from "@angular/core";
-import { Adapter } from "../helpers/adapter";
+import { TenantI } from '../../../../common/tenant';
+import { Injectable } from '@angular/core';
+import { Adapter } from '../helpers/adapter';
 
 export class Tenant implements TenantI {
-  id?: number;
+  id?: string;
   name: string;
   logo: string;
   path: string;
+  consentText: string;
 
   constructor(name: string, path: string) {
     this.name = name;
@@ -15,14 +16,13 @@ export class Tenant implements TenantI {
 }
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class TenantAdapter implements Adapter<Tenant> {
   adapt(item: any): Tenant {
     const t = new Tenant(item.name, item.path);
-    if (item.id) {
-      t.id = item.id;
-    }
+    t.id = item.id;
+    t.consentText = item.consentText;
     if (item.logo) {
       t.logo = item.logo;
     }

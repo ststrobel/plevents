@@ -28,18 +28,28 @@
         formControlName="path"
         (keyup)="checkPath()"
         [ngClass]="{
-            'is-invalid': pathCheck.pathTaken
-          }"
+          'is-invalid': pathCheck.pathTaken
+        }"
       />
-      <div *ngIf="pathCheck.pathTaken" class="invalid-feedback"> Dieser Pfad ist bereits leider
-        vergeben </div>
+      <div *ngIf="pathCheck.pathTaken" class="invalid-feedback">
+        Dieser Pfad ist bereits leider vergeben
+      </div>
+    </div>
+    <div class="col-12 col-md-6">
+      <label for="consent">Einwilligungserklärung</label>
+      <br />
+      <textarea
+        class="form-control"
+        id="consent"
+        formControlName="consentText"
+      ></textarea>
     </div>
   </div>
   <div class="col-12 col-md-3 offset-md-9">
     <button
       class="btn btn-block btn-outline-success"
       (click)="updateTenant()"
-      style="margin-top: 32px;"
+      style="margin-top: 32px"
     >
       Speichern
     </button>

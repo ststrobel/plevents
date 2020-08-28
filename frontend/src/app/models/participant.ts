@@ -1,6 +1,6 @@
-import { ParticipantI } from "../../../../common/participant";
-import { Injectable } from "@angular/core";
-import { Adapter } from "../helpers/adapter";
+import { ParticipantI } from '../../../../common/participant';
+import { Injectable } from '@angular/core';
+import { Adapter } from '../helpers/adapter';
 
 export class Participant implements ParticipantI {
   email: string;
@@ -9,11 +9,11 @@ export class Participant implements ParticipantI {
   street: string;
   zip: string;
   city: string;
-  eventId: number;
+  eventId: string;
 }
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class ParticipantAdapter implements Adapter<Participant> {
   adapt(item: any): Participant {

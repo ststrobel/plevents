@@ -1,6 +1,12 @@
 import { EventI } from '../../../common/event';
-import { Participant } from './participant';
-import { BaseEntity, PrimaryGeneratedColumn, Column, Entity } from 'typeorm';
+import {
+  BaseEntity,
+  PrimaryGeneratedColumn,
+  Column,
+  Entity,
+  ManyToOne,
+} from 'typeorm';
+import { Tenant } from './tenant';
 
 @Entity()
 export class Event extends BaseEntity implements EventI {
@@ -18,6 +24,8 @@ export class Event extends BaseEntity implements EventI {
   disabled: boolean;
   @Column()
   targetClass: string;
-  // TODO add a @Column() here??
-  tenantId: number;
+  @ManyToOne(type => Tenant, { cascade: true, onDelete: 'CASCADE' })
+  tenant: Tenant;
+  @Column()
+  tenantId: string;
 }

@@ -4,10 +4,15 @@ import { Tenant } from '../models/tenant';
 import { getConnection } from 'typeorm';
 
 export class UserService {
-  public static async createUser(tenantId: number, email: string, name: string, password: string): Promise<User> {
+  public static async createUser(
+    tenantId: string,
+    email: string,
+    name: string,
+    password: string
+  ): Promise<User> {
     try {
       // check first if user already exists
-      const existingUser = await User.findOne( { email  });
+      const existingUser = await User.findOne({ email });
       if (existingUser) {
         existingUser.password = password;
         return existingUser.save();
@@ -16,7 +21,7 @@ export class UserService {
         newUser.email = email;
         newUser.name = name;
         newUser.password = password;
-        newUser.tenant = await Tenant.findOneOrFail(tenantId) as Tenant;
+        newUser.tenant = (await Tenant.findOneOrFail(tenantId)) as Tenant;
         return newUser.save();
       }
     } catch (e) {
@@ -24,7 +29,10 @@ export class UserService {
     }
   }
 
-  public static async checkCredentials(email: string, password: string): Promise<boolean> {
+  public static async checkCredentials(
+    email: string,
+    password: string
+  ): Promise<boolean> {
     try {
       // check first if user already exists
       const existingUser = await getConnection()
@@ -34,7 +42,7 @@ export class UserService {
         .from(User, 'user')
         .where(`user.email = "${email}"`)
         .leftJoinAndSelect('user.tenant', 'tenant')
-        .getOne()
+        .getOne();
       if (existingUser) {
         // check if user is active or not
         if (existingUser.active) {
@@ -45,7 +53,7 @@ export class UserService {
             Log.write(
               existingUser.tenant.id,
               existingUser.id,
-              "Fehlgeschlagener Login-Versuch"
+              'Fehlgeschlagener Login-Versuch'
             );
             return false;
           }
@@ -66,7 +74,9 @@ export class UserService {
     try {
       const authHeader = request.get('Authorization');
       const base64Credentials = authHeader.split(' ')[1];
-      const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+      const credentials = Buffer.from(base64Credentials, 'base64').toString(
+        'ascii'
+      );
       return credentials.split(':')[0];
     } catch (e) {
       return 'anonymous';
@@ -80,7 +90,9 @@ export class UserService {
   public static async currentTenant(request: any): Promise<Tenant> {
     try {
       // first get the current user, to then search for the corresponding tenant
-      const user = await User.findOne( { email: UserService.currentUser(request) });
+      const user = await User.findOne({
+        email: UserService.currentUser(request),
+      });
       return user.tenant;
     } catch (e) {
       throw e;

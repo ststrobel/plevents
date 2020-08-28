@@ -1,21 +1,33 @@
 import { UserI } from '../../../common/user';
-import { BaseEntity, Column, PrimaryGeneratedColumn, Entity, BeforeInsert, BeforeUpdate, ManyToOne } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  PrimaryGeneratedColumn,
+  Entity,
+  BeforeInsert,
+  BeforeUpdate,
+  ManyToOne,
+} from 'typeorm';
 import { Tenant } from './tenant';
 const bcrypt = require('bcrypt');
 
 @Entity()
 export class User extends BaseEntity implements UserI {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
   @Column()
   active: boolean;
   @Column()
   name: string;
   @Column()
   email: string;
-  @Column({select: false})
+  @Column({ select: false })
   password: string;
-  @ManyToOne((type) => Tenant, { cascade: true, onDelete: "CASCADE", eager: true })
+  @ManyToOne(type => Tenant, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    eager: true,
+  })
   tenant: Tenant;
 
   async validPassword(password: string): Promise<boolean> {
@@ -32,7 +44,7 @@ export class User extends BaseEntity implements UserI {
         })
         .catch((error: any) => {
           throw new Error(error);
-        }); 
+        });
     }
   }
 }

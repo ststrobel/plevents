@@ -1,6 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToMany, ManyToOne } from "typeorm";
-import { User } from "./user";
-import { Tenant } from "./tenant";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BaseEntity,
+  OneToMany,
+  ManyToOne,
+} from 'typeorm';
+import { User } from './user';
+import { Tenant } from './tenant';
 
 @Entity()
 export class Log extends BaseEntity {
@@ -8,19 +15,23 @@ export class Log extends BaseEntity {
   id: number;
 
   @Column()
-  tenantId: number;
+  tenantId: string;
 
   @Column()
-  userId: number;
+  userId: string;
 
   @Column()
   message: string;
 
-  static async write(tenant: number | Promise<Tenant>, user: string | number, message: string) {
+  static async write(
+    tenant: string | Promise<Tenant>,
+    user: string,
+    message: string
+  ) {
     const log = new Log();
     log.message = message;
     log.userId = await Log.resolveUser(user);
-    if (typeof tenant === "number") {
+    if (typeof tenant === 'string') {
       log.tenantId = tenant;
     } else {
       log.tenantId = (await tenant).id;
@@ -30,13 +41,13 @@ export class Log extends BaseEntity {
 
   /**
    * based on an ID or email address, resolve the ID of the user
-   * @param user 
+   * @param user
    */
-  private static async resolveUser(user: string | number): Promise<number> {
-    if (typeof user === "string") {
+  private static async resolveUser(user: string): Promise<string> {
+    if (user.indexOf('@') > 0) {
       // we have a email, find the user ID first
       return (await User.findOne({ where: { email: user } })).id;
-    } else if (typeof user === "number") {
+    } else {
       return user;
     }
   }

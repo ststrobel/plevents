@@ -1,5 +1,11 @@
 import { ParticipantI } from '../../../common/participant';
-import { BaseEntity, PrimaryGeneratedColumn, Column, Entity, ManyToOne } from 'typeorm';
+import {
+  BaseEntity,
+  PrimaryGeneratedColumn,
+  Column,
+  Entity,
+  ManyToOne,
+} from 'typeorm';
 import { Event } from './event';
 
 @Entity()
@@ -18,6 +24,8 @@ export class Participant extends BaseEntity implements ParticipantI {
   zip: string;
   @Column()
   city: string;
-  @ManyToOne(type => Event, { cascade: true, onDelete: "CASCADE" })
-  event: Event
+  @ManyToOne(type => Event, { cascade: true, onDelete: 'CASCADE' })
+  event: Event;
+  @Column()
+  eventId: string;
 }

@@ -1,14 +1,14 @@
-import { Component, OnInit } from "@angular/core";
-import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { TenantService } from "src/app/services/tenant.service";
-import { Subscription } from "rxjs";
+import { Component, OnInit } from '@angular/core';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { TenantService } from 'src/app/services/tenant.service';
+import { Subscription } from 'rxjs';
 import { Tenant } from 'src/app/models/tenant';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: "app-tenant-registration",
-  templateUrl: "./tenant-registration.component.html",
-  styleUrls: ["./tenant-registration.component.scss"],
+  selector: 'app-tenant-registration',
+  templateUrl: './tenant-registration.component.html',
+  styleUrls: ['./tenant-registration.component.scss'],
 })
 export class TenantRegistrationComponent implements OnInit {
   registrationForm: FormGroup;
@@ -16,24 +16,28 @@ export class TenantRegistrationComponent implements OnInit {
   loading: boolean = false;
   currentSubscription: Subscription = null;
   pathCheck = {
-    pathTaken: false
+    pathTaken: false,
   };
 
   constructor(private tenantService: TenantService, private router: Router) {}
 
   ngOnInit(): void {
     this.registrationForm = new FormGroup({
-      name: new FormControl("", [Validators.required]),
-      path: new FormControl("", [
+      name: new FormControl('', [Validators.required]),
+      path: new FormControl('', [
         Validators.required,
         Validators.maxLength(40),
-        Validators.pattern("[a-z-]{0,40}"),
+        Validators.pattern('[a-z-]{0,40}'),
       ]),
+      consentText: new FormControl(''),
     });
   }
 
   checkPath(): void {
-    this.tenantService.checkPath(this.registrationForm.get("path").value, this.pathCheck);
+    this.tenantService.checkPath(
+      this.registrationForm.get('path').value,
+      this.pathCheck
+    );
   }
 
   isInvalid(formControlName: string): boolean {
@@ -49,10 +53,12 @@ export class TenantRegistrationComponent implements OnInit {
       return;
     }
     // create the tenant. aftewards, forward the user to the registration for the personal login
-    const name = this.registrationForm.get("name").value;
-    const path = this.registrationForm.get("path").value;
-    this.tenantService.create(new Tenant(name, path)).subscribe((tenant: Tenant) => {
-      this.router.navigate([tenant.path, "registrierung"]);
+    const name = this.registrationForm.get('name').value;
+    const path = this.registrationForm.get('path').value;
+    const tenantToCreate = new Tenant(name, path);
+    tenantToCreate.consentText = this.registrationForm.get('consentText').value;
+    this.tenantService.create(tenantToCreate).subscribe((tenant: Tenant) => {
+      this.router.navigate([tenant.path, 'registrierung']);
     });
   }
 }

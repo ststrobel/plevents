@@ -1,6 +1,7 @@
 export interface TenantI {
-  id?: number;
+  id?: string;
   name: string;
   logo: string;
   path: string;
+  consentText: string;
 }

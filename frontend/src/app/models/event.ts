@@ -1,12 +1,12 @@
-import { EventI } from "../../../../common/event";
-import { Injectable } from "@angular/core";
-import { Adapter } from "../helpers/adapter";
-import * as moment from "moment";
-import { each, find } from "lodash";
-import { environment } from "src/environments/environment";
+import { EventI } from '../../../../common/event';
+import { Injectable } from '@angular/core';
+import { Adapter } from '../helpers/adapter';
+import * as moment from 'moment';
+import { each, find } from 'lodash';
+import { environment } from 'src/environments/environment';
 
 export class Event implements EventI {
-  id?: number;
+  id?: string;
   date: Date;
   maxSeats: number;
   takenSeats: number;
@@ -30,12 +30,12 @@ export class Event implements EventI {
 
   displayTime(): string {
     const m = moment(this.date);
-    return m.format("ddd HH:mm");
+    return m.format('ddd HH:mm');
   }
 
   displayDate(): string {
     const m = moment(this.date);
-    return m.format("DD.MM");
+    return m.format('DD.MM');
   }
 
   isInPast(): boolean {
@@ -63,7 +63,7 @@ export class Event implements EventI {
 }
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class EventAdapter implements Adapter<Event> {
   adapt(item: any): Event {

@@ -1,12 +1,12 @@
-import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
-import { map } from "rxjs/operators";
-import { TenantAdapter, Tenant } from "../models/tenant";
-import { UserAdapter, User } from "../models/user";
-import { Observable, BehaviorSubject, Subscription } from "rxjs";
-import { environment } from "../../environments/environment";
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs/operators';
+import { TenantAdapter, Tenant } from '../models/tenant';
+import { UserAdapter, User } from '../models/user';
+import { Observable, BehaviorSubject, Subscription } from 'rxjs';
+import { environment } from '../../environments/environment';
 
-@Injectable({ providedIn: "root" })
+@Injectable({ providedIn: 'root' })
 export class TenantService {
   private currentTenantSubject: BehaviorSubject<Tenant>;
   public currentTenant: Observable<Tenant>;
@@ -28,7 +28,7 @@ export class TenantService {
   /**
    * loads the tenant for the given path.
    * if the tenant is already loaded, it is not requested at the backend again.
-   * @param tenantPath 
+   * @param tenantPath
    */
   load(tenantPath: string) {
     if (
@@ -49,16 +49,16 @@ export class TenantService {
       .get<User>(`${environment.apiUrl}/tenants/${tenantPath}`)
       .pipe(
         // Adapt the raw item
-        map((item) => this.tenantAdapter.adapt(item))
+        map(item => this.tenantAdapter.adapt(item))
       );
   }
 
-  get(tenantId: number): Observable<Tenant> {
+  get(tenantId: string): Observable<Tenant> {
     return this.http
       .get<User>(`${environment.apiUrl}/secure/tenants/${tenantId}`)
       .pipe(
         // Adapt the raw item
-        map((item) => this.tenantAdapter.adapt(item))
+        map(item => this.tenantAdapter.adapt(item))
       );
   }
 
@@ -67,74 +67,72 @@ export class TenantService {
       .put<User>(`${environment.apiUrl}/secure/tenants/${tenant.id}`, tenant)
       .pipe(
         // Adapt the raw item
-        map((item) => this.tenantAdapter.adapt(item))
+        map(item => this.tenantAdapter.adapt(item))
       );
   }
 
   create(tenant: Tenant): Observable<Tenant> {
-    return this.http
-      .post<User>(`${environment.apiUrl}/tenants`, tenant)
-      .pipe(
-        // Adapt the raw item
-        map((item) => this.tenantAdapter.adapt(item))
-      );
+    return this.http.post<User>(`${environment.apiUrl}/tenants`, tenant).pipe(
+      // Adapt the raw item
+      map(item => this.tenantAdapter.adapt(item))
+    );
   }
 
-  delete(tenantId: number): Observable<any> {
+  delete(tenantId: string): Observable<any> {
     return this.http.delete(`${environment.apiUrl}/secure/tenants/${tenantId}`);
   }
 
-  getUsers(tenantId: number): Observable<User[]> {
+  getUsers(tenantId: string): Observable<User[]> {
     return this.http
       .get<User[]>(`${environment.apiUrl}/secure/tenants/${tenantId}/users`)
       .pipe(
         // Adapt the raw items
-        map((data: any[]) => data.map((item) => this.userAdapter.adapt(item)))
+        map((data: any[]) => data.map(item => this.userAdapter.adapt(item)))
       );
   }
 
-  addUser(user: User, tenantId: number): Observable<User> {
+  addUser(user: User, tenantId: string): Observable<User> {
     return this.http
       .post<User[]>(`${environment.apiUrl}/tenants/${tenantId}/users`, user)
       .pipe(
         // Adapt the raw items
-        map((item) => this.userAdapter.adapt(item))
+        map(item => this.userAdapter.adapt(item))
       );
   }
 
   /**
    * will check if a given path is already taken by someone. the result (true|false) will be set on the parameter variable "checkResultReference"
-   * @param pathToCheck 
+   * @param pathToCheck
    */
-  checkPath(pathToCheck: string, checkResultReference: { pathTaken: boolean }): void {
+  checkPath(
+    pathToCheck: string,
+    checkResultReference: { pathTaken: boolean }
+  ): void {
     // unsubscribe from any potential previous request:
     if (this.checkPathSubscription) {
       this.checkPathSubscription.unsubscribe();
     }
-    this.checkPathSubscription = this
-      .getByPath(pathToCheck)
-      .subscribe(
-        (potentiallyExistingTenant) => {
-          // now check if a tenant exists:
-          if (
-            potentiallyExistingTenant &&
-            potentiallyExistingTenant.path ===
-            pathToCheck
-          ) {
-            checkResultReference.pathTaken = true;
-            this.checkPathSubscription.unsubscribe();
-            this.checkPathSubscription = null;
-          } else {
-            checkResultReference.pathTaken = false;
-            this.checkPathSubscription.unsubscribe();
-            this.checkPathSubscription = null;
-          }
-        },
-        (error) => {
+    this.checkPathSubscription = this.getByPath(pathToCheck).subscribe(
+      potentiallyExistingTenant => {
+        // now check if a tenant exists:
+        if (
+          potentiallyExistingTenant &&
+          potentiallyExistingTenant.path === pathToCheck
+        ) {
+          checkResultReference.pathTaken = true;
+          this.checkPathSubscription.unsubscribe();
+          this.checkPathSubscription = null;
+        } else {
           checkResultReference.pathTaken = false;
           this.checkPathSubscription.unsubscribe();
           this.checkPathSubscription = null;
         }
-      );
+      },
+      error => {
+        checkResultReference.pathTaken = false;
+        this.checkPathSubscription.unsubscribe();
+        this.checkPathSubscription = null;
+      }
+    );
   }
 }

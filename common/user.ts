@@ -1,6 +1,6 @@
 export interface UserI {
-  id?: number;
-  tenantId?: number;
+  id?: string;
+  tenantId?: string;
   email: string;
   name: string;
   password: string;

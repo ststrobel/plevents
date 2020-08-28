@@ -5,5 +5,5 @@ export interface ParticipantI {
   street: string;
   zip: string;
   city: string;
-  eventId?: number;
+  eventId?: string;
 }

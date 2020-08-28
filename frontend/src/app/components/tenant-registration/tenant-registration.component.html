@@ -45,7 +45,8 @@
           (keyup)="checkPath()"
           [ngClass]="{
             'is-invalid': pathCheck.pathTaken || isInvalid('path'),
-            'is-valid': !pathCheck.pathTaken && registrationForm.get('path').valid
+            'is-valid':
+              !pathCheck.pathTaken && registrationForm.get('path').valid
           }"
         />
         <div *ngIf="pathCheck.pathTaken" class="invalid-feedback">
@@ -58,6 +59,21 @@
         <div *ngIf="isInvalid('path')" class="invalid-feedback">
           Bitte einen gültigen Pfad angeben
         </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6">
+      Sie können hier <b>optional</b> eine Einwilligungserklärung setzen, die
+      die Teilnehmer bei Anmeldung zu einem Event akzeptieren müssen. Diesen
+      Text können Sie später noch ändern.
+    </div>
+    <div class="col-12 col-md-6">
+      <div class="form-group">
+        <label for="consent">Einwilligungserklärung</label>
+        <textarea
+          id="consent"
+          formControlName="consentText"
+          class="form-control"
+        ></textarea>
       </div>
     </div>
   </div>
