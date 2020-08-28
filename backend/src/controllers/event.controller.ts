@@ -12,9 +12,20 @@ export class EventController {
   public static register(app: express.Application): void {
     app.get('/tenants/:id/events', async (req, res) => {
       // first, get all events
-      const allEvents = await Event.find({
-        where: { tenantId: req.params.id },
-      });
+      let query = getConnection()
+        .createQueryBuilder()
+        .select('event')
+        .from(Event, 'event')
+        .where(`tenantId = '${req.params.id}'`);
+      // construct the where clause
+      if (req.query.start) {
+        query = query.andWhere(`date >= '${req.query.start}'`);
+      }
+      if (req.query.end) {
+        query = query.andWhere(`date <= '${req.query.end}'`);
+      }
+      const allEvents = await query.getMany();
+
       // then, retrieve the participants per event
       const promises = [];
       each(allEvents, (event: Event) => {
@@ -29,7 +40,7 @@ export class EventController {
             (participantsPerEvent: Participant[]) => {
               if (participantsPerEvent.length > 0) {
                 find(allEvents, {
-                  id: participantsPerEvent[0].event.id,
+                  id: participantsPerEvent[0].eventId,
                 }).takenSeats = participantsPerEvent.length;
               }
             }
@@ -51,12 +62,12 @@ export class EventController {
       event.date = eventToCreate.date;
       event.targetClass = eventToCreate.targetClass;
       event.maxSeats = eventToCreate.maxSeats;
-      (event.tenantId = (await UserService.currentTenant(req)).id),
-        event.save();
+      event.tenantId = (await UserService.currentTenant(req)).id;
+      await event.save();
       Log.write(
         UserService.currentTenant(req),
         UserService.currentUser(req),
-        `Event ${event[0].id} erstellt`
+        `Event ${event.id} erstellt`
       );
       res.status(200).send(event);
     });
@@ -119,29 +130,30 @@ export class EventController {
     app.post('/events/:id/participant', async (req, res) => {
       const newParticipant = <ParticipantI>req.body;
       newParticipant.eventId = req.params.id;
-      const participant = await Participant.findOne({ where: newParticipant });
-      if (participant === null) {
-        // check if there are still free seats on the event:
-        const event = await Event.findOne(req.params.id);
-        if (event === null) {
-          // error, no such event
-          res.status(404).send({ message: 'Event not found' });
-        } else {
-          // now gather all information on the already reserved seats
-          const participants = await Participant.find({
-            where: { eventId: newParticipant.eventId },
-          });
-          if (event.maxSeats > participants.length) {
-            const createdParticipant = newParticipant as Participant;
-            createdParticipant.save();
-            res.status(200).send(createdParticipant);
-          } else {
-            res.status(409).send({ message: 'All seats are taken already' });
-          }
-        }
+      // check if there are still free seats on the event:
+      const event = await Event.findOne(req.params.id);
+      if (event === null) {
+        // error, no such event
+        res.status(404).send({ message: 'Event not found' });
       } else {
-        // the participant is already on the event
-        res.status(200).send(participant);
+        // now gather all information on the already reserved seats
+        const participants = await Participant.find({
+          where: { eventId: newParticipant.eventId },
+        });
+        if (event.maxSeats > participants.length) {
+          const createdParticipant = new Participant();
+          createdParticipant.name = newParticipant.name;
+          createdParticipant.email = newParticipant.email;
+          createdParticipant.phone = newParticipant.phone;
+          createdParticipant.street = newParticipant.street;
+          createdParticipant.zip = newParticipant.zip;
+          createdParticipant.city = newParticipant.city;
+          createdParticipant.eventId = newParticipant.eventId;
+          await createdParticipant.save();
+          res.status(200).send(createdParticipant);
+        } else {
+          res.status(409).send({ message: 'All seats are taken already' });
+        }
       }
     });
   }

@@ -30,13 +30,18 @@ export class Log extends BaseEntity {
   ) {
     const log = new Log();
     log.message = message;
-    log.userId = await Log.resolveUser(user);
-    if (typeof tenant === 'string') {
-      log.tenantId = tenant;
-    } else {
-      log.tenantId = (await tenant).id;
-    }
-    log.save();
+    await Log.resolveUser(user).then(userId => {
+      log.userId = userId;
+      if (typeof tenant === 'string') {
+        log.tenantId = tenant;
+        log.save();
+      } else {
+        tenant.then(tenant => {
+          log.tenantId = tenant.id;
+          log.save();
+        });
+      }
+    });
   }
 
   /**

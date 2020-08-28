@@ -10,8 +10,8 @@ import { Tenant } from './tenant';
 
 @Entity()
 export class Event extends BaseEntity implements EventI {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
   @Column()
   name: string;
   @Column()
