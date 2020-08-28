@@ -1,10 +1,10 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <a
     class="nav-link nav-logo"
-    *ngIf="tenantPath()"
-    [routerLink]="[tenantPath(), 'events']"
+    *ngIf="tenant"
+    [routerLink]="[tenant.path, 'events']"
   >
-    <img src="assets/cvjm-logo.png" />
+    <img [src]="navbarLogo" />
   </a>
   <button
     class="navbar-toggler"
@@ -19,11 +19,11 @@
     <span class="navbar-toggler-icon"></span>
   </button>
 
-  <ul class="navbar-nav ml-auto" *ngIf="!isLoggedIn() && tenantPath()">
+  <ul class="navbar-nav ml-auto" *ngIf="!isLoggedIn() && tenant">
     <li class="nav-item">
       <a
         class="nav-link"
-        [routerLink]="[tenantPath(), 'login']"
+        [routerLink]="[tenant.path, 'login']"
         routerLinkActive="active"
         >Login</a
       >
@@ -35,11 +35,11 @@
     id="navbarSupportedContent"
     *ngIf="isLoggedIn()"
   >
-    <ul class="navbar-nav mr-auto" *ngIf="tenantPath()">
+    <ul class="navbar-nav mr-auto" *ngIf="tenant">
       <li class="nav-item">
         <a
           class="nav-link"
-          [routerLink]="[tenantPath(), 'events']"
+          [routerLink]="[tenant.path, 'events']"
           routerLinkActive="active"
           >Events</a
         >
@@ -47,7 +47,7 @@
       <li class="nav-item">
         <a
           class="nav-link"
-          [routerLink]="[tenantPath(), 'dashboard']"
+          [routerLink]="[tenant.path, 'dashboard']"
           routerLinkActive="active"
           >Dashboard</a
         >
@@ -55,7 +55,7 @@
       <li class="nav-item">
         <a
           class="nav-link"
-          [routerLink]="[tenantPath(), 'verwaltung']"
+          [routerLink]="[tenant.path, 'verwaltung']"
           routerLinkActive="active"
           >Verwaltung</a
         >
@@ -70,7 +70,7 @@
     angemeldet als:&nbsp;<u>{{ username() }}</u>
     <button
       class="btn btn-outline-danger my-2 my-sm-0 ml-3"
-      *ngIf="tenantPath()"
+      *ngIf="tenant"
       (click)="logout()"
     >
       Logout
@@ -78,7 +78,7 @@
   </div>
 </nav>
 <div class="container-fluid">
-  <div class="row" style="margin-top: 30px;">
+  <div class="row" style="margin-top: 30px">
     <div class="col-12 col-md-10 offset-md-1 col-lg-8 offset-lg-2">
       <router-outlet></router-outlet>
     </div>
@@ -89,7 +89,7 @@
   <div class="logo-container">
     <img
       src="assets/cvjm-triangles.png"
-      style="height: 220px; background-color: white; float: right;"
+      style="height: 220px; background-color: white; float: right"
     />
   </div>
   <div class="credits">

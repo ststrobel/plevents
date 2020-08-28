@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { TenantAdapter, Tenant } from '../models/tenant';
 import { UserAdapter, User } from '../models/user';
 import { Observable, BehaviorSubject, Subscription } from 'rxjs';
@@ -67,7 +67,12 @@ export class TenantService {
       .put<User>(`${environment.apiUrl}/secure/tenants/${tenant.id}`, tenant)
       .pipe(
         // Adapt the raw item
-        map(item => this.tenantAdapter.adapt(item))
+        map(item => this.tenantAdapter.adapt(item)),
+        tap((tenant: Tenant) => {
+          if (tenant.id === this.currentTenantValue.id) {
+            this.currentTenantSubject.next(tenant);
+          }
+        })
       );
   }
 

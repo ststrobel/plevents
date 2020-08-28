@@ -44,6 +44,39 @@
         formControlName="consentText"
       ></textarea>
     </div>
+    <div class="col-12 col-md-6">
+      <label (click)="selectNewLogo()">Logo für den Account</label>
+      <div class="form-group">
+        <div *ngIf="tenant !== null && tenant.logo !== null">
+          <img
+            class="plevents-tenant-logo plevents-tenant-logo-hover"
+            [src]="tenant.logo"
+            (click)="selectNewLogo()"
+          />
+          <br />
+          <small
+            ><i class="clickable" (click)="selectNewLogo()"
+              >neues Logo auswählen</i
+            ></small
+          >
+        </div>
+        <div
+          class="plevents-tenant-logo plevents-tenant-logo-hover"
+          [hidden]="tenant !== null && tenant.logo !== null"
+        >
+          <input
+            type="file"
+            id="logo_file_input"
+            accept=".jpg,.jpeg,.png"
+            (change)="setNewLogo($event)"
+          />
+          <label for="logo_file_input">Logo auswählen</label>
+        </div>
+        <div class="invalid-logo" *ngIf="logoValidationError !== null">
+          {{ logoValidationError }}
+        </div>
+      </div>
+    </div>
   </div>
   <div class="col-12 col-md-3 offset-md-9">
     <button

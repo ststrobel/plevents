@@ -9,7 +9,7 @@ export class Tenant extends BaseEntity implements TenantI {
   id: string;
   @Column()
   name: string;
-  @Column({ nullable: true })
+  @Column({ nullable: true, length: 1000000 })
   logo: string;
   @Column({ unique: true })
   path: string;

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from './services/authentication.service';
 import * as moment from 'moment';
 import { TenantService } from './services/tenant.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Tenant } from './models/tenant';
 
 @Component({
   selector: 'app-root',
@@ -10,20 +10,28 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  title = 'frontend';
   serverResult: '';
   receivedEmail: '';
+  tenant: Tenant = null;
+  navbarLogo: string = 'assets/cvjm-triangles-flipped.png';
 
   constructor(
     private authenticationService: AuthenticationService,
-    private tenantService: TenantService,
-    private route: ActivatedRoute,
-    private router: Router
+    private tenantService: TenantService
   ) {
     moment.locale('de');
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.tenantService.currentTenant.subscribe((tenant: Tenant) => {
+      if (tenant) {
+        this.tenant = tenant;
+        if (this.tenant.logo) {
+          this.navbarLogo = this.tenant.logo;
+        }
+      }
+    });
+  }
 
   isLoggedIn(): boolean {
     return this.authenticationService.userValue !== null;
@@ -35,12 +43,5 @@ export class AppComponent implements OnInit {
 
   logout(): void {
     this.authenticationService.logout();
-  }
-
-  tenantPath(): string {
-    if (this.tenantService.currentTenantValue) {
-      return this.tenantService.currentTenantValue.path;
-    }
-    return null;
   }
 }

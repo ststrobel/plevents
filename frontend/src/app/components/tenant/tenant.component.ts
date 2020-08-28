@@ -7,7 +7,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { clone, reject, findIndex } from 'lodash';
 import { UserService } from 'src/app/services/user.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-tenant',
@@ -18,6 +18,7 @@ export class TenantComponent implements OnInit, OnDestroy {
   tenant: Tenant = null;
   users: User[] = new Array<User>();
   tenantForm: FormGroup;
+  logoValidationError: string = null;
   private tenantSubscription: Subscription;
   pathCheck = {
     pathTaken: false,
@@ -89,9 +90,10 @@ export class TenantComponent implements OnInit, OnDestroy {
     updatedTenant.name = this.tenantForm.get('name').value;
     updatedTenant.path = this.tenantForm.get('path').value;
     updatedTenant.consentText = this.tenantForm.get('consentText').value;
+    // update the logo from the current tenant object
+    updatedTenant.logo = this.tenant.logo;
     const pathChanged = updatedTenant.path !== this.tenant.path;
     this.tenantService.update(updatedTenant).subscribe((tenant: Tenant) => {
-      this.tenantService.load(tenant.path);
       if (pathChanged) {
         // the path was changed, reload the page
         this.router.navigate([tenant.path, 'verwaltung']);
@@ -131,5 +133,34 @@ export class TenantComponent implements OnInit, OnDestroy {
         this.pathCheck
       );
     }
+  }
+
+  setNewLogo(newLogo: any): void {
+    this.logoValidationError = null;
+    const newLogoFile = <File>newLogo.target.files[0];
+    // check that image does not exceed maximum size
+    // 1024 bytes = 1 kB
+    const kiloBytes = Math.round(newLogoFile.size / 1024);
+    if (kiloBytes > 500) {
+      // 1024 kiloBytes = 1 MB
+      const fileSize =
+        kiloBytes / 1024 >= 1
+          ? `${(kiloBytes / 1024).toFixed(2)} MB`
+          : `${kiloBytes} kB`;
+      this.logoValidationError = `Das gewählte Bild ist zu groß (${fileSize}). Die maximale Größe eines Logos ist 500 kB`;
+      return;
+    }
+    var myReader: FileReader = new FileReader();
+    myReader.onloadend = e => {
+      this.tenant.logo = <string>myReader.result;
+    };
+    myReader.readAsDataURL(newLogoFile);
+  }
+
+  /**
+   * simply trigger the browser to open the file select modal
+   */
+  selectNewLogo(): void {
+    document.getElementById('logo_file_input').click();
   }
 }
