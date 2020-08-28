@@ -1,0 +1,91 @@
+<h1>Jetzt Account anlegen</h1>
+<p>
+  Legen Sie sich in wenigen Minuten Ihre eigene kostenlose Terminbuchungs-Seite
+  an, mit DSGVO-konformer Datensparsamkeit und automatischer -löschung.
+</p>
+<hr />
+<form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
+  <div class="row">
+    <div class="col-12 col-md-6">
+      Der Name Ihres Accounts wird auf der Website angezeigt und beschreibt Ihre
+      Organisation. Bspw.: "CVJM Gärtringen"
+    </div>
+    <div class="col-12 col-md-6">
+      <div class="form-group">
+        <label for="name">Name des Accounts</label>
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          class="form-control"
+          [ngClass]="{
+            'is-invalid': isInvalid('name')
+          }"
+        />
+        <div *ngIf="isInvalid('name')" class="invalid-feedback">
+          <div *ngIf="isInvalid('name')">
+            Bitte einen kurzen beschreibenden Namen angeben
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6">
+      Bitte einen Pfad angeben, der dann in der URL zu sehen sein wird. Die
+      maximale Länge beträgt 40 Zeichen. Nur Kleinbuchstaben und Trennstriche
+      (-) sind erlaubt.
+    </div>
+    <div class="col-12 col-md-6">
+      <div class="form-group">
+        <label for="path">Pfad</label>
+        <input
+          id="path"
+          type="text"
+          formControlName="path"
+          class="form-control"
+          (keyup)="checkPath()"
+          [ngClass]="{
+            'is-invalid': pathCheck.pathTaken || isInvalid('path'),
+            'is-valid':
+              !pathCheck.pathTaken && registrationForm.get('path').valid
+          }"
+        />
+        <div *ngIf="pathCheck.pathTaken" class="invalid-feedback">
+          Dieser Pfad ist bereits leider vergeben
+        </div>
+        <div class="valid-feedback">
+          <i class="fas fa-check"></i> Pfad ist noch frei und kann benutzt
+          werden!
+        </div>
+        <div *ngIf="isInvalid('path')" class="invalid-feedback">
+          Bitte einen gültigen Pfad angeben
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6">
+      Sie können hier <b>optional</b> eine Einwilligungserklärung setzen, die
+      die Teilnehmer bei Anmeldung zu einem Event akzeptieren müssen. Diesen
+      Text können Sie später noch ändern.
+    </div>
+    <div class="col-12 col-md-6">
+      <div class="form-group">
+        <label for="consent">Einwilligungserklärung</label>
+        <textarea
+          id="consent"
+          formControlName="consentText"
+          class="form-control"
+        ></textarea>
+      </div>
+    </div>
+  </div>
+  <button
+    [disabled]="loading"
+    class="btn btn-primary"
+    [disabled]="registrationForm.invalid"
+  >
+    <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+    Account erstellen
+  </button>
+  <div *ngIf="error" class="alert alert-danger mt-3 mb-0">
+    {{ error }}
+  </div>
+</form>

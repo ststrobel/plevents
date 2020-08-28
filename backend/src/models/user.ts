@@ -1,53 +1,56 @@
 import { UserI } from '../../../common/user';
-const { Sequelize, DataTypes, Model } = require('sequelize');
-const dotenv = require('dotenv');
-dotenv.config();
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
-  host: process.env.DB_HOST,
-  dialect: process.env.DB_TYPE,
-  logging: false,
-});
+import {
+  BaseEntity,
+  Column,
+  PrimaryGeneratedColumn,
+  Entity,
+  BeforeInsert,
+  BeforeUpdate,
+  ManyToOne,
+} from 'typeorm';
+import { Tenant } from './tenant';
 const bcrypt = require('bcrypt');
 
-export class User extends Model implements UserI {
-  public username: string;
-  public password: string;
-}
+@Entity()
+export class User extends BaseEntity implements UserI {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+  @Column()
+  active: boolean;
+  @Column()
+  name: string;
+  @Column()
+  email: string;
+  @Column({ select: false })
+  password: string;
+  @ManyToOne(type => Tenant, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    eager: true,
+  })
+  tenant: Tenant;
 
-User.init(
-  {
-    // Model attributes are defined here
-    username: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-      primaryKey: true,
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-  },
-  {
-    sequelize, // pass the connection instance
-    modelName: 'User',
-    freezeTableName: true,
+  async validPassword(password: string): Promise<boolean> {
+    return await bcrypt.compare(password, this.password);
   }
-);
-
-User.prototype.validPassword = function (password: string): boolean {
-  return bcrypt.compare(password, this.password);
-};
-
-function encryptUserPW(user: User) {
-  return bcrypt
-    .hash(user.password, 10)
-    .then((hash: any) => {
-      user.password = hash;
-    })
-    .catch((error: any) => {
-      throw new Error(error);
-    });
+  @BeforeInsert()
+  @BeforeUpdate()
+  encryptUserPW() {
+    if (this.password) {
+      return bcrypt
+        .hash(this.password, 10)
+        .then((hash: any) => {
+          this.password = hash;
+        })
+        .catch((error: any) => {
+          throw new Error(error);
+        });
+    }
+  }
 }
-User.beforeCreate(encryptUserPW);
-User.beforeUpdate(encryptUserPW);
+/*
+User.prototype.toJSON = function () {
+  var values = Object.assign({}, this.get());
+  delete values.password;
+  return values;
+};*/

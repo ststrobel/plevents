@@ -1,0 +1,61 @@
+.emailEntry {
+  padding: 15px 5px;
+  &:nth-child(even) {
+    background: #eee;
+  }
+  &:nth-child(odd) {
+    background: #fff;
+  }
+}
+
+h4 {
+  text-align: left;
+}
+
+.plevents-tenant-logo {
+  max-height: 75px;
+  text-align: center;
+  border-radius: 3px;
+}
+
+img.plevents-tenant-logo-hover:hover {
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.plevents-tenant-no-image-yet {
+  border: 1px solid grey;
+  background-color: lightgray;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#logo_file_input {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+  + label {
+    @extend .plevents-tenant-logo;
+    @extend .plevents-tenant-no-image-yet;
+  }
+  &:focus + label {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+  &:hover + label {
+    &:hover {
+      cursor: pointer;
+      opacity: 0.8;
+    }
+  }
+}
+
+form div.row > div {
+  margin-top: 25px;
+}

@@ -9,10 +9,9 @@ export class PdfController {
   public static register(app: express.Application): void {
     app.get('/secure/events/:eventid/pdf', async (req, res, next) => {
       try {
-        const event = await Event.findByPk(parseInt(req.params.eventid));
-        const logMessage = `Zugriff auf Teilnehmerliste zu Event ${event.id}`;
-        Log.build({ user: UserService.currentUser(req), message: logMessage }).save();
-        const participants = await Participant.findAll({ where: { EventId: event.id } });
+        const event = await Event.findOne(parseInt(req.params.eventid));
+        Log.write(UserService.currentTenant(req), UserService.currentUser(req), `Zugriff auf Teilnehmerliste zu Event ${event.id}`);
+        const participants = await Participant.find({ where: { eventId: event.id } });
         const binaryResult = await PdfService.generate(event, participants);
         res.contentType('application/pdf').send(binaryResult);
       } catch (err) {

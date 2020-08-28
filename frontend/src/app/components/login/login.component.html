@@ -1,9 +1,9 @@
 <div class="card">
-  <h4 class="card-header">plEvents - Interner Bereich</h4>
+  <h4 class="card-header">{{ tenant.name }} - Interner Bereich</h4>
   <div class="card-body">
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
-        <label for="username">Nutzername</label>
+        <label for="username">Email</label>
         <input
           type="text"
           formControlName="username"
@@ -47,6 +47,10 @@
         ></span>
         Login
       </button>
+      <span
+        >noch kein Account?
+        <a routerLink="/{{tenantPath()}}/registrierung">Hier registrieren</a></span
+      >
       <div *ngIf="error" class="alert alert-danger mt-3 mb-0">
         {{ error }}
       </div>

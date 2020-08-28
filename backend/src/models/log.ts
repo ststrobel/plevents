@@ -1,29 +1,54 @@
-const { Sequelize, DataTypes, Model } = require('sequelize');
-const dotenv = require('dotenv');
-dotenv.config();
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
-  host: process.env.DB_HOST,
-  dialect: process.env.DB_TYPE,
-  logging: false,
-});
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BaseEntity,
+  OneToMany,
+  ManyToOne,
+} from 'typeorm';
+import { User } from './user';
+import { Tenant } from './tenant';
 
-export class Log extends Model {}
+@Entity()
+export class Log extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-Log.init(
-  {
-    // Model attributes are defined here
-    user: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    message: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-  },
-  {
-    sequelize, // pass the connection instance
-    modelName: 'Log',
-    freezeTableName: true,
+  @Column()
+  tenantId: string;
+
+  @Column()
+  userId: string;
+
+  @Column()
+  message: string;
+
+  static async write(
+    tenant: string | Promise<Tenant>,
+    user: string,
+    message: string
+  ) {
+    const log = new Log();
+    log.message = message;
+    log.userId = await Log.resolveUser(user);
+    if (typeof tenant === 'string') {
+      log.tenantId = tenant;
+    } else {
+      log.tenantId = (await tenant).id;
+    }
+    log.save();
   }
-);
+
+  /**
+   * based on an ID or email address, resolve the ID of the user
+   * @param user
+   */
+  private static async resolveUser(user: string): Promise<string> {
+    if (user.indexOf('@') > 0) {
+      // we have a email, find the user ID first
+      return (await User.findOne({ where: { email: user } })).id;
+    } else {
+      return user;
+    }
+  }
+}

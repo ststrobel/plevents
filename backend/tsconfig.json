@@ -1,6 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es2017",
-    "esModuleInterop": true
-  }
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "es6",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "lib": [
+      "es6"
+    ]
+  },
 }

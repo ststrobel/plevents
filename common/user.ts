@@ -1,5 +1,9 @@
 export interface UserI {
-  username: string;
+  id?: string;
+  tenantId?: string;
+  email: string;
+  name: string;
   password: string;
   authdata?: string;
+  active: boolean;
 }
