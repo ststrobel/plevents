@@ -29,6 +29,8 @@ export class User extends BaseEntity implements UserI {
     eager: true,
   })
   tenant: Tenant;
+  @Column()
+  tenantId: string;
 
   async validPassword(password: string): Promise<boolean> {
     return await bcrypt.compare(password, this.password);

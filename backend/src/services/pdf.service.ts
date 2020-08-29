@@ -32,7 +32,7 @@ export class PdfService {
     return new Promise((resolve, reject) => {
       try {
         var chunks = [];
-        pdfDoc.on('data', (chunk) => chunks.push(chunk));
+        pdfDoc.on('data', chunk => chunks.push(chunk));
         pdfDoc.on('end', () => resolve(Buffer.concat(chunks)));
         pdfDoc.end();
       } catch (err) {
@@ -43,14 +43,13 @@ export class PdfService {
 
   private static generateHeader(event: Event): any {
     const m = moment(event.date);
-    const hours = m.hours();
-    const minutes = m.minutes();
-    const dateTime = m.format('DD.MM.yyyy') + ' um ' + hours + ':' + minutes;
+    const dateTime = m.format('DD.MM.yyyy') + ' um ' + m.format('HH:mm');
     return {
       margin: [40, 20, 40, 10],
       columns: [
         {
-          text: 'Teilnehmerliste für ' + event.name + ' am ' + dateTime + ' Uhr',
+          text:
+            'Teilnehmerliste für ' + event.name + ' am ' + dateTime + ' Uhr',
           bold: true,
           width: '*',
           alignment: 'center',
@@ -71,7 +70,10 @@ export class PdfService {
     each(participants, (participant: Participant) => {
       tableBody.push([
         { text: participant.name, border: [true, true, false, true] },
-        { text: `${participant.street}, ${participant.zip} ${participant.city}`, border: [false, true, false, true] },
+        {
+          text: `${participant.street}, ${participant.zip} ${participant.city}`,
+          border: [false, true, false, true],
+        },
         { text: participant.email, border: [false, true, false, true] },
         { text: participant.phone, border: [false, true, true, true] },
       ]);
