@@ -88,7 +88,8 @@ export class EventService {
       })
       .subscribe(pdfBlob => {
         const blob = new Blob([pdfBlob], { type: 'application/pdf' });
-        saveAs(blob, 'Teilnehmerliste.pdf');
+        const fileName = `Teilnehmerliste ${event.displayName()} - ${event.displayDate()}.pdf`;
+        saveAs(blob, fileName);
       });
   }
 }

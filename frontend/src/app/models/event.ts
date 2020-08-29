@@ -43,6 +43,10 @@ export class Event implements EventI {
     return now.isAfter(moment(this.date));
   }
 
+  /**
+   * returns all unique events based on name, weekDay, targetClass and time
+   * @param events
+   */
   static unique(events: Event[]): Event[] {
     const uniqueEvents = new Array<Event>();
     each(events, (event: Event) => {

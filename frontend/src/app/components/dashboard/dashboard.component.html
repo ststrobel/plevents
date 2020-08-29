@@ -65,6 +65,7 @@
           class="btn btn-block btn-outline-success"
           type="submit"
           style="margin-top: 32px"
+          [disabled]="operationOngoing"
         >
           Event erstellen
         </button>
@@ -94,6 +95,7 @@
         <small *ngIf="week.number === currentCW()"><br />aktuelle Woche</small>
       </td>
       <td
+        *ngFor="let event of week.events"
         class="greyedOut"
         style="
           border: 1px solid white;
@@ -102,34 +104,25 @@
           text-align: center;
         "
         [ngClass]="{
-          happening: eventAt(time, week.events) !== undefined,
-          unavailable:
-            eventAt(time, week.events) !== undefined &&
-            eventAt(time, week.events).takenSeats >=
-              eventAt(time, week.events).maxSeats
+          happening: event,
+          unavailable: event && event.takenSeats >= event.maxSeats
         }"
-        *ngFor="let time of timeColumns"
       >
         <div
-          *ngIf="eventAt(time, week.events) !== undefined"
-          [ngClass]="{ disabled: eventAt(time, week.events).disabled }"
+          *ngIf="event"
+          [ngClass]="{ disabled: event.disabled }"
           style="position: relative"
         >
-          {{ eventAt(time, week.events).displayDate() }}<br />
-          <small
-            >{{ eventAt(time, week.events).takenSeats }} /
-            {{ eventAt(time, week.events).maxSeats }} </small
+          {{ event.displayDate() }}<br />
+          <small>{{ event.takenSeats }} / {{ event.maxSeats }} </small
           ><i
             class="fas fa-2x fa-file-pdf downloadIcon"
-            (click)="downloadPdf(eventAt(time, week.events))"
+            (click)="downloadPdf(event)"
             title="Download Teilnehmerliste"
           ></i>
-          <small
-            class="stateToggler"
-            (click)="toggleDisabled(eventAt(time, week.events))"
-          >
-            <i *ngIf="!eventAt(time, week.events).disabled">aktiv</i>
-            <i *ngIf="eventAt(time, week.events).disabled">inaktiv</i>
+          <small class="stateToggler" (click)="toggleDisabled(event)">
+            <i *ngIf="!event.disabled">aktiv</i>
+            <i *ngIf="event.disabled">inaktiv</i>
           </small>
         </div>
       </td>
@@ -140,6 +133,7 @@
         <button
           class="btn btn-sm btn-block btn-outline-danger my-2 my-sm-0"
           (click)="deleteEventSeries(i)"
+          [disabled]="operationOngoing"
         >
           Löschen
         </button>

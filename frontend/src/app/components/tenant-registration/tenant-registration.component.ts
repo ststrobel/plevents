@@ -61,4 +61,13 @@ export class TenantRegistrationComponent implements OnInit {
       this.router.navigate([tenant.path, 'registrierung']);
     });
   }
+
+  currentLengthOf(formControlName: string): number {
+    try {
+      return (this.registrationForm.get(formControlName).value as string)
+        .length;
+    } catch (e) {
+      return 0;
+    }
+  }
 }

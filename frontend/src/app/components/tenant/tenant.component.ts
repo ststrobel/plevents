@@ -21,6 +21,7 @@ export class TenantComponent implements OnInit, OnDestroy {
   tenantForm: FormGroup;
   logoValidationError: string = null;
   private tenantSubscription: Subscription;
+  operationOngoing: boolean = false;
   pathCheck = {
     pathTaken: false,
   };
@@ -95,10 +96,16 @@ export class TenantComponent implements OnInit, OnDestroy {
   }
 
   updateTenant(): void {
-    if (this.tenantForm.invalid || this.pathCheck.pathTaken) {
+    if (
+      this.tenantForm.invalid ||
+      this.pathCheck.pathTaken ||
+      this.logoValidationError
+    ) {
+      alert('Bitte alle Felder korrekt ausfüllen');
       this.tenantForm.markAllAsTouched();
       return;
     }
+    this.operationOngoing = true;
     const updatedTenant = clone(this.tenant);
     updatedTenant.name = this.tenantForm.get('name').value;
     updatedTenant.path = this.tenantForm.get('path').value;
@@ -106,30 +113,49 @@ export class TenantComponent implements OnInit, OnDestroy {
     // update the logo from the current tenant object
     updatedTenant.logo = this.tenant.logo;
     const pathChanged = updatedTenant.path !== this.tenant.path;
-    this.tenantService.update(updatedTenant).subscribe((tenant: Tenant) => {
-      if (pathChanged) {
-        // the path was changed, reload the page
-        this.router.navigate([tenant.path, 'verwaltung']);
-      } else {
-        this.tenant = tenant;
+    this.tenantService.update(updatedTenant).subscribe(
+      (tenant: Tenant) => {
+        if (pathChanged) {
+          // the path was changed, reload the page
+          this.router.navigate([tenant.path, 'verwaltung']);
+        } else {
+          this.tenant = tenant;
+        }
+        alert('Erfolgreich gespeichert');
+        this.operationOngoing = false;
+      },
+      error => {
+        console.error(error);
+        alert('Beim Speichern trat leider ein Fehler auf!');
+        this.operationOngoing = false;
       }
-    });
+    );
   }
 
   delete(user: User): void {
     if (confirm('Wirklich diesen Nutzer löschen?')) {
-      this.userService.delete(user.id).subscribe(() => {
-        this.users = reject(this.users, user);
-        // if the user deleted himself, log out explicitly:
-        if (user.id === this.authService.userValue.id) {
-          this.authService.logout();
+      this.operationOngoing = true;
+      this.userService.delete(user.id).subscribe(
+        () => {
+          this.users = reject(this.users, user);
+          this.operationOngoing = false;
+          // if the user deleted himself, log out explicitly:
+          if (user.id === this.authService.userValue.id) {
+            this.authService.logout();
+          }
+        },
+        error => {
+          console.error(error);
+          alert('Beim Löschen trat leider ein Fehler auf!');
+          this.operationOngoing = false;
         }
-      });
+      );
     }
   }
 
   deleteTenant(): void {
     if (confirm('Wirklich den gesamten Account löschen?')) {
+      this.operationOngoing = true;
       this.tenantService.delete(this.tenant.id).subscribe(() => {
         alert('Account gelöscht!');
         this.authService.logout();
@@ -168,6 +194,14 @@ export class TenantComponent implements OnInit, OnDestroy {
       this.tenant.logo = <string>myReader.result;
     };
     myReader.readAsDataURL(newLogoFile);
+  }
+
+  currentLengthOf(formControlName: string): number {
+    try {
+      return (this.tenantForm.get(formControlName).value as string).length;
+    } catch (e) {
+      return 0;
+    }
   }
 
   /**

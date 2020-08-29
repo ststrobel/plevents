@@ -20,8 +20,8 @@ export class DashboardComponent implements OnInit {
   private allEvents: Event[];
   weeks: Week[] = new Array<Week>();
   uniqueEvents: Event[] = new Array<Event>();
-  timeColumns: string[] = new Array<string>();
   newEventForm: FormGroup;
+  operationOngoing: boolean = false;
 
   constructor(
     private eventService: EventService,
@@ -29,13 +29,6 @@ export class DashboardComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router
   ) {}
-
-  eventAt(time: string, events: Event[]): Event {
-    const match = find(events, (event: Event) => {
-      return event.displayTime() === time;
-    });
-    return match;
-  }
 
   ngOnInit() {
     // load the tenant information and redirect in case tenant path does not exist:
@@ -66,41 +59,48 @@ export class DashboardComponent implements OnInit {
     this.eventService.getEvents(tenant.id).subscribe((events: Event[]) => {
       this.weeks = new Array<Week>();
       this.uniqueEvents = new Array<Event>();
-      this.timeColumns = new Array<string>();
       this.allEvents = events;
       this.uniqueEvents = Event.unique(this.allEvents);
-      this.uniqueEvents = sortBy(this.uniqueEvents, ['weekDay', 'time']);
-      each(this.uniqueEvents, (event: Event) => {
-        this.timeColumns.push(event.displayTime());
-      });
+      const sortOrder = ['weekDay', 'time', 'name', 'targetClass'];
+      this.uniqueEvents = sortBy(this.uniqueEvents, sortOrder);
       // prepare the weeks, calculate the past 3 weeks until the end of the year:
       const today = moment();
-      const startOfCurrentWeek = today.clone().startOf('week');
-      const endOfCurrentWeek = today.clone().endOf('week');
+      const weekNumberThreeWeeksAgo = today.clone().subtract(3, 'weeks').week();
+      const startOfWeekThreeWeeksAgo = today
+        .clone()
+        .startOf('week')
+        .subtract(3, 'weeks');
+      const endOfWeekThreeWeeksAgo = today
+        .clone()
+        .endOf('week')
+        .subtract(3, 'weeks');
       for (let kw = today.week() - 3; kw <= 52; kw++) {
         const week = new Week(kw);
-        let weekStart: any, weekEnd: any;
-        if (kw < today.week()) {
-          weekStart = startOfCurrentWeek
-            .clone()
-            .subtract(today.week() - kw, 'weeks');
-          weekEnd = endOfCurrentWeek
-            .clone()
-            .subtract(today.week() - kw, 'weeks');
-        } else {
-          weekStart = startOfCurrentWeek
-            .clone()
-            .add(kw - today.week(), 'weeks');
-          weekEnd = endOfCurrentWeek.clone().add(kw - today.week(), 'weeks');
-        }
+        const weekStart = startOfWeekThreeWeeksAgo
+          .clone()
+          .add(kw - weekNumberThreeWeeksAgo, 'weeks');
+        const weekEnd = endOfWeekThreeWeeksAgo
+          .clone()
+          .add(kw - weekNumberThreeWeeksAgo, 'weeks');
         // add all events for this week
-        week.events = filter(events, (event: Event) => {
+        const eventsInThisWeek = filter(events, (event: Event) => {
           return moment(event.date).isBetween(
             weekStart,
             weekEnd,
             undefined,
             '[]'
           );
+        });
+        // match the event instances in this week to their according event
+        // this is necessary in case in a specific week an event is not existent
+        week.events = new Array<Event>(this.uniqueEvents.length);
+        each(this.uniqueEvents, (uniqueEvent: Event, index: number) => {
+          week.events[index] = find(eventsInThisWeek, {
+            name: uniqueEvent.name,
+            weekDay: uniqueEvent.weekDay,
+            time: uniqueEvent.time,
+            targetClass: uniqueEvent.targetClass,
+          });
         });
         this.weeks.push(week);
       }
@@ -122,6 +122,7 @@ export class DashboardComponent implements OnInit {
       this.newEventForm.markAllAsTouched();
       return;
     }
+    this.operationOngoing = true;
     const m = moment(this.newEventForm.get('fromDate').value);
     const time = <string>this.newEventForm.get('time').value;
     m.hours(parseInt(time.split(':')[0]));
@@ -139,9 +140,18 @@ export class DashboardComponent implements OnInit {
       // add 1 week each
       m.add(1, 'weeks');
     }
-    forkJoin(observables).subscribe(() => {
-      this.loadAllEvents(this.tenantService.currentTenantValue);
-    });
+    forkJoin(observables).subscribe(
+      () => {
+        alert('Neue Eventserie angelegt');
+        this.loadAllEvents(this.tenantService.currentTenantValue);
+        this.operationOngoing = false;
+      },
+      error => {
+        console.error(error);
+        alert('Es trat leider ein Fehler auf');
+        this.operationOngoing = false;
+      }
+    );
   }
 
   isInvalid(formControlName: string): boolean {
@@ -163,6 +173,7 @@ export class DashboardComponent implements OnInit {
         'Wollen Sie dieses Serienevent wirklich löschen? Alle Daten aller einzelnen Events gehen unwiderbringlich verloren!'
       )
     ) {
+      this.operationOngoing = true;
       const eventToDelete = this.uniqueEvents[uniqueEventSeriesIndex];
       // delete all event instances
       const eventsToDelete = filter(this.allEvents, (event: Event) => {
@@ -176,9 +187,18 @@ export class DashboardComponent implements OnInit {
       each(eventsToDelete, (event: Event) => {
         observables.push(this.eventService.deleteEvent(event.id));
       });
-      forkJoin(observables).subscribe(() => {
-        this.loadAllEvents(this.tenantService.currentTenantValue);
-      });
+      forkJoin(observables).subscribe(
+        () => {
+          alert('Serienevent gelöscht');
+          this.loadAllEvents(this.tenantService.currentTenantValue);
+          this.operationOngoing = false;
+        },
+        error => {
+          console.error(error);
+          alert('Es trat ein Fehler auf, nicht alle Events wurden gelöscht');
+          this.operationOngoing = false;
+        }
+      );
     }
   }
 

@@ -7,8 +7,9 @@
 <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
   <div class="row">
     <div class="col-12 col-md-6">
-      Der Name Ihres Accounts wird auf der Website angezeigt und beschreibt Ihre
-      Organisation. Bspw.: "CVJM Gärtringen"
+      Der Name Ihres Accounts wird auf der Website angezeigt. Bspw.: "CVJM
+      Gärtringen"<br />
+      Sie können diesen Wert später noch ändern.
     </div>
     <div class="col-12 col-md-6">
       <div class="form-group">
@@ -32,7 +33,8 @@
     <div class="col-12 col-md-6">
       Bitte einen Pfad angeben, der dann in der URL zu sehen sein wird. Die
       maximale Länge beträgt 40 Zeichen. Nur Kleinbuchstaben und Trennstriche
-      (-) sind erlaubt.
+      (-) sind erlaubt.<br />
+      Sie können diesen Wert später noch ändern.
     </div>
     <div class="col-12 col-md-6">
       <div class="form-group">
@@ -63,8 +65,8 @@
     </div>
     <div class="col-12 col-md-6">
       Sie können hier <b>optional</b> eine Einwilligungserklärung setzen, die
-      die Teilnehmer bei Anmeldung zu einem Event akzeptieren müssen. Diesen
-      Text können Sie später noch ändern.
+      die Teilnehmer bei Anmeldung zu einem Event akzeptieren müssen.<br />
+      Sie können diesen Wert später noch ändern.
     </div>
     <div class="col-12 col-md-6">
       <div class="form-group">
@@ -73,7 +75,9 @@
           id="consent"
           formControlName="consentText"
           class="form-control"
+          maxlength="10000"
         ></textarea>
+        <small>{{ currentLengthOf('consentText') }} / 10000 Zeichen</small>
       </div>
     </div>
   </div>

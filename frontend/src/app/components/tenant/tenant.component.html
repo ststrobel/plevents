@@ -1,11 +1,11 @@
-<h2>Verwaltung</h2>
+<h2>Verwaltung des Accounts</h2>
 <p>
-  Verwalten Sie hier den Namen und den Pfad Ihrer Organisation. Zudem können Sie
-  ein Logo hinterlegen und Administratoren verwalten.
+  Verwalten Sie hier den Namen und den Pfad Ihres Accounts. Zudem können Sie ein
+  Logo hinterlegen und Administratoren verwalten.
 </p>
 
 <hr />
-<h4>Organisation</h4>
+<h4>Allgemein</h4>
 <form [formGroup]="tenantForm">
   <div class="row">
     <div class="col-12 col-md-6" [ngClass]="{ invalid: isInvalid('name') }">
@@ -41,10 +41,15 @@
       <textarea
         class="form-control"
         id="consent"
+        maxlength="10000"
         formControlName="consentText"
       ></textarea>
+      <small>{{ currentLengthOf('consentText') }} / 10000 Zeichen</small>
     </div>
-    <div class="col-12 col-md-6">
+    <div
+      class="col-12 col-md-6"
+      [ngClass]="{ invalid: logoValidationError !== null }"
+    >
       <label (click)="selectNewLogo()">Logo für den Account</label>
       <div class="form-group">
         <div *ngIf="tenant !== null && tenant.logo !== null">
@@ -55,7 +60,7 @@
           />
           <br />
           <small
-            ><i class="clickable" (click)="selectNewLogo()"
+            ><i style="cursor: pointer" (click)="selectNewLogo()"
               >neues Logo auswählen</i
             ></small
           >
@@ -83,6 +88,7 @@
       class="btn btn-block btn-outline-success"
       (click)="updateTenant()"
       style="margin-top: 32px"
+      [disabled]="operationOngoing"
     >
       Speichern
     </button>
@@ -110,6 +116,7 @@
     <button
       class="float-right btn btn-sm btn-outline-danger"
       (click)="delete(user)"
+      [disabled]="operationOngoing"
     >
       Admin löschen
     </button>
@@ -121,8 +128,8 @@
 <h4>Löschung</h4>
 <div class="row">
   <div class="col-12 col-md-8">
-    Falls Sie Ihren Account und Ihre Organisation nicht mehr benötigen, können
-    Sie hier jegliche Daten löschen. Hierzu gehören:
+    Falls Sie Ihren Account nicht mehr benötigen, können Sie hier jegliche Daten
+    löschen. Hierzu gehören:
     <ul>
       <li>alle Admin Accounts</li>
       <li>alle Events</li>
@@ -134,8 +141,9 @@
     <button
       class="btn btn-block btn-sm btn-outline-danger"
       (click)="deleteTenant()"
+      [disabled]="operationOngoing"
     >
-      Organisation löschen
+      Account löschen
     </button>
   </div>
 </div>
