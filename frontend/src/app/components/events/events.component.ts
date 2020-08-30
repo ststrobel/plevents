@@ -25,7 +25,12 @@ export class EventsComponent implements OnInit {
   successfullyRegistered = false;
   classOptions: string[] = null;
   selectedClass: string = null;
-  consentText: string = null;
+  consentTeaser1: string = null;
+  consentTeaser2: string = null;
+  consentText1: string = null;
+  consentText2: string = null;
+  consentText1Shown: boolean = false;
+  consentText2Shown: boolean = false;
 
   constructor(
     private eventService: EventService,
@@ -51,17 +56,31 @@ export class EventsComponent implements OnInit {
     this.tenantService.currentTenant.subscribe((tenant: Tenant) => {
       if (tenant) {
         this.loadEvents();
-        this.consentText = tenant.consentText;
-        if (this.consentText && this.consentText.length > 0) {
+        this.consentTeaser1 = tenant.consentTeaser1;
+        this.consentText1 = tenant.consentText1;
+        if (this.consentTeaser1 && this.consentTeaser1.length > 0) {
           // only add the form control if it is not existing yet
-          if (!this.registerForm.contains('consent')) {
+          if (!this.registerForm.contains('consent1')) {
             this.registerForm.addControl(
-              'consent',
+              'consent1',
               new FormControl(false, Validators.required)
             );
           }
         } else {
-          this.registerForm.removeControl('consent');
+          this.registerForm.removeControl('consent1');
+        }
+        this.consentTeaser2 = tenant.consentTeaser2;
+        this.consentText2 = tenant.consentText2;
+        if (this.consentTeaser2 && this.consentTeaser2.length > 0) {
+          // only add the form control if it is not existing yet
+          if (!this.registerForm.contains('consent2')) {
+            this.registerForm.addControl(
+              'consent2',
+              new FormControl(false, Validators.required)
+            );
+          }
+        } else {
+          this.registerForm.removeControl('consent2');
         }
       }
     });

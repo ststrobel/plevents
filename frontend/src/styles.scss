@@ -1,17 +1,21 @@
 // import custom color overrides
-@import "styles-variables.scss";
+@import 'styles-variables.scss';
 
 /* You can add global styles to this file, and also import other style files */
-@import "~bootstrap/scss/bootstrap";
+@import '~bootstrap/scss/bootstrap';
 
 // include font awesome and the path to its font
-$fa-font-path: "~src/../node_modules/@fortawesome/fontawesome-free/webfonts";
-@import "../node_modules/@fortawesome/fontawesome-free/scss/fontawesome.scss";
-@import "../node_modules/@fortawesome/fontawesome-free/scss/solid.scss";
+$fa-font-path: '~src/../node_modules/@fortawesome/fontawesome-free/webfonts';
+@import '../node_modules/@fortawesome/fontawesome-free/scss/fontawesome.scss';
+@import '../node_modules/@fortawesome/fontawesome-free/scss/solid.scss';
+
+// include quill dependencies
+@import '../node_modules/quill/dist/quill.core.css';
+@import '../node_modules/quill/dist/quill.snow.css';
 
 @font-face {
-  font-family: "source-sans-pro";
-  src: url("assets/source-sans-pro/SourceSansPro-Regular.otf");
+  font-family: 'source-sans-pro';
+  src: url('assets/source-sans-pro/SourceSansPro-Regular.otf');
 }
 
 * {
@@ -48,4 +52,8 @@ form div.invalid {
       box-shadow: 0 0 0 0.2rem lighten($danger, 30%);
     }
   }
+}
+
+.ql-container {
+  height: 250px !important;
 }

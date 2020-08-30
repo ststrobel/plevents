@@ -50,7 +50,10 @@ export class TenantComponent implements OnInit, OnDestroy {
     this.tenantForm = new FormGroup({
       name: new FormControl('', Validators.required),
       path: new FormControl('', Validators.required),
-      consentText: new FormControl(''),
+      consentTeaser1: new FormControl('', Validators.maxLength(200)),
+      consentText1: new FormControl('', Validators.maxLength(10000)),
+      consentTeaser2: new FormControl('', Validators.maxLength(200)),
+      consentText2: new FormControl('', Validators.maxLength(10000)),
     });
     this.tenantSubscription = this.tenantService.currentTenant.subscribe(
       (tenant: Tenant) => {
@@ -61,8 +64,17 @@ export class TenantComponent implements OnInit, OnDestroy {
             this.tenantForm.get('name').setValue(this.tenant.name);
             this.tenantForm.get('path').setValue(this.tenant.path);
             this.tenantForm
-              .get('consentText')
-              .setValue(this.tenant.consentText);
+              .get('consentTeaser1')
+              .setValue(this.tenant.consentTeaser1);
+            this.tenantForm
+              .get('consentText1')
+              .setValue(this.tenant.consentText1);
+            this.tenantForm
+              .get('consentTeaser2')
+              .setValue(this.tenant.consentTeaser2);
+            this.tenantForm
+              .get('consentText2')
+              .setValue(this.tenant.consentText2);
           });
           // load users for this tenant
           this.tenantService.getUsers(tenant.id).subscribe((users: User[]) => {
@@ -109,7 +121,10 @@ export class TenantComponent implements OnInit, OnDestroy {
     const updatedTenant = clone(this.tenant);
     updatedTenant.name = this.tenantForm.get('name').value;
     updatedTenant.path = this.tenantForm.get('path').value;
-    updatedTenant.consentText = this.tenantForm.get('consentText').value;
+    updatedTenant.consentTeaser1 = this.tenantForm.get('consentTeaser1').value;
+    updatedTenant.consentText1 = this.tenantForm.get('consentText1').value;
+    updatedTenant.consentTeaser2 = this.tenantForm.get('consentTeaser2').value;
+    updatedTenant.consentText2 = this.tenantForm.get('consentText2').value;
     // update the logo from the current tenant object
     updatedTenant.logo = this.tenant.logo;
     const pathChanged = updatedTenant.path !== this.tenant.path;

@@ -1,4 +1,4 @@
-@import "../../../styles-variables.scss";
+@import '../../../styles-variables.scss';
 
 table tbody tr {
   border-top: 1px solid lighten($plevents-grey-dark, 45%);
@@ -56,4 +56,13 @@ table tbody tr {
   position: absolute;
   top: 4px;
   right: 4px;
+}
+
+.consent-toggler {
+  color: #ff004d;
+  cursor: pointer;
+  text-decoration: underline;
+  &:hover {
+    color: darken(#ff004d, 10%);
+  }
 }

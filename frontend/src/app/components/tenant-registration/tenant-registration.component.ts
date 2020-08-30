@@ -56,7 +56,6 @@ export class TenantRegistrationComponent implements OnInit {
     const name = this.registrationForm.get('name').value;
     const path = this.registrationForm.get('path').value;
     const tenantToCreate = new Tenant(name, path);
-    tenantToCreate.consentText = this.registrationForm.get('consentText').value;
     this.tenantService.create(tenantToCreate).subscribe((tenant: Tenant) => {
       this.router.navigate([tenant.path, 'registrierung']);
     });

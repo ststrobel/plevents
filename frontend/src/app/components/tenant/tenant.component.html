@@ -9,7 +9,7 @@
 <form [formGroup]="tenantForm">
   <div class="row">
     <div class="col-12 col-md-6" [ngClass]="{ invalid: isInvalid('name') }">
-      <label for="name">Name</label>
+      <label for="name">Name *</label>
       <br />
       <input
         class="form-control"
@@ -19,7 +19,7 @@
       />
     </div>
     <div class="col-12 col-md-6" [ngClass]="{ invalid: isInvalid('path') }">
-      <label for="name">Pfad</label>
+      <label for="name">Pfad *</label>
       <br />
       <input
         class="form-control"
@@ -36,15 +36,40 @@
       </div>
     </div>
     <div class="col-12 col-md-6">
-      <label for="consent">Einwilligungserklärung</label>
+      <label for="consentTeaser1">Einwilligungserklärung 1 Teaser</label>
       <br />
-      <textarea
+      <input
         class="form-control"
-        id="consent"
-        maxlength="10000"
-        formControlName="consentText"
-      ></textarea>
-      <small>{{ currentLengthOf('consentText') }} / 10000 Zeichen</small>
+        id="consentTeaser1"
+        type="text"
+        formControlName="consentTeaser1"
+      />
+      <br />
+      <label for="consent">Einwilligungserklärung 1 Details</label>
+      <br />
+      <quill-editor
+        formControlName="consentText1"
+        [style]="{ height: '250px' }"
+      ></quill-editor>
+      <small>{{ currentLengthOf('consentText1') }} / 10000 Zeichen</small>
+    </div>
+    <div class="col-12 col-md-6">
+      <label for="consentTeaser2">Einwilligungserklärung 2 Teaser</label>
+      <br />
+      <input
+        class="form-control"
+        id="consentTeaser2"
+        type="text"
+        formControlName="consentTeaser2"
+      />
+      <br />
+      <label for="consent">Einwilligungserklärung 2 Details</label>
+      <br />
+      <quill-editor
+        formControlName="consentText2"
+        [style]="{ height: '250px' }"
+      ></quill-editor>
+      <small>{{ currentLengthOf('consentText2') }} / 10000 Zeichen</small>
     </div>
     <div
       class="col-12 col-md-6"

@@ -8,7 +8,10 @@ export class Tenant implements TenantI {
   name: string;
   logo: string;
   path: string;
-  consentText: string;
+  consentTeaser1: string;
+  consentText1: string;
+  consentTeaser2: string;
+  consentText2: string;
 
   constructor(name: string, path: string) {
     this.name = name;
@@ -24,7 +27,10 @@ export class TenantAdapter implements Adapter<Tenant> {
   adapt(item: any): Tenant {
     const t = new Tenant(item.name, item.path);
     t.id = item.id;
-    t.consentText = item.consentText;
+    t.consentTeaser1 = item.consentTeaser1;
+    t.consentText1 = item.consentText1;
+    t.consentTeaser2 = item.consentTeaser2;
+    t.consentText2 = item.consentText2;
     if (item.logo && item.logo.length > 0) {
       t.logo = this.sanitizer.bypassSecurityTrustResourceUrl(
         item.logo

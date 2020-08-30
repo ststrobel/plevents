@@ -21,7 +21,10 @@ export class TenantController {
         tenant = new Tenant();
         tenant.name = tenantToCreate.name;
         tenant.path = tenantToCreate.path;
-        tenant.consentText = tenantToCreate.consentText;
+        tenant.consentTeaser1 = req.body.consentTeaser1;
+        tenant.consentText1 = req.body.consentText1;
+        tenant.consentTeaser2 = req.body.consentTeaser2;
+        tenant.consentText2 = req.body.consentText2;
         await tenant.save();
         Log.write(tenant.id, null, `Tenant ${tenant.id} erstellt`);
         res.status(200).send(tenant);
@@ -67,7 +70,10 @@ export class TenantController {
           tenant.name = req.body.name;
           tenant.path = req.body.path;
           tenant.logo = req.body.logo;
-          tenant.consentText = req.body.consentText;
+          tenant.consentTeaser1 = req.body.consentTeaser1;
+          tenant.consentText1 = req.body.consentText1;
+          tenant.consentTeaser2 = req.body.consentTeaser2;
+          tenant.consentText2 = req.body.consentText2;
           try {
             await tenant.save();
             res.status(200).send(tenant);

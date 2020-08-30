@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://plevents.de/api',
+  // this will just append 'api' to the current domain
+  apiUrl: 'api',
 };

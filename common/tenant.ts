@@ -3,5 +3,8 @@ export interface TenantI {
   name: string;
   logo: string;
   path: string;
-  consentText: string;
+  consentTeaser1: string;
+  consentText1: string;
+  consentTeaser2: string;
+  consentText2: string;
 }

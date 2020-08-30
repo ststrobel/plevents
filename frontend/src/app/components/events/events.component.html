@@ -211,27 +211,84 @@
           </div>
           <div
             class="col-12 col-md-8 form-check"
-            *ngIf="consentText && consentText.length > 0"
-            [ngClass]="{
-              invalid:
-                registerForm.touched &&
-                registerForm.get('consent').value === false
-            }"
             style="padding-top: 26px; padding-left: 1.25rem"
           >
-            <input
-              class="form-check-input"
-              id="consent"
-              type="checkbox"
-              formControlName="consent"
-              style="margin-left: 0px"
-            />
-            <label
-              class="form-check-label"
-              for="consent"
-              style="margin-bottom: 0; margin-left: 1.25rem; cursor: pointer"
-              >{{ consentText }}</label
+            <div
+              *ngIf="consentTeaser1 && consentTeaser1.length > 0"
+              [ngClass]="{
+                invalid:
+                  registerForm.touched &&
+                  registerForm.get('consent1').value === false
+              }"
             >
+              <input
+                class="form-check-input"
+                id="consent1"
+                type="checkbox"
+                formControlName="consent1"
+                style="margin-left: 0px"
+              />
+              <label
+                class="form-check-label"
+                for="consent1"
+                style="margin-bottom: 0; margin-left: 1.25rem; cursor: pointer"
+                >{{ consentTeaser1 }}</label
+              >
+              &nbsp;
+              <span *ngIf="consentText1 && consentText1.length > 0">
+                <small
+                  *ngIf="!consentText1Shown"
+                  (click)="consentText1Shown = true"
+                  class="consent-toggler"
+                  >Details anzeigen</small
+                >
+                <small
+                  *ngIf="consentText1Shown"
+                  (click)="consentText1Shown = false"
+                  class="consent-toggler"
+                  >Details ausblenden</small
+                >
+              </span>
+              <div *ngIf="consentText1Shown" [innerHTML]="consentText1"></div>
+            </div>
+            <div
+              *ngIf="consentTeaser2 && consentTeaser2.length > 0"
+              [ngClass]="{
+                invalid:
+                  registerForm.touched &&
+                  registerForm.get('consent2').value === false
+              }"
+            >
+              <input
+                class="form-check-input"
+                id="consent2"
+                type="checkbox"
+                formControlName="consent2"
+                style="margin-left: 0px"
+              />
+              <label
+                class="form-check-label"
+                for="consent2"
+                style="margin-bottom: 0; margin-left: 1.25rem; cursor: pointer"
+                >{{ consentTeaser2 }}</label
+              >
+              &nbsp;
+              <span *ngIf="consentText2 && consentText2.length > 0">
+                <small
+                  *ngIf="!consentText2Shown"
+                  (click)="consentText2Shown = true"
+                  class="consent-toggler"
+                  >Details anzeigen</small
+                >
+                <small
+                  *ngIf="consentText2Shown"
+                  (click)="consentText2Shown = false"
+                  class="consent-toggler"
+                  >Details ausblenden</small
+                >
+              </span>
+              <div *ngIf="consentText2Shown" [innerHTML]="consentText2"></div>
+            </div>
           </div>
           <div class="col-12 col-md-4">
             <button
