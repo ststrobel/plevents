@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, SecurityContext } from '@angular/core';
 import { Tenant } from '../../models/tenant';
 import { User } from 'src/app/models/user';
 import { TenantService } from '../../services/tenant.service';
@@ -7,8 +7,9 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { clone, reject, findIndex } from 'lodash';
 import { UserService } from 'src/app/services/user.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription, Observable } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-tenant',
@@ -31,7 +32,8 @@ export class TenantComponent implements OnInit, OnDestroy {
     private tenantService: TenantService,
     private userService: UserService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private domSanitizer: DomSanitizer
   ) {}
 
   ngOnInit(): void {
@@ -126,7 +128,18 @@ export class TenantComponent implements OnInit, OnDestroy {
     updatedTenant.consentTeaser2 = this.tenantForm.get('consentTeaser2').value;
     updatedTenant.consentText2 = this.tenantForm.get('consentText2').value;
     // update the logo from the current tenant object
-    updatedTenant.logo = this.tenant.logo;
+    if (this.tenant.logo) {
+      if (typeof this.tenant.logo === 'object') {
+        // it's a SafeResourceUrl oject - convert it to string first
+        updatedTenant.logo = this.domSanitizer.sanitize(
+          SecurityContext.RESOURCE_URL,
+          this.tenant.logo
+        );
+      } else {
+        // it's a string already (we assume) - no need to do anything
+        updatedTenant.logo = this.tenant.logo;
+      }
+    }
     const pathChanged = updatedTenant.path !== this.tenant.path;
     this.tenantService.update(updatedTenant).subscribe(
       (tenant: Tenant) => {
