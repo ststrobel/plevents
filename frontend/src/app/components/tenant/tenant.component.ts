@@ -52,9 +52,9 @@ export class TenantComponent implements OnInit, OnDestroy {
     this.tenantForm = new FormGroup({
       name: new FormControl('', Validators.required),
       path: new FormControl('', Validators.required),
-      consentTeaser1: new FormControl('', Validators.maxLength(200)),
+      consentTeaser1: new FormControl('', Validators.maxLength(1000)),
       consentText1: new FormControl('', Validators.maxLength(10000)),
-      consentTeaser2: new FormControl('', Validators.maxLength(200)),
+      consentTeaser2: new FormControl('', Validators.maxLength(1000)),
       consentText2: new FormControl('', Validators.maxLength(10000)),
     });
     this.tenantSubscription = this.tenantService.currentTenant.subscribe(
@@ -115,6 +115,7 @@ export class TenantComponent implements OnInit, OnDestroy {
       this.pathCheck.pathTaken ||
       this.logoValidationError
     ) {
+      console.log(this.tenantForm.errors);
       alert('Bitte alle Felder korrekt ausfüllen');
       this.tenantForm.markAllAsTouched();
       return;

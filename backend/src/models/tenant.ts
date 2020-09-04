@@ -13,11 +13,11 @@ export class Tenant extends BaseEntity implements TenantI {
   logo: string;
   @Column({ unique: true })
   path: string;
-  @Column({ nullable: true, length: 2000 })
+  @Column({ nullable: true, length: 1000 })
   consentTeaser1: string;
   @Column({ nullable: true, length: 60000 })
   consentText1: string;
-  @Column({ nullable: true, length: 2000 })
+  @Column({ nullable: true, length: 1000 })
   consentTeaser2: string;
   @Column({ nullable: true, length: 60000 })
   consentText2: string;

@@ -44,6 +44,7 @@
         type="text"
         formControlName="consentTeaser1"
       />
+      <small>{{ currentLengthOf('consentTeaser1') }} / 1.000 Zeichen</small>
       <br />
       <label for="consent">Einwilligungserklärung 1 Details</label>
       <br />
@@ -51,7 +52,7 @@
         formControlName="consentText1"
         [style]="{ height: '250px' }"
       ></quill-editor>
-      <small>{{ currentLengthOf('consentText1') }} / 10000 Zeichen</small>
+      <small>{{ currentLengthOf('consentText1') }} / 10.000 Zeichen</small>
     </div>
     <div class="col-12 col-md-6">
       <label for="consentTeaser2">Einwilligungserklärung 2 Teaser</label>
@@ -62,6 +63,7 @@
         type="text"
         formControlName="consentTeaser2"
       />
+      <small>{{ currentLengthOf('consentTeaser2') }} / 1.000 Zeichen</small>
       <br />
       <label for="consent">Einwilligungserklärung 2 Details</label>
       <br />
@@ -69,7 +71,7 @@
         formControlName="consentText2"
         [style]="{ height: '250px' }"
       ></quill-editor>
-      <small>{{ currentLengthOf('consentText2') }} / 10000 Zeichen</small>
+      <small>{{ currentLengthOf('consentText2') }} / 10.000 Zeichen</small>
     </div>
     <div
       class="col-12 col-md-6"
