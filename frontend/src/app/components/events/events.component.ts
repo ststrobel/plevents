@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { EventService } from 'src/app/services/event.service';
 import { Week } from 'src/app/models/week';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { sortBy, each, filter, find, uniq, map } from 'lodash';
+import { sortBy, each, filter, find, uniq, map, clone } from 'lodash';
 import * as moment from 'moment';
 import { Event } from 'src/app/models/event';
 import { Participant } from 'src/app/models/participant';
@@ -17,7 +17,8 @@ import { HttpErrorResponse } from '@angular/common/http';
   styleUrls: ['./events.component.scss'],
 })
 export class EventsComponent implements OnInit {
-  week: Week = null;
+  weeks: Week[] = null;
+  uniqueEvents: Event[] = null;
   eventsInTimeframe: Event[] = new Array<Event>();
   timeColumns: string[] = new Array<string>();
   registerForm: FormGroup;
@@ -86,17 +87,10 @@ export class EventsComponent implements OnInit {
     });
   }
 
-  eventAt(time: string, events: Event[]): Event {
-    const match = find(events, (event: Event) => {
-      return event.displayTime() === time;
-    });
-    return match;
-  }
-
   loadEvents(): void {
     this.timeColumns = new Array<string>();
     const today = moment();
-    const start = today.clone().startOf('week').add(1, 'week');
+    const start = today.clone(); //.startOf('week').add(1, 'week');
     const end = today.clone().endOf('week').add(1, 'week');
     this.eventService
       .getEvents(this.tenantService.currentTenantValue.id, start, end)
@@ -120,7 +114,7 @@ export class EventsComponent implements OnInit {
         this.classOptions = this.classOptions.sort();
         // add 'alle' at the top
         this.classOptions.unshift('alle');
-        this.week = new Week(moment().isoWeek());
+        this.weeks = new Array<Week>(2);
       });
   }
 
@@ -128,7 +122,10 @@ export class EventsComponent implements OnInit {
     this.selectedClass = className;
     this.selectedEvent = null;
     this.registerForm.markAsUntouched();
-    this.week.events = <Event[]>(
+    this.weeks[0] = new Week(moment().isoWeek());
+    this.weeks[1] = new Week(moment().add(1, 'week').isoWeek());
+    this.determineUniqueEvents(className);
+    const eventsToDisplay = <Event[]>(
       filter(this.eventsInTimeframe, (event: Event) => {
         if (className === 'alle') {
           return true;
@@ -136,14 +133,64 @@ export class EventsComponent implements OnInit {
         return event.targetClass.split(',').indexOf(className) >= 0;
       })
     );
-    this.week.events = sortBy(this.week.events, ['weekDay', 'time']);
-    this.timeColumns = [];
-    each(this.week.events, (event: Event) => {
-      this.timeColumns.push(event.displayTime());
+    const today = moment();
+    const startOfWeek = today.clone().startOf('week');
+    const endOfWeek = today.clone().endOf('week');
+    this.weeks[0].events = new Array<Event>(this.uniqueEvents.length);
+    this.weeks[1].events = new Array<Event>(this.uniqueEvents.length);
+    each(eventsToDisplay, (event: Event) => {
+      // find out at which position to display the event
+      each(this.uniqueEvents, (uniqueEvent: Event, index: number) => {
+        if (
+          uniqueEvent.displayName() === event.displayName() &&
+          uniqueEvent.weekDay === event.weekDay &&
+          uniqueEvent.displayTime() === event.displayTime()
+        ) {
+          // check if its in this week or next week
+          if (
+            moment(event.date).isBetween(
+              startOfWeek,
+              endOfWeek,
+              undefined,
+              '[]'
+            )
+          ) {
+            // this week
+            this.weeks[0].events[index] = event;
+          } else {
+            // next week
+            this.weeks[1].events[index] = event;
+          }
+        }
+      });
     });
   }
 
-  createRegisterForm(): void {
+  private determineUniqueEvents(className: string): void {
+    this.uniqueEvents = new Array<Event>();
+    each(this.eventsInTimeframe, (event: Event) => {
+      if (
+        className === 'alle' ||
+        event.targetClass.split(',').indexOf(className) >= 0
+      ) {
+        // check if there is already an instance of this event displayed
+        if (
+          find(this.uniqueEvents, (uniqueEvent: Event) => {
+            return (
+              uniqueEvent.displayName() === event.displayName() &&
+              uniqueEvent.weekDay === event.weekDay &&
+              uniqueEvent.displayTime() === event.displayTime()
+            );
+          }) === undefined
+        ) {
+          this.uniqueEvents.push(event);
+        }
+      }
+    });
+    this.uniqueEvents = sortBy(this.uniqueEvents, ['weekDay', 'time']);
+  }
+
+  private createRegisterForm(): void {
     this.registerForm = new FormGroup({
       name: new FormControl('', Validators.required),
       email: new FormControl('', [Validators.required, Validators.email]),
