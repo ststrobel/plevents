@@ -1,0 +1,37 @@
+<div
+  *ngIf="event !== undefined"
+  class="happening"
+  [ngClass]="{
+    greyedOut: event.isInPast(),
+    full: event.takenSeats >= event.maxSeats,
+    selected: selected
+  }"
+>
+  {{ event.displayDate() }}<br />
+  <small class="mb-2"
+    >{{ event.takenSeats }} / {{ event.maxSeats }} Teilnehmer
+  </small>
+  <span *ngIf="!event.isInPast()">
+    <span
+      *ngIf="event.maxSeats - event.takenSeats > 3"
+      class="badge badge-success top-right"
+      >{{ availableSeatsText(event) }}</span
+    >
+    <span
+      *ngIf="
+        event.maxSeats - event.takenSeats <= 3 &&
+        event.maxSeats - event.takenSeats > 0
+      "
+      class="badge badge-warning top-right"
+      >{{ availableSeatsText(event) }}</span
+    >
+    <span
+      *ngIf="event.maxSeats - event.takenSeats <= 0"
+      class="badge badge-danger top-right"
+      >ausgebucht</span
+    >
+  </span>
+  <span *ngIf="event.isInPast()">
+    <span class="badge badge-secondary top-right">bereits vergangen</span>
+  </span>
+</div>

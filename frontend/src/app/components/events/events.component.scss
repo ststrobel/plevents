@@ -42,6 +42,13 @@ table tbody tr {
   }
 }
 
+@media (min-width: 767px) {
+  table thead tr th:first-of-type,
+  table tbody tr td:first-of-type {
+    padding: 0px 20px;
+  }
+}
+
 .selected {
   font-weight: bold;
 }

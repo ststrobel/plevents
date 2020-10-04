@@ -14,6 +14,7 @@ import { RegistrationComponent } from './components/registration/registration.co
 import { TenantRegistrationComponent } from './components/tenant-registration/tenant-registration.component';
 import { ErrorComponent } from './components/error/error.component';
 import { QuillModule } from 'ngx-quill';
+import { EventSelectComponent } from './components/event-select/event-select.component';
 
 @NgModule({
   declarations: [
@@ -26,6 +27,7 @@ import { QuillModule } from 'ngx-quill';
     RegistrationComponent,
     TenantRegistrationComponent,
     ErrorComponent,
+    EventSelectComponent,
   ],
   imports: [
     BrowserModule,

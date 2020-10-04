@@ -22,15 +22,11 @@
   <p>
     Registriere dich bitte für <b>maximal eine</b> der folgenden Aktivitäten:
   </p>
-  <table style="width: 100%">
+  <!-- horizontal table -->
+  <table class="w-100 d-none d-lg-block">
     <thead>
       <tr *ngIf="uniqueEvents">
-        <th
-          [ngStyle]="{ width: 100 / (uniqueEvents.length + 1) + '%' }"
-          style="padding-left: 100px"
-        >
-          KW
-        </th>
+        <th [ngStyle]="{ width: 100 / (uniqueEvents.length + 1) + '%' }">KW</th>
         <th
           [ngStyle]="{ width: 100 / (uniqueEvents.length + 1) + '%' }"
           style="text-align: center"
@@ -44,125 +40,90 @@
     </thead>
     <tbody>
       <tr *ngIf="weeks[0] != null">
-        <td style="padding-left: 100px">{{ weeks[0].number }} (diese Woche)</td>
+        <td>{{ weeks[0].number }}<br />(diese Woche)</td>
         <td *ngFor="let event of weeks[0].events">
-          <div
-            *ngIf="event"
-            class="happening"
-            [ngClass]="{
-              greyedOut: event.isInPast(),
-              full: event.takenSeats >= event.maxSeats,
-              selected: event === selectedEvent
-            }"
+          <app-event-select
+            [event]="event"
             (click)="selectEvent(event)"
-          >
-            {{ event.displayDate() }}<br />
-            <small
-              >{{ event.takenSeats }} / {{ event.maxSeats }} Teilnehmer
-            </small>
-            <br />
-            <br />
-            <span *ngIf="!event.isInPast()">
-              <span
-                *ngIf="event.maxSeats - event.takenSeats > 3"
-                class="badge badge-success top-right"
-                >{{ availableSeatsText(event) }}</span
-              >
-              <span
-                *ngIf="
-                  event.maxSeats - event.takenSeats <= 3 &&
-                  event.maxSeats - event.takenSeats > 0
-                "
-                class="badge badge-warning top-right"
-                >{{ availableSeatsText(event) }}</span
-              >
-              <span
-                *ngIf="event.maxSeats - event.takenSeats <= 0"
-                class="badge badge-danger top-right"
-                >ausgebucht</span
-              >
-            </span>
-            <span *ngIf="event.isInPast()">
-              <span class="badge badge-secondary top-right"
-                >bereits vergangen</span
-              >
-            </span>
-          </div>
+            [selected]="event === selectedEvent"
+          ></app-event-select>
         </td>
       </tr>
       <tr *ngIf="weeks[1] != null">
-        <td style="padding-left: 100px">
-          {{ weeks[1].number }} (nächste Woche)
-        </td>
+        <td>{{ weeks[1].number }}<br />(nächste Woche)</td>
         <td *ngFor="let event of weeks[1].events">
-          <div
-            *ngIf="event !== undefined"
-            class="happening"
-            [ngClass]="{
-              greyedOut: event.isInPast(),
-              full: event.takenSeats >= event.maxSeats,
-              selected: event === selectedEvent
-            }"
+          <app-event-select
+            [event]="event"
             (click)="selectEvent(event)"
-          >
-            {{ event.displayDate() }}<br />
-            <small
-              >{{ event.takenSeats }} / {{ event.maxSeats }} Teilnehmer
-            </small>
-            <br />
-            <br />
-            <span *ngIf="!event.isInPast()">
-              <span
-                *ngIf="event.maxSeats - event.takenSeats > 3"
-                class="badge badge-success top-right"
-                >{{ availableSeatsText(event) }}</span
-              >
-              <span
-                *ngIf="
-                  event.maxSeats - event.takenSeats <= 3 &&
-                  event.maxSeats - event.takenSeats > 0
-                "
-                class="badge badge-warning top-right"
-                >{{ availableSeatsText(event) }}</span
-              >
-              <span
-                *ngIf="event.maxSeats - event.takenSeats <= 0"
-                class="badge badge-danger top-right"
-                >ausgebucht</span
-              >
-            </span>
-            <span *ngIf="event.isInPast()">
-              <span class="badge badge-secondary top-right"
-                >bereits vergangen</span
-              >
-            </span>
-          </div>
+            [selected]="event === selectedEvent"
+          ></app-event-select>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <!-- vertical table -->
+  <table class="w-100 d-lg-none">
+    <thead>
+      <tr>
+        <th style="width: 30%"></th>
+        <th style="width: 35%" *ngIf="weeks[0] != null">
+          {{ weeks[0].number }}<br />(diese Woche)
+        </th>
+        <th style="width: 35%" *ngIf="weeks[1] != null">
+          {{ weeks[1].number }}<br />(nächste Woche)
+        </th>
+      </tr>
+    </thead>
+    <tbody *ngIf="uniqueEvents">
+      <tr *ngFor="let uniqueEvent of uniqueEvents; index as i">
+        <td>
+          {{ uniqueEvent.displayName() }}
+          <br />
+          {{ uniqueEvent.displayTime() }}
+        </td>
+        <td>
+          <app-event-select
+            *ngIf="weeks[0].events[i]"
+            [event]="weeks[0].events[i]"
+            (click)="selectEvent(event)"
+            [selected]="event === selectedEvent"
+          ></app-event-select>
+        </td>
+        <td>
+          <app-event-select
+            *ngIf="weeks[1].events[i]"
+            [event]="weeks[1].events[i]"
+            (click)="selectEvent(event)"
+            [selected]="event === selectedEvent"
+          ></app-event-select>
         </td>
       </tr>
     </tbody>
   </table>
 
-  <div style="margin-top: 40px" [hidden]="selectedEvent === null">
+  <div style="margin-top: 40px" *ngIf="selectedEvent">
     <div
-      [hidden]="selectedEvent && !selectedEvent.isInPast()"
+      *ngIf="selectedEvent && selectedEvent.isInPast()"
       class="alert alert-secondary"
     >
       Dieses Event liegt in der Vergangenheit. Keine Aktion möglich.
     </div>
 
     <div
-      [hidden]="
-        (selectedEvent && selectedEvent.isInPast()) ||
-        (selectedEvent && selectedEvent.takenSeats < selectedEvent.maxSeats)
+      *ngIf="
+        selectedEvent &&
+        !selectedEvent.isInPast() &&
+        selectedEvent.takenSeats >= selectedEvent.maxSeats
       "
       class="alert alert-danger"
     >
       Dieses Event ist bereits leider ausgebucht!
     </div>
     <div
-      [hidden]="
-        (selectedEvent && selectedEvent.isInPast()) ||
-        (selectedEvent && selectedEvent.takenSeats >= selectedEvent.maxSeats)
+      *ngIf="
+        selectedEvent &&
+        !selectedEvent.isInPast() &&
+        selectedEvent.takenSeats < selectedEvent.maxSeats
       "
     >
       <h5>Angaben zu Teilnehmer:</h5>

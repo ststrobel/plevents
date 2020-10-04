@@ -1,0 +1,50 @@
+@import '../../../styles-variables.scss';
+
+.happening {
+  small {
+    text-align: center;
+    display: inline-block;
+    width: 100%;
+  }
+  padding: 3px;
+  background-color: lightgray;
+  border: 3px solid white;
+  position: relative;
+  background-color: lightgreen;
+  color: darkgreen;
+  font-weight: bold;
+  cursor: pointer;
+  &.selected {
+    border: 3px solid #005712;
+    background-color: #6dc86d;
+  }
+  &.full {
+    background-color: #fecccc;
+    color: #780000;
+    &.selected {
+      border: 3px solid #780000;
+      background-color: #f3a2a2;
+    }
+  }
+  &.greyedOut {
+    background-color: $plevents-grey-light;
+    color: $plevents-grey-dark;
+    &.selected {
+      border: 3px solid $plevents-grey-dark;
+      background-color: darken($plevents-grey-light, 5%);
+    }
+  }
+}
+
+.top-right {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+}
+
+@media (max-width: 767px) {
+  .top-right {
+    position: relative;
+    margin: 5px;
+  }
+}
