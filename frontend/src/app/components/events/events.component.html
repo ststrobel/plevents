@@ -34,7 +34,9 @@
         >
           {{ uniqueEvent.displayName() }}
           <br />
-          {{ uniqueEvent.displayTime() }}
+          <span class="badge badge-secondary">{{
+            uniqueEvent.displayTime()
+          }}</span>
         </th>
       </tr>
     </thead>
@@ -79,7 +81,9 @@
         <td>
           {{ uniqueEvent.displayName() }}
           <br />
-          {{ uniqueEvent.displayTime() }}
+          <span class="badge badge-secondary">{{
+            uniqueEvent.displayTime()
+          }}</span>
         </td>
         <td>
           <app-event-select

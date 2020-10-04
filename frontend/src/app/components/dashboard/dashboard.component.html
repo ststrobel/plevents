@@ -1,10 +1,21 @@
 <h2>Übersicht über alle anstehenden Events</h2>
-
-<div style="margin-top: 40px">
-  <h5>Hier können Sie ein neues Reihenevent anlegen:</h5>
+<!-- button to show the "new event" form -->
+<div>
+  <button
+    class="btn float-right btn-outline-success mb-3"
+    style="margin-top: 32px"
+    *ngIf="!newEventFormShown"
+    (click)="newEventFormShown = true"
+  >
+    Neues Serienevent
+  </button>
+</div>
+<!-- form to create a new event -->
+<div style="margin-top: 40px" *ngIf="newEventFormShown">
+  <h5>Daten für neues Reihenevent:</h5>
   <form [formGroup]="newEventForm" (ngSubmit)="addNewEvent()">
     <div class="row">
-      <div class="col-6 col-md-4" [ngClass]="{ invalid: isInvalid('name') }">
+      <div class="col-12 col-md-4" [ngClass]="{ invalid: isInvalid('name') }">
         <label for="name">Event-Name</label>
         <br />
         <input
@@ -27,7 +38,7 @@
           formControlName="fromDate"
         />
       </div>
-      <div class="col-12 col-md-4" [ngClass]="{ invalid: isInvalid('class') }">
+      <div class="col-6 col-md-4" [ngClass]="{ invalid: isInvalid('class') }">
         <label for="targetClass">für Klasse</label>
         <br />
         <input
@@ -74,7 +85,8 @@
   </form>
 </div>
 
-<table>
+<!-- display on wide screens -->
+<table class="w-100 d-none d-xl-table mt-3">
   <thead>
     <tr>
       <th style="width: 100px">KW</th>
@@ -141,3 +153,93 @@
     </tr>
   </tbody>
 </table>
+
+<!-- display on small screens -->
+<div class="d-xl-none mt-3">
+  <div
+    class="card w-100 mb-3"
+    *ngFor="let uniqueEvent of uniqueEvents; let i = index"
+  >
+    <div class="card-header">
+      <b>{{ uniqueEvent.displayName() }}</b>
+      <br />
+      {{ uniqueEvent.displayTime() }}
+    </div>
+    <div class="card-body">
+      <button
+        class="btn btn-block btn-outline-secondary"
+        type="button"
+        data-toggle="collapse"
+        [attr.data-target]="'#events-collapser-' + i"
+        (click)="eventsOpened[i] = !eventsOpened[i]"
+      >
+        <i class="fas fa-angle-down" *ngIf="!eventsOpened[i]"></i>
+        <i class="fas fa-angle-up" *ngIf="eventsOpened[i]"></i>
+        Events anzeigen
+      </button>
+      <div class="collapse" [attr.id]="'events-collapser-' + i">
+        <table class="w-100 mt-2">
+          <thead>
+            <tr>
+              <th style="width: 30%">KW</th>
+              <th style="width: 70%; text-align: center">Event</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let week of weeks">
+              <td [ngClass]="{ currentCW: week.number === currentCW() }">
+                {{ week.number }}
+                <small *ngIf="week.number === currentCW()"
+                  ><br />aktuelle Woche</small
+                >
+              </td>
+              <td
+                *ngFor="
+                  let event of [
+                    searchEventByUniqueEvent(week.events, uniqueEvent)
+                  ]
+                "
+                class="greyedOut"
+                style="
+                  border: 1px solid white;
+                  height: 25px;
+                  line-height: 25px;
+                  text-align: center;
+                "
+                [ngClass]="{
+                  happening: event,
+                  unavailable: event && event.takenSeats >= event.maxSeats
+                }"
+              >
+                <div
+                  *ngIf="event"
+                  [ngClass]="{ disabled: event.disabled }"
+                  style="position: relative"
+                >
+                  {{ event.displayDate() }}<br />
+                  <small>{{ event.takenSeats }} / {{ event.maxSeats }} </small
+                  ><i
+                    class="fas fa-2x fa-file-pdf downloadIcon"
+                    (click)="downloadPdf(event)"
+                    title="Download Teilnehmerliste"
+                  ></i>
+                  <small class="stateToggler" (click)="toggleDisabled(event)">
+                    <i *ngIf="!event.disabled">aktiv</i>
+                    <i *ngIf="event.disabled">inaktiv</i>
+                  </small>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <button
+        class="btn btn-sm btn-block btn-outline-danger my-2"
+        (click)="deleteEventSeries(i)"
+        [disabled]="operationOngoing"
+      >
+        Eventserie löschen
+      </button>
+    </div>
+  </div>
+</div>

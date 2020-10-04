@@ -22,6 +22,8 @@ export class DashboardComponent implements OnInit {
   uniqueEvents: Event[] = new Array<Event>();
   newEventForm: FormGroup;
   operationOngoing: boolean = false;
+  newEventFormShown: boolean = false;
+  eventsOpened: boolean[];
 
   constructor(
     private eventService: EventService,
@@ -31,17 +33,21 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.eventsOpened = new Array<boolean>();
     // load the tenant information and redirect in case tenant path does not exist:
     this.tenantService
       .getByPath(this.route.snapshot.params.tenantPath)
-      .subscribe(null, error => {
-        if (
-          error === 'Not Found' ||
-          (error instanceof HttpErrorResponse && error.status === 404)
-        ) {
-          this.router.navigate(['fehler', 'account-not-found']);
+      .subscribe(
+        () => {},
+        error => {
+          if (
+            error === 'Not Found' ||
+            (error instanceof HttpErrorResponse && error.status === 404)
+          ) {
+            this.router.navigate(['fehler', 'account-not-found']);
+          }
         }
-      });
+      );
     this.tenantService.currentTenant.subscribe((tenant: Tenant) => {
       if (tenant) {
         this.loadAllEvents(tenant);
@@ -145,6 +151,7 @@ export class DashboardComponent implements OnInit {
         alert('Neue Eventserie angelegt');
         this.loadAllEvents(this.tenantService.currentTenantValue);
         this.operationOngoing = false;
+        this.newEventFormShown = false;
       },
       error => {
         console.error(error);
@@ -204,5 +211,18 @@ export class DashboardComponent implements OnInit {
 
   downloadPdf(event: Event): void {
     this.eventService.downloadPdf(event);
+  }
+
+  /**
+   * search the events array and find the one event that is a series event of the given unique event
+   * @param events
+   * @param uniqueEvent
+   */
+  searchEventByUniqueEvent(events: Event[], uniqueEvent: Event): Event {
+    return find(events, {
+      name: uniqueEvent.name,
+      weekDay: uniqueEvent.weekDay,
+      time: uniqueEvent.time,
+    });
   }
 }
