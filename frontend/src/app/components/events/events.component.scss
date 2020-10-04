@@ -3,43 +3,6 @@
 table tbody tr {
   border-top: 1px solid lighten($plevents-grey-dark, 45%);
   height: 78px;
-  td:not(:first-child) div {
-    small {
-      text-align: center;
-      display: inline-block;
-      width: 100%;
-    }
-    padding: 3px;
-    background-color: lightgray;
-    border: 3px solid white;
-    position: relative;
-    &.happening {
-      background-color: lightgreen;
-      color: darkgreen;
-      font-weight: bold;
-      cursor: pointer;
-      &.selected {
-        border: 3px solid #005712;
-        background-color: #6dc86d;
-      }
-      &.full {
-        background-color: #fecccc;
-        color: #780000;
-        &.selected {
-          border: 3px solid #780000;
-          background-color: #f3a2a2;
-        }
-      }
-      &.greyedOut {
-        background-color: $plevents-grey-light;
-        color: $plevents-grey-dark;
-        &.selected {
-          border: 3px solid $plevents-grey-dark;
-          background-color: darken($plevents-grey-light, 5%);
-        }
-      }
-    }
-  }
 }
 
 @media (min-width: 767px) {
@@ -49,20 +12,10 @@ table tbody tr {
   }
 }
 
-.selected {
-  font-weight: bold;
-}
-
 .successBox {
   text-align: center;
   margin-top: 100px;
   margin-bottom: 50px;
-}
-
-.top-right {
-  position: absolute;
-  top: 4px;
-  right: 4px;
 }
 
 .consent-toggler {
@@ -72,4 +25,8 @@ table tbody tr {
   &:hover {
     color: darken(#ff004d, 10%);
   }
+}
+
+form div.row div label {
+  margin-top: 20px;
 }

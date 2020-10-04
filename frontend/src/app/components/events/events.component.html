@@ -23,7 +23,7 @@
     Registriere dich bitte für <b>maximal eine</b> der folgenden Aktivitäten:
   </p>
   <!-- horizontal table -->
-  <table class="w-100 d-none d-lg-block">
+  <table class="w-100 d-none d-lg-table">
     <thead>
       <tr *ngIf="uniqueEvents">
         <th [ngStyle]="{ width: 100 / (uniqueEvents.length + 1) + '%' }">KW</th>
@@ -85,16 +85,16 @@
           <app-event-select
             *ngIf="weeks[0].events[i]"
             [event]="weeks[0].events[i]"
-            (click)="selectEvent(event)"
-            [selected]="event === selectedEvent"
+            (click)="selectEvent(weeks[0].events[i])"
+            [selected]="weeks[0].events[i] === selectedEvent"
           ></app-event-select>
         </td>
         <td>
           <app-event-select
             *ngIf="weeks[1].events[i]"
             [event]="weeks[1].events[i]"
-            (click)="selectEvent(event)"
-            [selected]="event === selectedEvent"
+            (click)="selectEvent(weeks[1].events[i])"
+            [selected]="weeks[1].events[i] === selectedEvent"
           ></app-event-select>
         </td>
       </tr>
@@ -133,12 +133,13 @@
             class="col-6 col-md-4"
             [ngClass]="{ invalid: isInvalid('name') }"
           >
-            <label for="name">Name des Teilnehmers</label>
+            <label for="name">Teilnehmer</label>
             <br />
             <input
               class="form-control"
               id="name"
               type="text"
+              placeholder="Name des Teilnehmers"
               formControlName="name"
             />
           </div>
@@ -152,6 +153,7 @@
               class="form-control"
               id="email"
               type="email"
+              placeholder="Kontakt-Email Adresse"
               formControlName="email"
             />
           </div>
@@ -165,6 +167,7 @@
               class="form-control"
               id="phone"
               type="phone"
+              placeholder="Telefonnr für Rückfragen"
               formControlName="phone"
             />
           </div>
@@ -172,12 +175,13 @@
             class="col-6 col-md-4"
             [ngClass]="{ invalid: isInvalid('street') }"
           >
-            <label for="street">Straße & Hausnummer</label>
+            <label for="street">Adresse</label>
             <br />
             <input
               class="form-control"
               id="street"
               type="text"
+              placeholder="Straße & Hausnummer"
               formControlName="street"
             />
           </div>
@@ -188,6 +192,7 @@
               class="form-control"
               id="zip"
               type="text"
+              placeholder="Postleitzahl"
               formControlName="zip"
             />
           </div>
@@ -201,6 +206,7 @@
               class="form-control"
               id="city"
               type="text"
+              placeholder="Wohnort"
               formControlName="city"
             />
           </div>
