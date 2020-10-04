@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { EventService } from 'src/app/services/event.service';
 import { Week } from 'src/app/models/week';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { sortBy, each, filter, find, uniq, map, clone } from 'lodash';
+import { sortBy, each, filter, find, uniq, map } from 'lodash';
 import * as moment from 'moment';
 import { Event } from 'src/app/models/event';
 import { Participant } from 'src/app/models/participant';
@@ -44,14 +44,17 @@ export class EventsComponent implements OnInit {
     // load the tenant information and redirect in case tenant path does not exist:
     this.tenantService
       .getByPath(this.route.snapshot.params.tenantPath)
-      .subscribe(null, error => {
-        if (
-          error === 'Not Found' ||
-          (error instanceof HttpErrorResponse && error.status === 404)
-        ) {
-          this.router.navigate(['fehler', 'account-not-found']);
+      .subscribe(
+        () => {},
+        error => {
+          if (
+            error === 'Not Found' ||
+            (error instanceof HttpErrorResponse && error.status === 404)
+          ) {
+            this.router.navigate(['fehler', 'account-not-found']);
+          }
         }
-      });
+      );
     this.createRegisterForm();
     this.tenantService.load(this.route.snapshot.params.tenantPath);
     this.tenantService.currentTenant.subscribe((tenant: Tenant) => {

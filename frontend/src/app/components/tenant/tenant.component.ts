@@ -40,15 +40,18 @@ export class TenantComponent implements OnInit, OnDestroy {
     // load the tenant information and redirect in case tenant path does not exist:
     this.tenantService
       .getByPath(this.route.snapshot.params.tenantPath)
-      .subscribe(null, error => {
-        console.log(error);
-        if (
-          error === 'Not Found' ||
-          (error instanceof HttpErrorResponse && error.status === 404)
-        ) {
-          this.router.navigate(['fehler', 'account-not-found']);
+      .subscribe(
+        () => {},
+        (error: any) => {
+          console.log(error);
+          if (
+            error === 'Not Found' ||
+            (error instanceof HttpErrorResponse && error.status === 404)
+          ) {
+            this.router.navigate(['fehler', 'account-not-found']);
+          }
         }
-      });
+      );
     this.tenantForm = new FormGroup({
       name: new FormControl('', Validators.required),
       path: new FormControl('', Validators.required),
