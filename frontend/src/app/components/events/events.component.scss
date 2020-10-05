@@ -18,6 +18,10 @@ table tbody tr {
   margin-bottom: 50px;
 }
 
+table thead {
+  background-color: #d3d3d3;
+}
+
 .consent-toggler {
   color: #ff004d;
   cursor: pointer;
@@ -29,4 +33,32 @@ table tbody tr {
 
 form div.row div label {
   margin-top: 20px;
+}
+
+.category-card {
+  padding: 40px 20px;
+  @media (max-width: 575px) {
+    padding: 5px 15px;
+  }
+  border: 1px solid #ff004d;
+  color: #ff004d;
+  text-align: center;
+  cursor: pointer;
+  &:hover {
+    background-color: #ff004d;
+    color: white;
+  }
+}
+
+.back-to-categories {
+  padding: 5px 15px;
+  margin-bottom: 5px;
+  border: 1px solid #ff004d;
+  color: #ff004d;
+  cursor: pointer;
+  width: max-content;
+  &:hover {
+    background-color: #ff004d;
+    color: white;
+  }
 }

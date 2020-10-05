@@ -60,7 +60,7 @@ export class EventController {
       const event = new Event();
       event.name = eventToCreate.name;
       event.date = eventToCreate.date;
-      event.targetClass = eventToCreate.targetClass;
+      event.categoryId = eventToCreate.categoryId;
       event.maxSeats = eventToCreate.maxSeats;
       event.tenantId = (await UserService.currentTenant(req)).id;
       await event.save();

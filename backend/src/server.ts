@@ -1,4 +1,4 @@
-import "reflect-metadata";
+import 'reflect-metadata';
 // equivalent of older: const express = require('express')
 import express from 'express';
 import { AuthController } from './controllers/auth.controller';
@@ -9,8 +9,8 @@ import { PdfController } from './controllers/pdf.controller';
 import { CronService } from './cron.service';
 import { TenantController } from './controllers/tenant.controller';
 import { UserController } from './controllers/user.controller';
-import { createConnection } from "typeorm";
-
+import { createConnection } from 'typeorm';
+import { CategoryController } from './controllers/category.controller';
 
 // read configuration:
 const dotenv = require('dotenv');
@@ -39,7 +39,9 @@ app.use(async (req, res, next) => {
     const authHeader = req.get('Authorization');
     if (authHeader && authHeader.startsWith('Basic ')) {
       const base64Credentials = authHeader.split(' ')[1];
-      const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+      const credentials = Buffer.from(base64Credentials, 'base64').toString(
+        'ascii'
+      );
       const [email, password] = credentials.split(':');
       if (await UserService.checkCredentials(email, password)) {
         // authentication was successful
@@ -62,16 +64,25 @@ EmailController.register(app);
 EventController.register(app);
 PdfController.register(app);
 UserController.register(app);
+CategoryController.register(app);
 
 // connect to the database:
-createConnection().then(() => {
-  console.log('\x1b[32mDatabase connection established\x1b[0m');
-  // start our server on port 4201
-  app.listen(parseInt(process.env.HTTP_PORT), process.env.HTTP_HOSTNAME, async function () {
-    console.log('\x1b[32mServer now listening on ' + process.env.HTTP_PORT + '\x1b[0m');
-    const cronService = new CronService();
-    cronService.removeParticipantsData();
+createConnection()
+  .then(() => {
+    console.log('\x1b[32mDatabase connection established\x1b[0m');
+    // start our server on port 4201
+    app.listen(
+      parseInt(process.env.HTTP_PORT),
+      process.env.HTTP_HOSTNAME,
+      async function () {
+        console.log(
+          '\x1b[32mServer now listening on ' + process.env.HTTP_PORT + '\x1b[0m'
+        );
+        const cronService = new CronService();
+        cronService.removeParticipantsData();
+      }
+    );
+  })
+  .catch(e => {
+    console.log('\x1b[31m' + e + '\x1b[0m');
   });
-}).catch(e =>{
-  console.log('\x1b[31m'+e+'\x1b[0m');
-});

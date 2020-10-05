@@ -1,26 +1,42 @@
 <h2>Anmeldung zu Aktivität</h2>
-<div *ngIf="!successfullyRegistered && classOptions != null">
-  <form (change)="selectClass($event.target.value)">
-    <div class="form-group">
-      <label for="classSelect">In welcher Klasse bist du?</label>
-      <select class="form-control" id="classSelect">
-        <option>--- bitte auswählen ---</option>
-        <option *ngFor="let classOption of classOptions">
-          {{ classOption }}
-        </option>
-      </select>
-    </div>
-  </form>
-</div>
 <div
   *ngIf="
     !successfullyRegistered &&
-    selectedClass != null &&
-    selectedClass != '--- bitte auswählen ---'
+    categoryOptions != null &&
+    selectedCategory === undefined
   "
+  class="row"
 >
+  <div class="col-12">
+    <p>
+      Bitte wähle zuerst eine Kategorie aus, zu der dir Events angezeigt werden:
+    </p>
+  </div>
+  <div
+    class="col-12 col-sm-4 col-md-3 p-1"
+    *ngFor="let category of categories"
+    (click)="selectCategory(category)"
+  >
+    <div class="category-card">
+      {{ category.name }}
+    </div>
+  </div>
+  <div class="col-12 col-sm-4 col-md-3 p-1" (click)="selectCategory(null)">
+    <div class="category-card">alle Events</div>
+  </div>
+</div>
+<div *ngIf="!successfullyRegistered && selectedCategory !== undefined">
+  <div class="back-to-categories" (click)="selectedCategory = undefined">
+    <i class="fas fa-chevron-left"></i>
+    zurück zur Kategorie-Auswahl
+  </div>
   <p>
-    Registriere dich bitte für <b>maximal eine</b> der folgenden Aktivitäten:
+    Registriere dich bitte für <b>maximal eine</b> der folgenden Aktivitäten in
+    der Kategorie
+    <span style="color: #ff004d">{{
+      selectedCategory === null ? 'alle Events' : selectedCategory.name
+    }}</span
+    >:
   </p>
   <!-- horizontal table -->
   <table class="w-100 d-none d-lg-table">
@@ -131,6 +147,12 @@
       "
     >
       <h5>Angaben zu Teilnehmer:</h5>
+      <p>
+        für die Anmeldung zu
+        <b>{{ selectedEvent.name }}</b> am
+        <b>{{ selectedEvent.displayDate() }}</b> um
+        <b>{{ selectedEvent.displayTime(false) }} Uhr</b>:
+      </p>
       <form [formGroup]="registerForm" (ngSubmit)="registerParticipant()">
         <div class="row">
           <div

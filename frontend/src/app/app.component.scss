@@ -43,6 +43,14 @@ nav.navbar {
   }
 }
 
+// override bootstrap default behaviour animation when closing the navbar (collapse transition override)
+@media (min-width: 992px) {
+  #navbarSupportedContent {
+    transition: none !important;
+    height: 40px !important;
+  }
+}
+
 .container-fluid {
   flex: 1 1 auto;
 }

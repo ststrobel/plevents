@@ -62,7 +62,7 @@ export class TenantComponent implements OnInit, OnDestroy {
     });
     this.tenantSubscription = this.tenantService.currentTenant.subscribe(
       (tenant: Tenant) => {
-        if (tenant) {
+        if (tenant && tenant !== this.tenant) {
           // load tenant details
           this.tenantService.get(tenant.id).subscribe((tenant: Tenant) => {
             this.tenant = tenant;

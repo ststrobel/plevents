@@ -14,6 +14,7 @@ import { TenantRegistrationComponent } from './components/tenant-registration/te
 import { ErrorComponent } from './components/error/error.component';
 import { QuillModule } from 'ngx-quill';
 import { EventSelectComponent } from './components/event-select/event-select.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -49,6 +50,7 @@ import { EventSelectComponent } from './components/event-select/event-select.com
       },
       placeholder: 'Optionalen Text eingeben',
     }),
+    NgbModule,
   ],
   providers: [],
   bootstrap: [AppComponent],
