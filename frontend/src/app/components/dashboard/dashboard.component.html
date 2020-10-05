@@ -11,7 +11,7 @@
   </button>
 </div>
 <!-- form to create a new event -->
-<div style="margin-top: 40px" *ngIf="newEventFormShown">
+<div style="margin-top: 40px" [hidden]="!newEventFormShown">
   <h5>Daten für neues Reihenevent:</h5>
   <form [formGroup]="newEventForm" (ngSubmit)="addNewEvent()">
     <div class="row">
@@ -38,14 +38,21 @@
           formControlName="fromDate"
         />
       </div>
-      <div class="col-6 col-md-4" [ngClass]="{ invalid: isInvalid('class') }">
-        <label for="targetClass">für Klasse</label>
+      <div
+        class="col-6 col-md-4"
+        [ngClass]="{ invalid: isInvalid('category') }"
+      >
+        <label for="targetClass">Kategorie</label>
         <br />
         <input
           class="form-control"
           id="targetClass"
           type="text"
-          formControlName="class"
+          formControlName="category"
+          [ngbTypeahead]="search"
+          (focus)="focus$.next($any($event).target.value)"
+          (click)="click$.next($any($event).target.value)"
+          #instance="ngbTypeahead"
         />
       </div>
       <div class="col-6 col-md-4" [ngClass]="{ invalid: isInvalid('time') }">
@@ -86,7 +93,7 @@
 </div>
 
 <!-- display on wide screens -->
-<table class="w-100 d-none d-xl-table mt-3">
+<table class="w-100 d-none d-xl-table mt-3" *ngIf="uniqueEvents">
   <thead>
     <tr>
       <th style="width: 100px">KW</th>
@@ -155,7 +162,7 @@
 </table>
 
 <!-- display on small screens -->
-<div class="d-xl-none mt-3">
+<div class="d-xl-none mt-3" *ngIf="uniqueEvents">
   <div
     class="card w-100 mb-3"
     *ngFor="let uniqueEvent of uniqueEvents; let i = index"
@@ -242,4 +249,12 @@
       </button>
     </div>
   </div>
+</div>
+
+<div
+  class="alert alert-secondary text-center"
+  style="margin-top: 100px"
+  *ngIf="!uniqueEvents"
+>
+  Daten werden geladen...
 </div>

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { map, tap } from 'rxjs/operators';
 import { TenantAdapter, Tenant } from '../models/tenant';
 import { UserAdapter, User } from '../models/user';
-import { Observable, BehaviorSubject, Subscription } from 'rxjs';
+import { Observable, BehaviorSubject, Subscription, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -45,21 +45,32 @@ export class TenantService {
   }
 
   getByPath(tenantPath: string): Observable<Tenant> {
-    return this.http
-      .get<User>(`${environment.apiUrl}/tenants/${tenantPath}`)
-      .pipe(
-        // Adapt the raw item
-        map(item => this.tenantAdapter.adapt(item))
-      );
+    if (
+      this.currentTenantValue &&
+      this.currentTenantValue.path === tenantPath
+    ) {
+      return of(this.currentTenantValue);
+    } else {
+      return this.http
+        .get<User>(`${environment.apiUrl}/tenants/${tenantPath}`)
+        .pipe(
+          // Adapt the raw item
+          map(item => this.tenantAdapter.adapt(item))
+        );
+    }
   }
 
   get(tenantId: string): Observable<Tenant> {
-    return this.http
-      .get<User>(`${environment.apiUrl}/secure/tenants/${tenantId}`)
-      .pipe(
-        // Adapt the raw item
-        map(item => this.tenantAdapter.adapt(item))
-      );
+    if (this.currentTenantValue && this.currentTenantValue.id === tenantId) {
+      return of(this.currentTenantValue);
+    } else {
+      return this.http
+        .get<User>(`${environment.apiUrl}/secure/tenants/${tenantId}`)
+        .pipe(
+          // Adapt the raw item
+          map(item => this.tenantAdapter.adapt(item))
+        );
+    }
   }
 
   update(tenant: Tenant): Observable<Tenant> {

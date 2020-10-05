@@ -1,41 +1,58 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Week } from 'src/app/models/week';
 import { EventService } from 'src/app/services/event.service';
 import { Event } from '../../models/event';
 import * as moment from 'moment';
-import { filter, sortBy, each, find } from 'lodash';
+import { filter, sortBy, each, find, map } from 'lodash';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { forkJoin } from 'rxjs';
+import { forkJoin, merge, Observable, of, Subject, Subscription } from 'rxjs';
 import { TenantService } from 'src/app/services/tenant.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Tenant } from 'src/app/models/tenant';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Category } from 'src/app/models/category';
+import { CategoryService } from 'src/app/services/category.service';
+import { NgbTypeahead } from '@ng-bootstrap/ng-bootstrap';
+import {
+  filter as rxjsFilter,
+  debounceTime,
+  distinctUntilChanged,
+  map as rxjsMap,
+} from 'rxjs/operators';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   private allEvents: Event[];
   weeks: Week[] = new Array<Week>();
-  uniqueEvents: Event[] = new Array<Event>();
+  uniqueEvents: Event[] = null;
   newEventForm: FormGroup;
   operationOngoing: boolean = false;
   newEventFormShown: boolean = false;
   eventsOpened: boolean[];
+  categories: Category[];
+  @ViewChild('instance', { static: true }) instance: NgbTypeahead;
+  focus$ = new Subject<string>();
+  click$ = new Subject<string>();
+  tenantSubscription: Subscription;
+  tenant: Tenant = null;
 
   constructor(
     private eventService: EventService,
     private tenantService: TenantService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private categoryService: CategoryService
   ) {}
 
   ngOnInit() {
+    this.createNewEventForm();
     this.eventsOpened = new Array<boolean>();
     // load the tenant information and redirect in case tenant path does not exist:
-    this.tenantService
+    this.tenantSubscription = this.tenantService
       .getByPath(this.route.snapshot.params.tenantPath)
       .subscribe(
         () => {},
@@ -49,12 +66,24 @@ export class DashboardComponent implements OnInit {
         }
       );
     this.tenantService.currentTenant.subscribe((tenant: Tenant) => {
-      if (tenant) {
+      if (tenant && tenant != this.tenant) {
+        this.tenant = tenant;
         this.loadAllEvents(tenant);
       }
     });
     this.tenantService.load(this.route.snapshot.params.tenantPath);
+    this.categoryService
+      .getCategorys(this.route.snapshot.params.tenantPath)
+      .subscribe(categories => {
+        this.categories = categories;
+      });
     this.createNewEventForm();
+  }
+
+  ngOnDestroy(): void {
+    if (this.tenantSubscription) {
+      this.tenantSubscription.unsubscribe();
+    }
   }
 
   currentCW(): number {
@@ -67,7 +96,7 @@ export class DashboardComponent implements OnInit {
       this.uniqueEvents = new Array<Event>();
       this.allEvents = events;
       this.uniqueEvents = Event.unique(this.allEvents);
-      const sortOrder = ['weekDay', 'time', 'name', 'targetClass'];
+      const sortOrder = ['weekDay', 'time', 'name'];
       this.uniqueEvents = sortBy(this.uniqueEvents, sortOrder);
       // prepare the weeks, calculate the past 3 weeks until the end of the year:
       const today = moment();
@@ -105,7 +134,7 @@ export class DashboardComponent implements OnInit {
             name: uniqueEvent.name,
             weekDay: uniqueEvent.weekDay,
             time: uniqueEvent.time,
-            targetClass: uniqueEvent.targetClass,
+            categoryId: uniqueEvent.categoryId,
           });
         });
         this.weeks.push(week);
@@ -116,7 +145,7 @@ export class DashboardComponent implements OnInit {
   createNewEventForm(): void {
     this.newEventForm = new FormGroup({
       name: new FormControl('', Validators.required),
-      class: new FormControl(''),
+      category: new FormControl(''),
       fromDate: new FormControl('', Validators.required),
       time: new FormControl('', Validators.required),
       maxSeats: new FormControl('', Validators.required),
@@ -129,36 +158,56 @@ export class DashboardComponent implements OnInit {
       return;
     }
     this.operationOngoing = true;
-    const m = moment(this.newEventForm.get('fromDate').value);
-    const time = <string>this.newEventForm.get('time').value;
-    m.hours(parseInt(time.split(':')[0]));
-    m.minutes(parseInt(time.split(':')[1]));
-    const currentWeek = m.week();
-    // add the event for all following calendar weeks until the end of the year:
-    const observables = [];
-    for (let cw = currentWeek; cw <= 52; cw++) {
-      const event = new Event();
-      event.name = this.newEventForm.get('name').value;
-      event.targetClass = this.newEventForm.get('class').value;
-      event.maxSeats = this.newEventForm.get('maxSeats').value;
-      event.date = m.toDate();
-      observables.push(this.eventService.createEvent(event));
-      // add 1 week each
-      m.add(1, 'weeks');
-    }
-    forkJoin(observables).subscribe(
-      () => {
-        alert('Neue Eventserie angelegt');
-        this.loadAllEvents(this.tenantService.currentTenantValue);
-        this.operationOngoing = false;
-        this.newEventFormShown = false;
-      },
-      error => {
-        console.error(error);
-        alert('Es trat leider ein Fehler auf');
-        this.operationOngoing = false;
-      }
+    // first - check if the category is new or existed previously:
+    const category = this.newEventForm.get('category').value;
+    let existingCategory = find(
+      this.categories,
+      (existingCategory: Category) =>
+        existingCategory.name.toLowerCase() === category
     );
+    let categoryObservable: Observable<Category>;
+    if (existingCategory) {
+      // the user selected a category that existed previously
+      categoryObservable = of(existingCategory);
+    } else {
+      categoryObservable = this.categoryService.createCategory({
+        name: category,
+        tenantId: this.tenantService.currentTenantValue.id,
+      });
+    }
+    // continue only when a category is available
+    categoryObservable.subscribe(category => {
+      const m = moment(this.newEventForm.get('fromDate').value);
+      const time = <string>this.newEventForm.get('time').value;
+      m.hours(parseInt(time.split(':')[0]));
+      m.minutes(parseInt(time.split(':')[1]));
+      const currentWeek = m.week();
+      // add the event for all following calendar weeks until the end of the year:
+      const observables = [];
+      for (let cw = currentWeek; cw <= 52; cw++) {
+        const event = new Event();
+        event.name = this.newEventForm.get('name').value;
+        event.categoryId = category.id;
+        event.maxSeats = this.newEventForm.get('maxSeats').value;
+        event.date = m.toDate();
+        observables.push(this.eventService.createEvent(event));
+        // add 1 week each
+        m.add(1, 'weeks');
+      }
+      forkJoin(observables).subscribe(
+        () => {
+          alert('Neue Eventserie angelegt');
+          this.loadAllEvents(this.tenantService.currentTenantValue);
+          this.operationOngoing = false;
+          this.newEventFormShown = false;
+        },
+        error => {
+          console.error(error);
+          alert('Es trat leider ein Fehler auf');
+          this.operationOngoing = false;
+        }
+      );
+    });
   }
 
   isInvalid(formControlName: string): boolean {
@@ -225,4 +274,32 @@ export class DashboardComponent implements OnInit {
       time: uniqueEvent.time,
     });
   }
+
+  /**
+   * auto typeahead function from ng bootstrap: https://ng-bootstrap.github.io/#/components/typeahead/examples
+   * @param text$
+   */
+  search = (text$: Observable<string>) => {
+    const debouncedText$ = text$.pipe(
+      debounceTime(200),
+      distinctUntilChanged()
+    );
+    const clicksWithClosedPopup$ = this.click$.pipe(
+      rxjsFilter(() => !this.instance.isPopupOpen())
+    );
+    const inputFocus$ = this.focus$;
+
+    return merge(debouncedText$, inputFocus$, clicksWithClosedPopup$).pipe(
+      rxjsMap(term =>
+        term === ''
+          ? map(this.categories, 'name')
+          : map(
+              this.categories.filter(
+                c => c.name.toLowerCase().indexOf(term.toLowerCase()) > -1
+              ),
+              'name'
+            ).slice(0, 10)
+      )
+    );
+  };
 }

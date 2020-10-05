@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { EventService } from 'src/app/services/event.service';
 import { Week } from 'src/app/models/week';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { sortBy, each, filter, find, uniq, map } from 'lodash';
+import { sortBy, each, filter, find, map } from 'lodash';
 import * as moment from 'moment';
 import { Event } from 'src/app/models/event';
 import { Participant } from 'src/app/models/participant';
@@ -10,13 +10,16 @@ import { TenantService } from 'src/app/services/tenant.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Tenant } from 'src/app/models/tenant';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Category } from 'src/app/models/category';
+import { CategoryService } from 'src/app/services/category.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-events',
   templateUrl: './events.component.html',
   styleUrls: ['./events.component.scss'],
 })
-export class EventsComponent implements OnInit {
+export class EventsComponent implements OnInit, OnDestroy {
   weeks: Week[] = null;
   uniqueEvents: Event[] = null;
   eventsInTimeframe: Event[] = new Array<Event>();
@@ -24,20 +27,23 @@ export class EventsComponent implements OnInit {
   registerForm: FormGroup;
   selectedEvent: Event = null;
   successfullyRegistered = false;
-  classOptions: string[] = null;
-  selectedClass: string = null;
+  categoryOptions: string[] = null;
+  categories: Category[];
+  selectedCategory: Category = undefined;
   consentTeaser1: string = null;
   consentTeaser2: string = null;
   consentText1: string = null;
   consentText2: string = null;
   consentText1Shown: boolean = false;
   consentText2Shown: boolean = false;
+  tenantSubscription: Subscription;
 
   constructor(
     private eventService: EventService,
     private tenantService: TenantService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private categoryService: CategoryService
   ) {}
 
   ngOnInit() {
@@ -57,37 +63,58 @@ export class EventsComponent implements OnInit {
       );
     this.createRegisterForm();
     this.tenantService.load(this.route.snapshot.params.tenantPath);
-    this.tenantService.currentTenant.subscribe((tenant: Tenant) => {
-      if (tenant) {
-        this.loadEvents();
-        this.consentTeaser1 = tenant.consentTeaser1;
-        this.consentText1 = tenant.consentText1;
-        if (this.consentTeaser1 && this.consentTeaser1.length > 0) {
-          // only add the form control if it is not existing yet
-          if (!this.registerForm.contains('consent1')) {
-            this.registerForm.addControl(
-              'consent1',
-              new FormControl(false, Validators.required)
-            );
+    this.tenantSubscription = this.tenantService.currentTenant.subscribe(
+      (tenant: Tenant) => {
+        if (tenant) {
+          this.loadEvents();
+          this.consentTeaser1 = tenant.consentTeaser1;
+          this.consentText1 = tenant.consentText1;
+          if (this.consentTeaser1 && this.consentTeaser1.length > 0) {
+            // only add the form control if it is not existing yet
+            if (!this.registerForm.contains('consent1')) {
+              this.registerForm.addControl(
+                'consent1',
+                new FormControl(false, Validators.required)
+              );
+            }
+          } else {
+            this.registerForm.removeControl('consent1');
           }
-        } else {
-          this.registerForm.removeControl('consent1');
-        }
-        this.consentTeaser2 = tenant.consentTeaser2;
-        this.consentText2 = tenant.consentText2;
-        if (this.consentTeaser2 && this.consentTeaser2.length > 0) {
-          // only add the form control if it is not existing yet
-          if (!this.registerForm.contains('consent2')) {
-            this.registerForm.addControl(
-              'consent2',
-              new FormControl(false, Validators.required)
-            );
+          this.consentTeaser2 = tenant.consentTeaser2;
+          this.consentText2 = tenant.consentText2;
+          if (this.consentTeaser2 && this.consentTeaser2.length > 0) {
+            // only add the form control if it is not existing yet
+            if (!this.registerForm.contains('consent2')) {
+              this.registerForm.addControl(
+                'consent2',
+                new FormControl(false, Validators.required)
+              );
+            }
+          } else {
+            this.registerForm.removeControl('consent2');
           }
-        } else {
-          this.registerForm.removeControl('consent2');
+          this.categoryService
+            .getCategorys(tenant.path)
+            .subscribe(categories => {
+              this.categories = categories;
+              this.categoryOptions = new Array<string>();
+              this.categoryOptions.push(
+                ...filter(map(this.categories, 'name'))
+              );
+              // sort the values
+              this.categoryOptions = this.categoryOptions.sort();
+              // add 'alle' at the top
+              this.categoryOptions.unshift('alle');
+            });
         }
       }
-    });
+    );
+  }
+
+  ngOnDestroy(): void {
+    if (this.tenantSubscription) {
+      this.tenantSubscription.unsubscribe();
+    }
   }
 
   loadEvents(): void {
@@ -100,40 +127,23 @@ export class EventsComponent implements OnInit {
       .subscribe((events: Event[]) => {
         // filter out all events that are disabled
         this.eventsInTimeframe = filter(events, { disabled: false });
-        // first, check for what classes we have events:
-        this.classOptions = new Array<string>();
-        this.classOptions.push(
-          ...filter(
-            uniq(
-              map(this.eventsInTimeframe, 'targetClass').join(',').split(',')
-            ) as string[],
-            (targetClass: string) =>
-              targetClass !== null &&
-              targetClass.length > 0 &&
-              targetClass !== 'alle'
-          )
-        );
-        // sort the values
-        this.classOptions = this.classOptions.sort();
-        // add 'alle' at the top
-        this.classOptions.unshift('alle');
         this.weeks = new Array<Week>(2);
       });
   }
 
-  selectClass(className: string): void {
-    this.selectedClass = className;
+  selectCategory(category: Category): void {
+    this.selectedCategory = category;
     this.selectedEvent = null;
     this.registerForm.markAsUntouched();
     this.weeks[0] = new Week(moment().isoWeek());
     this.weeks[1] = new Week(moment().add(1, 'week').isoWeek());
-    this.determineUniqueEvents(className);
+    this.determineUniqueEvents();
     const eventsToDisplay = <Event[]>(
       filter(this.eventsInTimeframe, (event: Event) => {
-        if (className === 'alle') {
+        if (this.selectedCategory === null) {
           return true;
         }
-        return event.targetClass.split(',').indexOf(className) >= 0;
+        return event.categoryId === this.selectedCategory.id;
       })
     );
     const today = moment();
@@ -169,12 +179,12 @@ export class EventsComponent implements OnInit {
     });
   }
 
-  private determineUniqueEvents(className: string): void {
+  private determineUniqueEvents(): void {
     this.uniqueEvents = new Array<Event>();
     each(this.eventsInTimeframe, (event: Event) => {
       if (
-        className === 'alle' ||
-        event.targetClass.split(',').indexOf(className) >= 0
+        !this.selectedCategory ||
+        event.categoryId === this.selectedCategory.id
       ) {
         // check if there is already an instance of this event displayed
         if (
@@ -221,6 +231,10 @@ export class EventsComponent implements OnInit {
       this.selectedEvent = null;
     } else {
       this.selectedEvent = event;
+      // scroll down to the participant form
+      setTimeout(() => {
+        document.getElementsByTagName('h5')[0].scrollIntoView();
+      }, 20);
     }
   }
 

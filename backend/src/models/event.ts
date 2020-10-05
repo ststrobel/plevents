@@ -7,6 +7,7 @@ import {
   ManyToOne,
 } from 'typeorm';
 import { Tenant } from './tenant';
+import { Category } from './category';
 
 @Entity()
 export class Event extends BaseEntity implements EventI {
@@ -22,8 +23,10 @@ export class Event extends BaseEntity implements EventI {
   takenSeats: number;
   @Column()
   disabled: boolean;
+  @ManyToOne(type => Category)
+  category: Category;
   @Column()
-  targetClass: string;
+  categoryId: string;
   @ManyToOne(type => Tenant, { cascade: true, onDelete: 'CASCADE' })
   tenant: Tenant;
   @Column()
