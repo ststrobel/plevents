@@ -72,6 +72,21 @@ export class EventController {
       res.status(200).send(event);
     });
 
+    app.put('/secure/events/:eventid', async (req, res) => {
+      const eventToUpdate = await Event.findOneOrFail(req.params.eventid);
+      eventToUpdate.name = req.body.name;
+      eventToUpdate.date = req.body.date;
+      eventToUpdate.categoryId = req.body.categoryId;
+      eventToUpdate.maxSeats = req.body.maxSeats;
+      await eventToUpdate.save();
+      Log.write(
+        UserService.currentTenant(req),
+        UserService.currentUser(req),
+        `Event ${eventToUpdate.id} aktualisiert`
+      );
+      res.status(200).send(eventToUpdate);
+    });
+
     app.put('/secure/events/:id/disabled/:disabled', async (req, res) => {
       const event = await Event.findOne(req.params.id);
       if (event) {
