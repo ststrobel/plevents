@@ -50,6 +50,15 @@ export class EventService {
     );
   }
 
+  updateEvent(event: Event): Observable<Event> {
+    return this.http
+      .put(`${environment.apiUrl}/secure/events/${event.id}`, event)
+      .pipe(
+        // Adapt the raw items
+        map(data => this.eventAdapter.adapt(data))
+      );
+  }
+
   deleteEvent(id: string): Observable<any> {
     return this.http.delete(`${environment.apiUrl}/secure/events/${id}`);
   }

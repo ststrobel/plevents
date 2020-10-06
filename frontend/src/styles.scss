@@ -60,3 +60,12 @@ form div.invalid {
 
 /* Importing Bootstrap SCSS file. */
 @import '~bootstrap/scss/bootstrap';
+
+.form-control:focus {
+  border-color: #636262 !important;
+  box-shadow: 0 0 0 0.2rem rgba(156, 155, 155, 0.25) !important;
+}
+
+.dropdown-item.active {
+  background-color: #ff004d !important;
+}

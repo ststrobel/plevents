@@ -15,7 +15,10 @@
   <h5>Daten für neues Reihenevent:</h5>
   <form [formGroup]="newEventForm" (ngSubmit)="addNewEvent()">
     <div class="row">
-      <div class="col-12 col-md-4" [ngClass]="{ invalid: isInvalid('name') }">
+      <div
+        class="col-12 col-md-4"
+        [ngClass]="{ invalid: isInvalid(newEventForm.controls.name) }"
+      >
         <label for="name">Event-Name</label>
         <br />
         <input
@@ -27,7 +30,7 @@
       </div>
       <div
         class="col-6 col-md-4"
-        [ngClass]="{ invalid: isInvalid('fromDate') }"
+        [ngClass]="{ invalid: isInvalid(newEventForm.controls.fromDate) }"
       >
         <label for="fromDate">frühester Termin</label>
         <br />
@@ -40,7 +43,7 @@
       </div>
       <div
         class="col-6 col-md-4"
-        [ngClass]="{ invalid: isInvalid('category') }"
+        [ngClass]="{ invalid: isInvalid(newEventForm.controls.category) }"
       >
         <label for="targetClass">Kategorie</label>
         <br />
@@ -55,7 +58,10 @@
           #instance="ngbTypeahead"
         />
       </div>
-      <div class="col-6 col-md-4" [ngClass]="{ invalid: isInvalid('time') }">
+      <div
+        class="col-6 col-md-4"
+        [ngClass]="{ invalid: isInvalid(newEventForm.controls.time) }"
+      >
         <label for="name">Startzeit</label>
         <br />
         <input
@@ -67,7 +73,7 @@
       </div>
       <div
         class="col-6 col-md-4"
-        [ngClass]="{ invalid: isInvalid('maxSeats') }"
+        [ngClass]="{ invalid: isInvalid(newEventForm.controls.maxSeats) }"
       >
         <label for="maxSeats">max. Teilnehmer</label>
         <br />
@@ -104,6 +110,15 @@
         {{ uniqueEvent.displayName() }}
         <br />
         {{ uniqueEvent.displayTime() }}
+        &nbsp;<i
+          class="fas fa-edit"
+          style="cursor: pointer"
+          (click)="editSeriesEvent(uniqueEvent, editSeriesEventModal)"
+        ></i>
+        <br />
+        <span class="badge badge-cvjm">{{
+          categoryName(uniqueEvent.categoryId)
+        }}</span>
       </th>
     </tr>
   </thead>
@@ -258,3 +273,113 @@
 >
   Daten werden geladen...
 </div>
+
+<ng-template #editSeriesEventModal>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Event bearbeiten</h4>
+    <button
+      type="button"
+      class="close pull-right"
+      aria-label="Close"
+      (click)="modalRef.hide()"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p>
+      Ändern Sie hier den Titel des Events, den Tag sowie die Uhrzeit beliebig
+      ab. Diese Änderung wirkt sich auf alle in der Zukunft liegenden Events
+      aus.
+    </p>
+    <form [formGroup]="editEventForm">
+      <div class="row">
+        <div
+          class="col-12 form-group"
+          [ngClass]="{ invalid: isInvalid(editEventForm.controls.name) }"
+        >
+          <label for="editEventName">Event-Name</label>
+          <br />
+          <input
+            class="form-control"
+            id="editEventName"
+            type="text"
+            formControlName="name"
+          />
+        </div>
+        <div class="col-12 form-group">
+          <label>Wochentag</label>
+          <br />
+          <div class="btn-group w-100" btnRadioGroup formControlName="weekDay">
+            <label class="btn btn-success" [btnRadio]="1">Mo</label>
+            <label class="btn btn-success" [btnRadio]="2">Di</label>
+            <label class="btn btn-success" [btnRadio]="3">Mi</label>
+            <label class="btn btn-success" [btnRadio]="4">Do</label>
+            <label class="btn btn-success" [btnRadio]="5">Fr</label>
+            <label class="btn btn-success" [btnRadio]="6">Sa</label>
+            <label class="btn btn-success" [btnRadio]="7">So</label>
+          </div>
+        </div>
+        <div
+          class="col-12 form-group"
+          [ngClass]="{ invalid: isInvalid(editEventForm.controls.category) }"
+        >
+          <label for="editEventCategory">Kategorie</label>
+          <br />
+          <input
+            class="form-control"
+            id="editEventCategory"
+            type="text"
+            formControlName="category"
+            [ngbTypeahead]="search"
+            (focus)="focus$.next($any($event).target.value)"
+            (click)="click$.next($any($event).target.value)"
+            #instance="ngbTypeahead"
+          />
+        </div>
+        <div
+          class="col-12 form-group"
+          [ngClass]="{ invalid: isInvalid(editEventForm.controls.time) }"
+        >
+          <label for="name">Startzeit</label>
+          <br />
+          <input
+            class="form-control"
+            id="time"
+            type="time"
+            formControlName="time"
+          />
+        </div>
+        <div
+          class="col-12 form-group"
+          [ngClass]="{ invalid: isInvalid(editEventForm.controls.maxSeats) }"
+        >
+          <label for="maxSeats">max. Teilnehmer</label>
+          <br />
+          <input
+            class="form-control"
+            id="maxSeats"
+            type="number"
+            formControlName="maxSeats"
+          />
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-outline-secondary"
+      (click)="modalRef.hide()"
+    >
+      Abbrechen
+    </button>
+    <button
+      type="button"
+      class="btn btn-outline-success"
+      (click)="updateEvents()"
+    >
+      Speichern
+    </button>
+  </div>
+</ng-template>

@@ -1,10 +1,21 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnDestroy,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+} from '@angular/core';
 import { Week } from 'src/app/models/week';
 import { EventService } from 'src/app/services/event.service';
 import { Event } from '../../models/event';
 import * as moment from 'moment';
 import { filter, sortBy, each, find, map } from 'lodash';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import {
+  FormGroup,
+  FormControl,
+  Validators,
+  AbstractControl,
+} from '@angular/forms';
 import { forkJoin, merge, Observable, of, Subject, Subscription } from 'rxjs';
 import { TenantService } from 'src/app/services/tenant.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -13,6 +24,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Category } from 'src/app/models/category';
 import { CategoryService } from 'src/app/services/category.service';
 import { NgbTypeahead } from '@ng-bootstrap/ng-bootstrap';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import {
   filter as rxjsFilter,
   debounceTime,
@@ -39,13 +51,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
   click$ = new Subject<string>();
   tenantSubscription: Subscription;
   tenant: Tenant = null;
+  modalRef: BsModalRef;
+  eventBeingEdited: Event = null;
+  editEventForm: FormGroup = new FormGroup({
+    name: new FormControl('', Validators.required),
+    weekDay: new FormControl('', Validators.required),
+    time: new FormControl('', Validators.required),
+    maxSeats: new FormControl('', Validators.required),
+    category: new FormControl('', Validators.required),
+  });
 
   constructor(
     private eventService: EventService,
     private tenantService: TenantService,
     private route: ActivatedRoute,
     private router: Router,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private modalService: BsModalService
   ) {}
 
   ngOnInit() {
@@ -210,11 +232,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  isInvalid(formControlName: string): boolean {
-    return (
-      this.newEventForm.get(formControlName).invalid &&
-      this.newEventForm.get(formControlName).touched
-    );
+  isInvalid(formControl: AbstractControl): boolean {
+    return formControl.invalid && formControl.touched;
   }
 
   toggleDisabled(event: Event): void {
@@ -275,6 +294,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  categoryName(categoryId: string): string {
+    const category = find(this.categories, { id: categoryId });
+    if (category) {
+      return category.name;
+    }
+    return null;
+  }
+
   /**
    * auto typeahead function from ng bootstrap: https://ng-bootstrap.github.io/#/components/typeahead/examples
    * @param text$
@@ -302,4 +329,74 @@ export class DashboardComponent implements OnInit, OnDestroy {
       )
     );
   };
+
+  editSeriesEvent(uniqueEvent: Event, template: TemplateRef<any>) {
+    this.newEventFormShown = false;
+    this.modalRef = this.modalService.show(template);
+    this.eventBeingEdited = uniqueEvent;
+    this.editEventForm.get('name').setValue(uniqueEvent.name);
+    this.editEventForm.get('weekDay').setValue(uniqueEvent.weekDay);
+    this.editEventForm.get('time').setValue(uniqueEvent.displayTime(false));
+    this.editEventForm
+      .get('category')
+      .setValue(find(this.categories, { id: uniqueEvent.categoryId }).name);
+    this.editEventForm.get('maxSeats').setValue(uniqueEvent.maxSeats);
+  }
+
+  updateEvents(): void {
+    if (this.editEventForm.invalid) {
+      alert('Bitte erst alle Felder korrekt ausfüllen');
+      return;
+    }
+    // first of all determine all events that are in the future for the instance being edited
+    const eventsToUpdate = filter(this.allEvents, (event: Event) => {
+      return (
+        event.name === this.eventBeingEdited.name &&
+        event.weekDay === this.eventBeingEdited.weekDay &&
+        event.categoryId === this.eventBeingEdited.categoryId &&
+        event.time === this.eventBeingEdited.time &&
+        moment(event.date).isAfter(moment())
+      );
+    });
+    // first - check if the category is new or existed previously:
+    const category = this.editEventForm.get('category').value;
+    let existingCategory = find(
+      this.categories,
+      (existingCategory: Category) =>
+        existingCategory.name.toLowerCase() === category
+    );
+    let categoryObservable: Observable<Category>;
+    if (existingCategory) {
+      // the user selected a category that existed previously
+      categoryObservable = of(existingCategory);
+    } else {
+      categoryObservable = this.categoryService.createCategory({
+        name: category,
+        tenantId: this.tenantService.currentTenantValue.id,
+      });
+    }
+    // continue only when a category is available
+    categoryObservable.subscribe(category => {
+      // now edit and update each of those events:
+      const observables = new Array<Observable<Event>>();
+      each(eventsToUpdate, (event: Event) => {
+        event.name = this.editEventForm.get('name').value;
+        event.maxSeats = this.editEventForm.get('maxSeats').value;
+        event.categoryId = category.id;
+        // the date is being constructed out of weekday and time
+        const time = <string>this.editEventForm.get('time').value;
+        event.date = moment(event.date)
+          .isoWeekday(this.editEventForm.get('weekDay').value)
+          .hours(parseInt(time.split(':')[0]))
+          .minutes(parseInt(time.split(':')[1]))
+          .toDate();
+        observables.push(this.eventService.updateEvent(event));
+      });
+      forkJoin(observables).subscribe(() => {
+        alert('Alle künftigen Events aktualisiert');
+        this.modalRef.hide();
+        location.reload();
+      });
+    });
+  }
 }

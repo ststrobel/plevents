@@ -77,7 +77,7 @@ export class EventAdapter implements Adapter<Event> {
     event.categoryId = item.categoryId;
     const m = moment(item.date);
     event.date = m.toDate();
-    // compute the week day and the time in seconds on that day:
+    // compute the week day and the time in minutes on that day:
     event.weekDay = m.isoWeekday();
     event.time = m.hours() / 60 + m.minutes();
     event.maxSeats = item.maxSeats;

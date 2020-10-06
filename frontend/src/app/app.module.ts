@@ -15,6 +15,9 @@ import { ErrorComponent } from './components/error/error.component';
 import { QuillModule } from 'ngx-quill';
 import { EventSelectComponent } from './components/event-select/event-select.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ModalModule } from 'ngx-bootstrap/modal';
+import { ButtonsModule } from 'ngx-bootstrap/buttons';
 
 @NgModule({
   declarations: [
@@ -51,6 +54,9 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
       placeholder: 'Optionalen Text eingeben',
     }),
     NgbModule,
+    BrowserAnimationsModule,
+    ModalModule.forRoot(),
+    ButtonsModule.forRoot(),
   ],
   providers: [],
   bootstrap: [AppComponent],
