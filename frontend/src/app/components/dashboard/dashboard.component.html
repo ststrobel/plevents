@@ -249,6 +249,9 @@
                   ></i
                   ><i
                     class="fas fa-users actionableIcon"
+                    (click)="
+                      showEventParticipants(event, showParticipantsModal)
+                    "
                     title="Anzeige Teilnehmer"
                   ></i>
                   <small class="stateToggler" (click)="toggleDisabled(event)">
@@ -416,7 +419,7 @@
         *ngFor="let participant of participants"
       >
         <div class="row">
-          <div class="col-10">
+          <div class="col-9">
             <div class="row">
               <div class="col-12 col-lg-6 col-xl-3">
                 {{ participant.firstname + ' ' + participant.lastname }}
@@ -433,7 +436,7 @@
               </div>
             </div>
           </div>
-          <div class="col-2">
+          <div class="col-3">
             <button
               type="button"
               class="btn btn-danger"
