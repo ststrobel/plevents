@@ -212,7 +212,20 @@ export class EventsComponent implements OnInit, OnDestroy {
       street: new FormControl('', Validators.required),
       zip: new FormControl('', Validators.required),
       city: new FormControl('', Validators.required),
+      rememberMe: new FormControl(false),
     });
+    // check if stored personal information exists. if so, prefill the form:
+    const previousData = JSON.parse(localStorage.getItem('rememberMe'));
+    if (previousData) {
+      this.registerForm.get('firstname').setValue(previousData.firstname);
+      this.registerForm.get('lastname').setValue(previousData.lastname);
+      this.registerForm.get('email').setValue(previousData.email);
+      this.registerForm.get('phone').setValue(previousData.phone);
+      this.registerForm.get('street').setValue(previousData.street);
+      this.registerForm.get('zip').setValue(previousData.zip);
+      this.registerForm.get('city').setValue(previousData.city);
+      this.registerForm.get('rememberMe').setValue(true);
+    }
   }
 
   availableSeatsText(event: Event): string {
@@ -249,17 +262,25 @@ export class EventsComponent implements OnInit, OnDestroy {
   registerParticipant(): void {
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
+      console.log(this.registerForm.get('rememberMe'));
       return;
     }
     const participant = new Participant();
     participant.firstname = this.registerForm.get('firstname').value;
     participant.lastname = this.registerForm.get('lastname').value;
-    participant.name = participant.firstname + ' ' + participant.lastname;
     participant.email = this.registerForm.get('email').value;
     participant.phone = this.registerForm.get('phone').value;
     participant.street = this.registerForm.get('street').value;
     participant.zip = this.registerForm.get('zip').value;
     participant.city = this.registerForm.get('city').value;
+    // if the user has selected the rememberMe flag, store the data locally so that it can be used next time to pre-fill the data
+    if (this.registerForm.get('rememberMe').value === true) {
+      localStorage.setItem('rememberMe', JSON.stringify(participant));
+    } else {
+      // in case pre-entered information exists, but the user does not want it to be stored any more, remove it from local storage
+      localStorage.removeItem('rememberMe');
+    }
+    participant.name = participant.firstname + ' ' + participant.lastname;
     participant.eventId = this.selectedEvent.id;
     this.eventService.addParticipant(participant).subscribe(() => {
       this.successfullyRegistered = true;

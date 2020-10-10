@@ -250,10 +250,7 @@
               formControlName="city"
             />
           </div>
-          <div
-            class="col-12 col-md-8 form-check"
-            style="padding-top: 26px; padding-left: 1.25rem"
-          >
+          <div class="col-12 form-check sg-consent-boxes">
             <div
               *ngIf="consentTeaser1 && consentTeaser1.length > 0"
               [ngClass]="{
@@ -267,15 +264,11 @@
                 id="consent1"
                 type="checkbox"
                 formControlName="consent1"
-                style="margin-left: 0px"
                 required
               />
-              <label
-                class="form-check-label"
-                for="consent1"
-                style="margin-bottom: 0; margin-left: 1.25rem; cursor: pointer"
-                >{{ consentTeaser1 }}</label
-              >
+              <label class="form-check-label" for="consent1">{{
+                consentTeaser1
+              }}</label>
               &nbsp;
               <span *ngIf="consentText1 && consentText1.length > 0">
                 <small
@@ -306,15 +299,11 @@
                 id="consent2"
                 type="checkbox"
                 formControlName="consent2"
-                style="margin-left: 0px"
                 required
               />
-              <label
-                class="form-check-label"
-                for="consent2"
-                style="margin-bottom: 0; margin-left: 1.25rem; cursor: pointer"
-                >{{ consentTeaser2 }}</label
-              >
+              <label class="form-check-label" for="consent2">{{
+                consentTeaser2
+              }}</label>
               &nbsp;
               <span *ngIf="consentText2 && consentText2.length > 0">
                 <small
@@ -331,6 +320,20 @@
                 >
               </span>
               <div *ngIf="consentText2Shown" [innerHTML]="consentText2"></div>
+            </div>
+            <div>
+              <input
+                class="form-check-input"
+                id="rememberMe"
+                type="checkbox"
+                formControlName="rememberMe"
+              />
+              <label class="form-check-label" for="rememberMe">
+                Meine eingegebenen persönlichen Daten sollen auf diesem Gerät
+                gespeichert werden. Dies ermöglicht eine schnellere Anmeldung
+                zur nächsten Aktivität, da die Felder dann automatisch
+                ausgefüllt werden.
+              </label>
             </div>
           </div>
           <div class="col-12 col-md-4">
