@@ -72,6 +72,51 @@ export class EventController {
       res.status(200).send(event);
     });
 
+    app.get('/secure/events/:eventid/participants', async (req, res) => {
+      const event = await Event.findOneOrFail(req.params.eventid);
+      // now check if the logged-in user belongs to the tenant that the event belongs to
+      if (event.tenantId === (await UserService.currentTenant(req)).id) {
+        const participants = await Participant.find({
+          where: { eventId: req.params.eventid },
+        });
+        res.status(200).send(participants);
+      } else {
+        res
+          .status(403)
+          .send({ error: 'You are not authorized to delete this event' });
+      }
+    });
+
+    app.delete(
+      '/secure/events/:eventid/participants/:participantid',
+      async (req, res) => {
+        const event = await Event.findOneOrFail(req.params.eventid);
+        // now check if the logged-in user belongs to the tenant that the event belongs to
+        if (event.tenantId === (await UserService.currentTenant(req)).id) {
+          const participant = await Participant.findOneOrFail(
+            req.params.participantid
+          );
+          if (participant.eventId === event.id) {
+            Log.write(
+              UserService.currentTenant(req),
+              UserService.currentUser(req),
+              `Teilnehmer mit ID ${participant.id} von Event ${event.id} gelöscht`
+            );
+            participant.remove();
+            res.status(200).send();
+          } else {
+            res
+              .status(400)
+              .send({ error: 'Participant belongs to other event' });
+          }
+        } else {
+          res
+            .status(403)
+            .send({ error: 'You are not authorized to delete this event' });
+        }
+      }
+    );
+
     app.put('/secure/events/:eventid', async (req, res) => {
       const eventToUpdate = await Event.findOneOrFail(req.params.eventid);
       eventToUpdate.name = req.body.name;

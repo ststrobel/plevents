@@ -67,7 +67,7 @@ export class EventService {
     return this.http
       .put(
         `${environment.apiUrl}/secure/events/${id}/disabled/${disabled}`,
-        event
+        null
       )
       .pipe(
         // Adapt the raw items
@@ -85,6 +85,23 @@ export class EventService {
         // Adapt the raw items
         map(data => this.participantAdapter.adapt(data))
       );
+  }
+
+  getParticipants(eventId: string): Observable<Participant[]> {
+    return this.http
+      .get(`${environment.apiUrl}/secure/events/${eventId}/participants`)
+      .pipe(
+        // Adapt the raw items
+        map((data: any[]) =>
+          data.map(item => this.participantAdapter.adapt(item))
+        )
+      );
+  }
+
+  deleteParticipant(eventId: string, participantId: number): Observable<any> {
+    return this.http.delete(
+      `${environment.apiUrl}/secure/events/${eventId}/participants/${participantId}`
+    );
   }
 
   downloadPdf(event: Event): void {
