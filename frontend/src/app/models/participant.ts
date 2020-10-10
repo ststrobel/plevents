@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Adapter } from '../helpers/adapter';
 
 export class Participant implements ParticipantI {
+  id?: number;
   email: string;
   phone: string;
   firstname: string;
@@ -20,6 +21,9 @@ export class Participant implements ParticipantI {
 export class ParticipantAdapter implements Adapter<Participant> {
   adapt(item: any): Participant {
     const participant = new Participant();
+    participant.id = item.id;
+    participant.firstname = item.firstname;
+    participant.lastname = item.lastname;
     participant.name = item.name;
     participant.email = item.email;
     participant.phone = item.phone;

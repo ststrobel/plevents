@@ -139,20 +139,22 @@
         "
         [ngClass]="{
           happening: event,
-          unavailable: event && event.takenSeats >= event.maxSeats
+          unavailable: event && event.takenSeats >= event.maxSeats,
+          disabled: event && event.disabled
         }"
       >
-        <div
-          *ngIf="event"
-          [ngClass]="{ disabled: event.disabled }"
-          style="position: relative"
-        >
+        <div *ngIf="event" style="position: relative">
           {{ event.displayDate() }}<br />
           <small>{{ event.takenSeats }} / {{ event.maxSeats }} </small
           ><i
-            class="fas fa-2x fa-file-pdf downloadIcon"
+            class="fas fa-file-pdf actionableIcon"
             (click)="downloadPdf(event)"
             title="Download Teilnehmerliste"
+          ></i
+          ><i
+            class="fas fa-users actionableIcon"
+            (click)="showEventParticipants(event, showParticipantsModal)"
+            title="Anzeige Teilnehmer"
           ></i>
           <small class="stateToggler" (click)="toggleDisabled(event)">
             <i *ngIf="!event.disabled">aktiv</i>
@@ -241,9 +243,13 @@
                   {{ event.displayDate() }}<br />
                   <small>{{ event.takenSeats }} / {{ event.maxSeats }} </small
                   ><i
-                    class="fas fa-2x fa-file-pdf downloadIcon"
+                    class="fas fa-file-pdf actionableIcon"
                     (click)="downloadPdf(event)"
                     title="Download Teilnehmerliste"
+                  ></i
+                  ><i
+                    class="fas fa-users actionableIcon"
+                    title="Anzeige Teilnehmer"
                   ></i>
                   <small class="stateToggler" (click)="toggleDisabled(event)">
                     <i *ngIf="!event.disabled">aktiv</i>
@@ -380,6 +386,81 @@
       (click)="updateEvents()"
     >
       Speichern
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #showParticipantsModal>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Teilnehmer</h4>
+    <button
+      type="button"
+      class="close pull-right"
+      aria-label="Close"
+      (click)="modalRef.hide()"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p>
+      Nachfolgend sind alle bisher angemeldeten Teilnehmer zu
+      <b>{{ selectedEvent.name }}</b> am
+      <b>{{ selectedEvent.displayDate() }}</b> um
+      <b>{{ selectedEvent.displayTime(false) }} Uhr</b>
+      aufgeführt:
+    </p>
+    <ul class="list-group" *ngIf="participants && participants.length > 0">
+      <li
+        class="list-group-item sg-hoverable-list-item"
+        *ngFor="let participant of participants"
+      >
+        <div class="row">
+          <div class="col-10">
+            <div class="row">
+              <div class="col-12 col-lg-6 col-xl-3">
+                {{ participant.firstname + ' ' + participant.lastname }}
+              </div>
+              <div class="col-12 col-lg-6 col-xl-3">
+                {{ participant.street }}<br />
+                {{ participant.zip }}, {{ participant.city }}
+              </div>
+              <div class="col-12 col-lg-6 col-xl-3">
+                {{ participant.email }}
+              </div>
+              <div class="col-12 col-lg-6 col-xl-3">
+                {{ participant.phone }}
+              </div>
+            </div>
+          </div>
+          <div class="col-2">
+            <button
+              type="button"
+              class="btn btn-danger"
+              (click)="deleteParticipant(participant)"
+              *ngIf="eventNotinPast()"
+            >
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </div>
+        </div>
+      </li>
+    </ul>
+    <div
+      class="alert alert-secondary"
+      *ngIf="participants && participants.length === 0"
+    >
+      Noch keine Teilnehmer zu dieser Aktivität.
+    </div>
+    <small *ngIf="!participants">Teilnehmer werden geladen...</small>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-outline-secondary"
+      (click)="modalRef.hide()"
+    >
+      Schließen
     </button>
   </div>
 </ng-template>

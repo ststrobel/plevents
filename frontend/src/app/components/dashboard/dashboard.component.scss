@@ -24,14 +24,14 @@
 
 .stateToggler {
   position: absolute;
-  top: 3px;
-  right: 6px;
+  top: 2px;
+  right: 2px;
   text-align: right;
   cursor: pointer;
   border: 1px solid $plevents-grey-dark;
-
-  padding: 0px 10px;
-  border-radius: 15px;
+  padding: 0px 5px;
+  border-radius: 10px;
+  line-height: 20px;
   background-color: lighten($plevents-grey-light, 5%);
   &:hover {
     background-color: $plevents-grey-light;
@@ -45,11 +45,15 @@
   font-weight: bold;
 }
 
-.downloadIcon {
+.actionableIcon {
   position: absolute;
-  left: 6px;
+  left: 4px;
   top: 2px;
   cursor: pointer;
+  font-size: 1.1em;
+  &:nth-of-type(2) {
+    left: 1.3em;
+  }
 }
 
 table {
@@ -71,4 +75,11 @@ table {
   background-color: white;
   border: 1px solid #ff0063;
   color: #ff0063;
+}
+
+.sg-hoverable-list-item {
+  padding: 10px;
+  &:hover {
+    background-color: whitesmoke;
+  }
 }

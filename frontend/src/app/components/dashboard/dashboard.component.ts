@@ -9,7 +9,7 @@ import { Week } from 'src/app/models/week';
 import { EventService } from 'src/app/services/event.service';
 import { Event } from '../../models/event';
 import * as moment from 'moment';
-import { filter, sortBy, each, find, map } from 'lodash';
+import { filter, sortBy, each, find, map, reject } from 'lodash';
 import {
   FormGroup,
   FormControl,
@@ -31,6 +31,7 @@ import {
   distinctUntilChanged,
   map as rxjsMap,
 } from 'rxjs/operators';
+import { Participant } from 'src/app/models/participant';
 
 @Component({
   selector: 'app-dashboard',
@@ -60,6 +61,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     maxSeats: new FormControl('', Validators.required),
     category: new FormControl('', Validators.required),
   });
+  selectedEvent: Event = null;
+  participants: Participant[] = null;
 
   constructor(
     private eventService: EventService,
@@ -398,5 +401,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
         location.reload();
       });
     });
+  }
+
+  eventNotinPast(): boolean {
+    return !this.selectedEvent.isInPast();
+  }
+
+  showEventParticipants(event: Event, template: TemplateRef<any>): void {
+    this.selectedEvent = event;
+    this.participants = null;
+    this.eventService.getParticipants(event.id).subscribe(participants => {
+      this.participants = participants;
+    });
+    this.modalRef = this.modalService.show(template, { class: 'modal-xl' });
+  }
+
+  deleteParticipant(participant: Participant): void {
+    this.eventService
+      .deleteParticipant(this.selectedEvent.id, participant.id)
+      .subscribe(() => {
+        alert('Teilnehmer von Aktivität entfernt');
+        this.participants = reject(this.participants, { id: participant.id });
+        this.selectedEvent.takenSeats -= 1;
+      });
   }
 }
