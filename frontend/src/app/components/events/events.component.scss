@@ -62,3 +62,17 @@ form div.row div label {
     color: white;
   }
 }
+
+.sg-consent-boxes {
+  padding-top: 26px;
+  padding-left: 1.25rem;
+  input {
+    margin-left: 0px;
+  }
+  label {
+    margin-top: 0px !important;
+    margin-bottom: 0;
+    margin-left: 1.25rem;
+    cursor: pointer;
+  }
+}
