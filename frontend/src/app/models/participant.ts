@@ -5,6 +5,8 @@ import { Adapter } from '../helpers/adapter';
 export class Participant implements ParticipantI {
   email: string;
   phone: string;
+  firstname: string;
+  lastname: string;
   name: string;
   street: string;
   zip: string;

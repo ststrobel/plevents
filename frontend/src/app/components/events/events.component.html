@@ -157,16 +157,30 @@
         <div class="row">
           <div
             class="col-6 col-md-4"
-            [ngClass]="{ invalid: isInvalid('name') }"
+            [ngClass]="{ invalid: isInvalid('firstname') }"
           >
-            <label for="name">Teilnehmer</label>
+            <label for="firstname">Vorname</label>
             <br />
             <input
               class="form-control"
-              id="name"
+              id="firstname"
               type="text"
-              placeholder="Name des Teilnehmers"
-              formControlName="name"
+              placeholder="Vorname des Teilnehmers"
+              formControlName="firstname"
+            />
+          </div>
+          <div
+            class="col-6 col-md-4"
+            [ngClass]="{ invalid: isInvalid('lastname') }"
+          >
+            <label for="lastname">Nachname</label>
+            <br />
+            <input
+              class="form-control"
+              id="lastname"
+              type="text"
+              placeholder="Nachname des Teilnehmers"
+              formControlName="lastname"
             />
           </div>
           <div
