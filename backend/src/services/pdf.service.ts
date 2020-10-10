@@ -17,9 +17,12 @@ export class PdfService {
     };
     const printer = new PdfPrinter(fonts);
     const pdfDefinition: TDocumentDefinitions = {
+      pageOrientation: 'landscape',
       pageMargins: [40, 60, 40, 60],
       header: PdfService.generateHeader(event),
-      content: [PdfService.generateParticipantsTable(participants)],
+      content: [
+        PdfService.generateParticipantsTable(participants, event.maxSeats),
+      ],
       footer: PdfService.generateFooter(event),
       styles: {},
       defaultStyle: {
@@ -58,18 +61,26 @@ export class PdfService {
     };
   }
 
-  private static generateParticipantsTable(participants: Participant[]): any {
+  private static generateParticipantsTable(
+    participants: Participant[],
+    maxSeats: number
+  ): any {
     const tableBody: any[] = [
       [
-        { text: 'Teilnehmer', bold: true, border: [true, true, false, true] },
+        { text: 'Nr.', bold: true, border: [true, true, false, true] },
+        { text: 'Teilnehmer', bold: true, border: [false, true, false, true] },
         { text: 'Adresse', bold: true, border: [false, true, false, true] },
         { text: 'Email', bold: true, border: [false, true, false, true] },
         { text: 'Telefon', bold: true, border: [false, true, true, true] },
       ],
     ];
-    each(participants, (participant: Participant) => {
+    each(participants, (participant: Participant, index: number) => {
       tableBody.push([
-        { text: participant.name, border: [true, true, false, true] },
+        { text: `${index + 1}`, border: [true, true, false, true] },
+        {
+          text: participant.firstname + ' ' + participant.lastname,
+          border: [false, true, false, true],
+        },
         {
           text: `${participant.street}, ${participant.zip} ${participant.city}`,
           border: [false, true, false, true],
@@ -78,6 +89,18 @@ export class PdfService {
         { text: participant.phone, border: [false, true, true, true] },
       ]);
     });
+    if (participants.length < maxSeats) {
+      // add some more empty lines for all participants that are still free
+      for (let i = participants.length; i < maxSeats; i++) {
+        tableBody.push([
+          { text: `${i + 1}`, border: [true, true, false, true] },
+          { text: '', border: [false, true, false, true] },
+          { text: '', border: [false, true, false, true] },
+          { text: '', border: [false, true, false, true] },
+          { text: '', border: [false, true, true, true] },
+        ]);
+      }
+    }
     return {
       table: {
         widths: ['100%'],
@@ -86,7 +109,7 @@ export class PdfService {
             {
               border: [false, false, false, false],
               table: {
-                widths: ['*', '*', '*', '*'],
+                widths: ['auto', '*', '*', '*', '*'],
                 body: tableBody,
               },
             },

@@ -16,7 +16,11 @@ export class Participant extends BaseEntity implements ParticipantI {
   email: string;
   @Column()
   phone: string;
-  @Column()
+  @Column({ nullable: true })
+  firstname: string;
+  @Column({ nullable: true })
+  lastname: string;
+  @Column({ nullable: true })
   name: string;
   @Column()
   street: string;

@@ -157,7 +157,8 @@ export class EventController {
         });
         if (event.maxSeats > participants.length) {
           const createdParticipant = new Participant();
-          createdParticipant.name = newParticipant.name;
+          createdParticipant.firstname = newParticipant.firstname;
+          createdParticipant.lastname = newParticipant.lastname;
           createdParticipant.email = newParticipant.email;
           createdParticipant.phone = newParticipant.phone;
           createdParticipant.street = newParticipant.street;
