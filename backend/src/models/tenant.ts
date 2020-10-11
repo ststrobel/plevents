@@ -9,16 +9,16 @@ export class Tenant extends BaseEntity implements TenantI {
   id: string;
   @Column()
   name: string;
-  @Column({ nullable: true, length: 1000000 })
+  @Column({ type: 'longtext', nullable: true })
   logo: string;
   @Column({ unique: true })
   path: string;
-  @Column({ nullable: true, length: 1000 })
+  @Column({ nullable: true, length: '1000' })
   consentTeaser1: string;
-  @Column({ nullable: true, length: 60000 })
+  @Column({ type: 'mediumtext', nullable: true })
   consentText1: string;
-  @Column({ nullable: true, length: 1000 })
+  @Column({ nullable: true, length: '1000' })
   consentTeaser2: string;
-  @Column({ nullable: true, length: 60000 })
+  @Column({ type: 'mediumtext', nullable: true })
   consentText2: string;
 }
