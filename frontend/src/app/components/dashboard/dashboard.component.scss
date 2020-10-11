@@ -3,12 +3,38 @@
 .greyedOut {
   background-color: $plevents-grey-light;
   color: $plevents-grey-dark;
+  border: 1px solid white;
+  height: 25px;
+  line-height: 25px;
+  text-align: center;
 }
 
 .happening {
   background-color: lightgreen;
   color: darkgreen;
   font-weight: bold;
+  &.empty {
+    background-color: #90ee905c;
+    color: #006400bd;
+    &.has-passed {
+      background: repeating-linear-gradient(
+        -45deg,
+        #90ee905c,
+        #90ee905c 8px,
+        #d7d7d7 8px,
+        #d7d7d7 9px
+      );
+    }
+  }
+  &.has-passed {
+    background: repeating-linear-gradient(
+      -45deg,
+      lightgreen,
+      lightgreen 8px,
+      #b7b7b7 8px,
+      #b7b7b7 9px
+    );
+  }
 }
 
 .active-toggle {
@@ -19,7 +45,7 @@
 }
 
 .disabled {
-  background-color: $plevents-grey-light;
+  background-color: $plevents-grey-light !important;
 }
 
 .stateToggler {
@@ -27,14 +53,18 @@
   top: 2px;
   right: 2px;
   text-align: right;
-  cursor: pointer;
   border: 1px solid $plevents-grey-dark;
   padding: 0px 5px;
   border-radius: 10px;
   line-height: 20px;
-  background-color: lighten($plevents-grey-light, 5%);
-  &:hover {
-    background-color: $plevents-grey-light;
+  color: $plevents-grey-dark;
+  &.clickable {
+    color: inherit;
+    cursor: pointer;
+    background-color: lighten($plevents-grey-light, 5%);
+    &:hover {
+      background-color: $plevents-grey-light;
+    }
   }
 }
 

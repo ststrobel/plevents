@@ -131,16 +131,12 @@
       <td
         *ngFor="let event of week.events"
         class="greyedOut"
-        style="
-          border: 1px solid white;
-          height: 25px;
-          line-height: 25px;
-          text-align: center;
-        "
         [ngClass]="{
-          happening: event,
-          unavailable: event && event.takenSeats >= event.maxSeats,
-          disabled: event && event.disabled
+          'happening': event,
+          'unavailable': event && event.takenSeats >= event.maxSeats,
+          'disabled': event && event.disabled,
+          'empty': event && event.takenSeats === 0,
+          'has-passed': event && event.isInPast()
         }"
       >
         <div *ngIf="event" style="position: relative">
@@ -156,7 +152,11 @@
             (click)="showEventParticipants(event, showParticipantsModal)"
             title="Anzeige Teilnehmer"
           ></i>
-          <small class="stateToggler" (click)="toggleDisabled(event)">
+          <small
+            class="stateToggler"
+            [ngClass]="{ clickable: !event.isInPast() }"
+            (click)="event.isInPast() || toggleDisabled(event)"
+          >
             <i *ngIf="!event.disabled">aktiv</i>
             <i *ngIf="event.disabled">inaktiv</i>
           </small>
@@ -224,15 +224,12 @@
                   ]
                 "
                 class="greyedOut"
-                style="
-                  border: 1px solid white;
-                  height: 25px;
-                  line-height: 25px;
-                  text-align: center;
-                "
                 [ngClass]="{
-                  happening: event,
-                  unavailable: event && event.takenSeats >= event.maxSeats
+                  'happening': event,
+                  'unavailable': event && event.takenSeats >= event.maxSeats,
+                  'disabled': event && event.disabled,
+                  'empty': event && event.takenSeats === 0,
+                  'has-passed': event && event.isInPast()
                 }"
               >
                 <div
@@ -254,7 +251,11 @@
                     "
                     title="Anzeige Teilnehmer"
                   ></i>
-                  <small class="stateToggler" (click)="toggleDisabled(event)">
+                  <small
+                    class="stateToggler"
+                    [ngClass]="{ clickable: !event.isInPast() }"
+                    (click)="event.isInPast() || toggleDisabled(event)"
+                  >
                     <i *ngIf="!event.disabled">aktiv</i>
                     <i *ngIf="event.disabled">inaktiv</i>
                   </small>
