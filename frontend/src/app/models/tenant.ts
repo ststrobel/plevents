@@ -6,6 +6,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 export class Tenant implements TenantI {
   id?: string;
   name: string;
+  active: boolean;
   logo: string;
   path: string;
   consentTeaser1: string;
@@ -29,6 +30,7 @@ export class TenantAdapter implements Adapter<Tenant> {
     t.id = item.id;
     t.consentTeaser1 = item.consentTeaser1;
     t.consentText1 = item.consentText1;
+    t.active = item.active;
     t.consentTeaser2 = item.consentTeaser2;
     t.consentText2 = item.consentText2;
     if (item.logo && item.logo.length > 0) {

@@ -1,5 +1,6 @@
 export interface TenantI {
   id?: string;
+  active: boolean;
   name: string;
   logo: string;
   path: string;

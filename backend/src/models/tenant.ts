@@ -9,6 +9,8 @@ export class Tenant extends BaseEntity implements TenantI {
   id: string;
   @Column()
   name: string;
+  @Column()
+  active: boolean = false;
   @Column({ type: 'longtext', nullable: true })
   logo: string;
   @Column({ unique: true })
