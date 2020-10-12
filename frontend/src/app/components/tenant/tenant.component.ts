@@ -26,6 +26,7 @@ export class TenantComponent implements OnInit, OnDestroy {
   pathCheck = {
     pathTaken: false,
   };
+  color: string;
 
   constructor(
     private authService: AuthenticationService,
@@ -80,6 +81,7 @@ export class TenantComponent implements OnInit, OnDestroy {
             this.tenantForm
               .get('consentText2')
               .setValue(this.tenant.consentText2);
+            this.color = this.tenant.color;
           });
           // load users for this tenant
           this.tenantService.getUsers(tenant.id).subscribe((users: User[]) => {
@@ -131,6 +133,7 @@ export class TenantComponent implements OnInit, OnDestroy {
     updatedTenant.consentText1 = this.tenantForm.get('consentText1').value;
     updatedTenant.consentTeaser2 = this.tenantForm.get('consentTeaser2').value;
     updatedTenant.consentText2 = this.tenantForm.get('consentText2').value;
+    updatedTenant.color = this.color;
     // update the logo from the current tenant object
     if (this.tenant.logo) {
       if (typeof this.tenant.logo === 'object') {

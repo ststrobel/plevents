@@ -21,6 +21,7 @@ import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import { ImprintComponent } from './components/imprint/imprint.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { LegalComponent } from './components/legal/legal.component';
+import { ColorPickerModule } from 'ngx-color-picker';
 import {
   NgcCookieConsentModule,
   NgcCookieConsentConfig,
@@ -96,6 +97,7 @@ const cookieConfig: NgcCookieConsentConfig = {
     ModalModule.forRoot(),
     ButtonsModule.forRoot(),
     NgcCookieConsentModule.forRoot(cookieConfig),
+    ColorPickerModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

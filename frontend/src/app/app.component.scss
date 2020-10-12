@@ -5,7 +5,7 @@ nav.navbar {
   * {
     color: $plevents-grey-dark;
     &:is(a):hover {
-      color: $plevents-red;
+      color: var(--plevents-main-color);
     }
   }
   .nav-logo {
@@ -20,11 +20,11 @@ nav.navbar {
     }
   }
   *.active {
-    color: $plevents-red;
-    border-bottom: 1px solid $plevents-red;
+    color: var(--plevents-main-color);
+    border-bottom: 1px solid var(--plevents-main-color);
   }
   button {
-    color: $plevents-red;
+    color: var(--plevents-main-color);
     &:hover {
       color: white;
     }
@@ -69,13 +69,13 @@ footer {
     padding: 25px 10px;
     width: auto;
     background-color: $plevents-grey-light;
-    color: $plevents-red;
+    color: var(--plevents-main-color);
     a {
-      color: $plevents-red;
+      color: var(--plevents-main-color);
       font-weight: bold;
       text-decoration: underline;
       &:hover {
-        color: darken($plevents-red, 15%);
+        color: var(--plevents-main-color-darkened);
       }
     }
     br {
