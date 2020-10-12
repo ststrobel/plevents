@@ -6,6 +6,7 @@
   >
     <img [src]="navbarLogo" />
   </a>
+  <div *ngIf="!isLoggedIn() || !tenant" style="flex: 100000000 1 auto"></div>
   <button
     class="navbar-toggler"
     type="button"
@@ -14,29 +15,25 @@
     aria-controls="navbarSupportedContent"
     aria-expanded="false"
     aria-label="Toggle navigation"
-    *ngIf="isLoggedIn()"
   >
     <span class="navbar-toggler-icon"></span>
   </button>
 
-  <ul class="navbar-nav ml-auto" *ngIf="!isLoggedIn() && tenant">
-    <li class="nav-item">
-      <a
-        class="nav-link"
-        [routerLink]="[tenant.path, 'login']"
-        routerLinkActive="active"
-        >Login</a
-      >
-    </li>
-  </ul>
-
-  <div
-    id="navbarSupportedContent"
-    class="collapse navbar-collapse"
-    *ngIf="isLoggedIn()"
-  >
-    <ul class="navbar-nav mr-auto" *ngIf="tenant">
-      <li class="nav-item">
+  <div id="navbarSupportedContent" class="collapse navbar-collapse">
+    <ul
+      class="navbar-nav mr-auto"
+      *ngIf="tenant"
+      [ngClass]="{ 'mr-auto': isLoggedIn(), 'ml-auto': !isLoggedIn() }"
+    >
+      <li class="nav-item" *ngIf="!isLoggedIn()">
+        <a
+          class="nav-link"
+          [routerLink]="[tenant.path, 'login']"
+          routerLinkActive="active"
+          >Login</a
+        >
+      </li>
+      <li class="nav-item" *ngIf="isLoggedIn()">
         <a
           class="nav-link"
           [routerLink]="[tenant.path, 'events']"
@@ -46,7 +43,7 @@
           >Events</a
         >
       </li>
-      <li class="nav-item">
+      <li class="nav-item" *ngIf="isLoggedIn()">
         <a
           class="nav-link"
           [routerLink]="[tenant.path, 'dashboard']"
@@ -56,7 +53,7 @@
           >Dashboard</a
         >
       </li>
-      <li class="nav-item">
+      <li class="nav-item" *ngIf="isLoggedIn()">
         <a
           class="nav-link"
           [routerLink]="[tenant.path, 'verwaltung']"
@@ -66,21 +63,16 @@
           >Verwaltung</a
         >
       </li>
-      <!--
-      <li class="nav-item">
-        <a class="nav-link" routerLink="/emails" routerLinkActive="active"
-          >Mailverteiler</a
-        >
-      </li>-->
     </ul>
-    angemeldet als:&nbsp;<u>{{ username() }}</u>
-    <button
-      class="btn btn-outline-danger my-2 my-sm-0 ml-3"
-      *ngIf="tenant"
-      (click)="logout()"
-    >
-      Logout
-    </button>
+    <div *ngIf="isLoggedIn()">
+      angemeldet als:&nbsp;<u>{{ username() }}</u>
+      <button
+        class="btn btn-outline-danger my-2 my-sm-0 ml-3"
+        (click)="logout()"
+      >
+        Logout
+      </button>
+    </div>
   </div>
 </nav>
 <div class="container-fluid">
