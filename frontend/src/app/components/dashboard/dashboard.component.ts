@@ -42,9 +42,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private allEvents: Event[];
   weeks: Week[] = new Array<Week>();
   uniqueEvents: Event[] = null;
-  newEventForm: FormGroup;
+  newEventSeriesForm: FormGroup;
+  newSingleEventForm: FormGroup;
   operationOngoing: boolean = false;
-  newEventFormShown: boolean = false;
+  newEventSeriesFormShown: boolean = false;
+  newSingleEventFormShown: boolean = false;
   eventsOpened: boolean[];
   categories: Category[];
   @ViewChild('instance', { static: true }) instance: NgbTypeahead;
@@ -74,7 +76,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.createNewEventForm();
+    this.createNewEventSeriesForm();
+    this.createNewSingleEventForm();
     this.eventsOpened = new Array<boolean>();
     // load the tenant information and redirect in case tenant path does not exist:
     this.tenantSubscription = this.tenantService
@@ -102,7 +105,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .subscribe(categories => {
         this.categories = categories;
       });
-    this.createNewEventForm();
   }
 
   ngOnDestroy(): void {
@@ -172,8 +174,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       });
   }
 
-  createNewEventForm(): void {
-    this.newEventForm = new FormGroup({
+  createNewEventSeriesForm(): void {
+    this.newEventSeriesForm = new FormGroup({
       name: new FormControl('', Validators.required),
       category: new FormControl(''),
       fromDate: new FormControl('', Validators.required),
@@ -182,14 +184,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  addNewEvent(): void {
-    if (!this.newEventForm.valid) {
-      this.newEventForm.markAllAsTouched();
+  createNewSingleEventForm(): void {
+    this.newSingleEventForm = new FormGroup({
+      name: new FormControl('', Validators.required),
+      category: new FormControl(''),
+      date: new FormControl('', Validators.required),
+      time: new FormControl('', Validators.required),
+      maxSeats: new FormControl('', Validators.required),
+    });
+  }
+
+  addNewEventSeries(): void {
+    if (!this.newEventSeriesForm.valid) {
+      this.newEventSeriesForm.markAllAsTouched();
       return;
     }
     this.operationOngoing = true;
     // first - check if the category is new or existed previously:
-    const category = this.newEventForm.get('category').value;
+    const category = this.newEventSeriesForm.get('category').value;
     let existingCategory = find(
       this.categories,
       (existingCategory: Category) =>
@@ -207,8 +219,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     // continue only when a category is available
     categoryObservable.subscribe(category => {
-      const m = moment(this.newEventForm.get('fromDate').value);
-      const time = <string>this.newEventForm.get('time').value;
+      const m = moment(this.newEventSeriesForm.get('fromDate').value);
+      const time = <string>this.newEventSeriesForm.get('time').value;
       m.hours(parseInt(time.split(':')[0]));
       m.minutes(parseInt(time.split(':')[1]));
       const currentWeek = m.week();
@@ -216,9 +228,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
       const observables = [];
       for (let cw = currentWeek; cw <= 52; cw++) {
         const event = new Event();
-        event.name = this.newEventForm.get('name').value;
+        event.name = this.newEventSeriesForm.get('name').value;
         event.categoryId = category.id;
-        event.maxSeats = this.newEventForm.get('maxSeats').value;
+        event.maxSeats = this.newEventSeriesForm.get('maxSeats').value;
         event.date = m.toDate();
         observables.push(this.eventService.createEvent(event));
         // add 1 week each
@@ -229,7 +241,58 @@ export class DashboardComponent implements OnInit, OnDestroy {
           alert('Neue Eventserie angelegt');
           this.loadAllEvents(this.tenantService.currentTenantValue);
           this.operationOngoing = false;
-          this.newEventFormShown = false;
+          this.newEventSeriesFormShown = false;
+        },
+        error => {
+          console.error(error);
+          alert('Es trat leider ein Fehler auf');
+          this.operationOngoing = false;
+        }
+      );
+    });
+  }
+
+  addNewSingleEvent(): void {
+    if (!this.newSingleEventForm.valid) {
+      this.newSingleEventForm.markAllAsTouched();
+      return;
+    }
+    this.operationOngoing = true;
+    // first - check if the category is new or existed previously:
+    const category = this.newSingleEventForm.get('category').value;
+    let existingCategory = find(
+      this.categories,
+      (existingCategory: Category) =>
+        existingCategory.name.toLowerCase() === category
+    );
+    let categoryObservable: Observable<Category>;
+    if (existingCategory) {
+      // the user selected a category that existed previously
+      categoryObservable = of(existingCategory);
+    } else {
+      categoryObservable = this.categoryService.createCategory({
+        name: category,
+        tenantId: this.tenantService.currentTenantValue.id,
+      });
+    }
+    // continue only when a category is available
+    categoryObservable.subscribe(category => {
+      const m = moment(this.newSingleEventForm.get('date').value);
+      const time = <string>this.newSingleEventForm.get('time').value;
+      m.hours(parseInt(time.split(':')[0]));
+      m.minutes(parseInt(time.split(':')[1]));
+      const currentWeek = m.week();
+      const event = new Event();
+      event.name = this.newSingleEventForm.get('name').value;
+      event.categoryId = category.id;
+      event.maxSeats = this.newSingleEventForm.get('maxSeats').value;
+      event.date = m.toDate();
+      this.eventService.createEvent(event).subscribe(
+        () => {
+          alert('Neues Einzelevent angelegt');
+          this.loadAllEvents(this.tenantService.currentTenantValue);
+          this.operationOngoing = false;
+          this.newSingleEventFormShown = false;
         },
         error => {
           console.error(error);
@@ -253,7 +316,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   deleteEventSeries(uniqueEventSeriesIndex: number): void {
     if (
       confirm(
-        'Wollen Sie dieses Serienevent wirklich löschen? Alle Daten aller einzelnen Events gehen unwiderbringlich verloren!'
+        'Wollen Sie alle Events in dieser Spalte wirklich löschen? Alle Daten aller einzelnen Events gehen unwiderbringlich verloren!'
       )
     ) {
       this.operationOngoing = true;
@@ -339,7 +402,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   };
 
   editSeriesEvent(uniqueEvent: Event, template: TemplateRef<any>) {
-    this.newEventFormShown = false;
+    this.newEventSeriesFormShown = false;
+    this.newSingleEventFormShown = false;
     this.modalRef = this.modalService.show(template);
     this.eventBeingEdited = uniqueEvent;
     this.editEventForm.get('name').setValue(uniqueEvent.name);
