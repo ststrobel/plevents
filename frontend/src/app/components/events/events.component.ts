@@ -265,7 +265,6 @@ export class EventsComponent implements OnInit, OnDestroy {
   registerParticipant(): void {
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
-      console.log(this.registerForm.get('rememberMe'));
       return;
     }
     const participant = new Participant();
