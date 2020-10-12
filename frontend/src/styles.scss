@@ -73,3 +73,8 @@ form div.invalid {
 .dropdown-item.active {
   background-color: #ff004d !important;
 }
+
+// override for ngx-cookieconsent cookie button:
+.cc-btn:hover {
+  color: black !important;
+}

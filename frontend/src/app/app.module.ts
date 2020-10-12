@@ -21,6 +21,38 @@ import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import { ImprintComponent } from './components/imprint/imprint.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { LegalComponent } from './components/legal/legal.component';
+import {
+  NgcCookieConsentModule,
+  NgcCookieConsentConfig,
+} from 'ngx-cookieconsent';
+import { environment } from 'src/environments/environment';
+
+const cookieConfig: NgcCookieConsentConfig = {
+  cookie: {
+    domain: environment.domain,
+  },
+  position: 'bottom',
+  theme: 'classic',
+  palette: {
+    popup: {
+      background: '#000000',
+      text: '#ffffff',
+      link: '#ffffff',
+    },
+    button: {
+      background: '#f1d600',
+      text: '#000000',
+      border: 'transparent',
+    },
+  },
+  type: 'info',
+  content: {
+    message:
+      'Diese Seite nutzt Cookies, um die korrekte Funktionsweise der Anwendung sicherzustellen. Es findet kein Tracking statt, persönliche Informationen bleiben rein auf diesem Gerät.',
+    dismiss: 'Verstanden, Cookies zulassen',
+    link: '',
+  },
+};
 
 @NgModule({
   declarations: [
@@ -63,6 +95,7 @@ import { LegalComponent } from './components/legal/legal.component';
     BrowserAnimationsModule,
     ModalModule.forRoot(),
     ButtonsModule.forRoot(),
+    NgcCookieConsentModule.forRoot(cookieConfig),
   ],
   providers: [],
   bootstrap: [AppComponent],

@@ -4,6 +4,7 @@ import * as moment from 'moment';
 import { TenantService } from './services/tenant.service';
 import { Tenant } from './models/tenant';
 import { User } from './models/user';
+import { NgcCookieConsentService } from 'ngx-cookieconsent';
 
 @Component({
   selector: 'app-root',
@@ -18,7 +19,8 @@ export class AppComponent implements OnInit {
 
   constructor(
     private authenticationService: AuthenticationService,
-    private tenantService: TenantService
+    private tenantService: TenantService,
+    private ccService: NgcCookieConsentService
   ) {
     moment.locale('de');
   }
@@ -35,6 +37,10 @@ export class AppComponent implements OnInit {
       } else {
         this.username = null;
       }
+    });
+    this.ccService.initialize$.subscribe((event: any) => {
+      console.log(event);
+      // you can use this.ccService.getConfig() to do stuff...
     });
   }
 
