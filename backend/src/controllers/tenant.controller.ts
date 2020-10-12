@@ -34,6 +34,15 @@ export class TenantController {
     });
 
     /*
+     * get all tenants for the currently logged-in user
+     */
+    app.get('/secure/tenants', async (req, res) => {
+      const tenants = new Array<Tenant>();
+      tenants.push(await UserService.currentTenant(req));
+      res.status(200).send(tenants);
+    });
+
+    /*
      * retrieve a tenant based on its id
      */
     app.get('/secure/tenants/:id', async (req, res) => {

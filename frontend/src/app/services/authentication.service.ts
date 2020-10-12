@@ -28,27 +28,53 @@ export class AuthenticationService {
     return this.userSubject.value;
   }
 
-  login(tenantId: string, email: string, password: string) {
+  login(email: string, password: string) {
     const user = new User(email);
     user.password = password;
-    user.tenantId = tenantId;
     return this.http
       .post<User>(`${environment.apiUrl}/authenticate`, user)
       .pipe(
         map((loggedInUser: User) => {
           // store user details and basic auth credentials in local storage to keep user logged in between page refreshes
-          loggedInUser.authdata = window.btoa(email + ':' + password);
-          localStorage.setItem('user', JSON.stringify(loggedInUser));
-          this.userSubject.next(loggedInUser);
+          this.update(loggedInUser, password);
           return loggedInUser;
         })
       );
+  }
+
+  update(user: User, password?: string): void {
+    if (user) {
+      if (password) {
+        user.authdata = window.btoa(user.email + ':' + password);
+      } else {
+        delete user.authdata;
+      }
+      let existingUserData: User;
+      if (localStorage.getItem('user')) {
+        existingUserData = JSON.parse(localStorage.getItem('user')) as User;
+      } else {
+        existingUserData = user;
+      }
+      const updatedUserData = Object.assign(existingUserData, user);
+      localStorage.setItem('user', JSON.stringify(updatedUserData));
+      this.userSubject.next(updatedUserData);
+    }
   }
 
   logout() {
     // remove user from local storage to log user out
     localStorage.removeItem('user');
     this.userSubject.next(null);
-    this.router.navigate([this.tenantService.currentTenantValue.path, 'login']);
+    if (
+      this.tenantService.currentTenantValue &&
+      this.tenantService.currentTenantValue.path
+    ) {
+      this.router.navigate([
+        this.tenantService.currentTenantValue.path,
+        'login',
+      ]);
+    } else {
+      this.router.navigate(['login']);
+    }
   }
 }

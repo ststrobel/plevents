@@ -3,6 +3,7 @@ import { AuthenticationService } from './services/authentication.service';
 import * as moment from 'moment';
 import { TenantService } from './services/tenant.service';
 import { Tenant } from './models/tenant';
+import { User } from './models/user';
 
 @Component({
   selector: 'app-root',
@@ -13,6 +14,7 @@ export class AppComponent implements OnInit {
   serverResult: '';
   receivedEmail: '';
   tenant: Tenant = null;
+  username: string = null;
 
   constructor(
     private authenticationService: AuthenticationService,
@@ -27,14 +29,17 @@ export class AppComponent implements OnInit {
         this.tenant = tenant;
       }
     });
+    this.authenticationService.user.subscribe((user: User) => {
+      if (user) {
+        this.username = user.name;
+      } else {
+        this.username = null;
+      }
+    });
   }
 
   isLoggedIn(): boolean {
     return this.authenticationService.userValue !== null;
-  }
-
-  username(): string {
-    return this.authenticationService.userValue.name;
   }
 
   logout(): void {

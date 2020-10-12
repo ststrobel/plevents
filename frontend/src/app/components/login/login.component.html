@@ -1,5 +1,7 @@
 <div class="card">
-  <h4 class="card-header">{{ tenant.name }} - Interner Bereich</h4>
+  <h4 class="card-header">
+    {{ tenant ? tenant.name + ' - ' : '' }}Interner Bereich
+  </h4>
   <div class="card-body">
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
@@ -47,9 +49,11 @@
         ></span>
         Login
       </button>
-      <span
+      <span *ngIf="tenant"
         >noch kein Account?
-        <a routerLink="/{{tenantPath()}}/registrierung">Hier registrieren</a></span
+        <a routerLink="/{{ tenantPath() }}/registrierung"
+          >Hier registrieren</a
+        ></span
       >
       <div *ngIf="error" class="alert alert-danger mt-3 mb-0">
         {{ error }}
