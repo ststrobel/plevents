@@ -7,52 +7,66 @@ import { each, find } from 'lodash';
 import { Log } from '../models/log';
 import { UserService } from '../services/user.service';
 import { getConnection } from 'typeorm';
+import { Tenant } from '../models/tenant';
 
 export class EventController {
+  private static async handleGetEvents(req, res): Promise<void> {
+    // first, get all events
+    let query = getConnection()
+      .createQueryBuilder()
+      .select('event')
+      .from(Event, 'event')
+      .where(`tenantId = '${req.params.id}'`);
+    // construct the where clause
+    if (req.query.start) {
+      query = query.andWhere(`date >= '${req.query.start}'`);
+    }
+    if (req.query.end) {
+      query = query.andWhere(`date <= '${req.query.end}'`);
+    }
+    const allEvents = await query.getMany();
+
+    // then, retrieve the participants per event
+    const promises = [];
+    each(allEvents, (event: Event) => {
+      promises.push(Participant.find({ where: { eventId: event.id } }));
+      event.takenSeats = 0;
+    });
+    // return events with participants count
+    Promise.all(promises).then(
+      (allParticipantsForEvents: Participant[][]) => {
+        each(
+          allParticipantsForEvents,
+          (participantsPerEvent: Participant[]) => {
+            if (participantsPerEvent.length > 0) {
+              find(allEvents, {
+                id: participantsPerEvent[0].eventId,
+              }).takenSeats = participantsPerEvent.length;
+            }
+          }
+        );
+        res.send(allEvents);
+      },
+      (err: any) => {
+        res
+          .status(500)
+          .send({ message: `Error calculating taken seats: ${err}` });
+      }
+    );
+  }
+
   public static register(app: express.Application): void {
     app.get('/tenants/:id/events', async (req, res) => {
-      // first, get all events
-      let query = getConnection()
-        .createQueryBuilder()
-        .select('event')
-        .from(Event, 'event')
-        .where(`tenantId = '${req.params.id}'`);
-      // construct the where clause
-      if (req.query.start) {
-        query = query.andWhere(`date >= '${req.query.start}'`);
+      // check if the related tenant is active. if not, respond with an error:
+      const tenant = await Tenant.findOneOrFail(req.params.id);
+      if (!tenant.active) {
+        return res.status(402).send({ error: 'Tenant not active' });
       }
-      if (req.query.end) {
-        query = query.andWhere(`date <= '${req.query.end}'`);
-      }
-      const allEvents = await query.getMany();
+      EventController.handleGetEvents(req, res);
+    });
 
-      // then, retrieve the participants per event
-      const promises = [];
-      each(allEvents, (event: Event) => {
-        promises.push(Participant.find({ where: { eventId: event.id } }));
-        event.takenSeats = 0;
-      });
-      // return events with participants count
-      Promise.all(promises).then(
-        (allParticipantsForEvents: Participant[][]) => {
-          each(
-            allParticipantsForEvents,
-            (participantsPerEvent: Participant[]) => {
-              if (participantsPerEvent.length > 0) {
-                find(allEvents, {
-                  id: participantsPerEvent[0].eventId,
-                }).takenSeats = participantsPerEvent.length;
-              }
-            }
-          );
-          res.send(allEvents);
-        },
-        (err: any) => {
-          res
-            .status(500)
-            .send({ message: `Error calculating taken seats: ${err}` });
-        }
-      );
+    app.get('/secure/tenants/:id/events', async (req, res) => {
+      EventController.handleGetEvents(req, res);
     });
 
     app.post('/secure/events', async (req, res) => {
@@ -196,6 +210,11 @@ export class EventController {
         // error, no such event
         res.status(404).send({ message: 'Event not found' });
       } else {
+        // check if the related tenant is active. if not, respond with an error:
+        const tenant = await Tenant.findOneOrFail(event.tenantId);
+        if (!tenant.active) {
+          return res.status(402).send({ error: 'Tenant not active' });
+        }
         // now gather all information on the already reserved seats
         const participants = await Participant.find({
           where: { eventId: newParticipant.eventId },
