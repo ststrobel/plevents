@@ -63,23 +63,6 @@
         </div>
       </div>
     </div>
-    <div class="col-12 col-md-6">
-      Sie können hier <b>optional</b> eine Einwilligungserklärung setzen, die
-      die Teilnehmer bei Anmeldung zu einem Event akzeptieren müssen.<br />
-      Sie können diesen Wert später noch ändern.
-    </div>
-    <div class="col-12 col-md-6">
-      <div class="form-group">
-        <label for="consent">Einwilligungserklärung</label>
-        <textarea
-          id="consent"
-          formControlName="consentText"
-          class="form-control"
-          maxlength="10000"
-        ></textarea>
-        <small>{{ currentLengthOf('consentText') }} / 10000 Zeichen</small>
-      </div>
-    </div>
   </div>
   <button
     [disabled]="loading"

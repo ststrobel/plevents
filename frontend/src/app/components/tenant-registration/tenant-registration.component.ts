@@ -29,7 +29,6 @@ export class TenantRegistrationComponent implements OnInit {
         Validators.maxLength(40),
         Validators.pattern('[a-z-]{0,40}'),
       ]),
-      consentText: new FormControl(''),
     });
   }
 
