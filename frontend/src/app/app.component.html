@@ -6,6 +6,7 @@
   >
     <img [src]="navbarLogo" />
   </a>
+  <div *ngIf="!isLoggedIn() || !tenant" style="flex: 100000000 1 auto"></div>
   <button
     class="navbar-toggler"
     type="button"
@@ -19,7 +20,11 @@
     <span class="navbar-toggler-icon"></span>
   </button>
 
-  <ul class="navbar-nav ml-auto" *ngIf="!isLoggedIn() && tenant">
+  <ul
+    class="navbar-nav ml-auto"
+    class="collapse navbar-collapse"
+    *ngIf="!isLoggedIn() && tenant"
+  >
     <li class="nav-item">
       <a
         class="nav-link"
@@ -66,19 +71,9 @@
           >Verwaltung</a
         >
       </li>
-      <!--
-      <li class="nav-item">
-        <a class="nav-link" routerLink="/emails" routerLinkActive="active"
-          >Mailverteiler</a
-        >
-      </li>-->
     </ul>
     angemeldet als:&nbsp;<u>{{ username() }}</u>
-    <button
-      class="btn btn-outline-danger my-2 my-sm-0 ml-3"
-      *ngIf="tenant"
-      (click)="logout()"
-    >
+    <button class="btn btn-outline-danger my-2 my-sm-0 ml-3" (click)="logout()">
       Logout
     </button>
   </div>
