@@ -2,22 +2,38 @@
 <!-- button to show the "new event" form -->
 <div>
   <button
-    class="btn float-right btn-outline-success mb-3"
+    class="btn float-right btn-outline-success mb-3 ml-2"
     style="margin-top: 32px"
-    *ngIf="!newEventFormShown"
-    (click)="newEventFormShown = true"
+    *ngIf="!newSingleEventFormShown && !newEventSeriesFormShown"
+    (click)="newEventSeriesFormShown = true"
   >
     Neues Serienevent
   </button>
+  <button
+    class="btn float-right btn-outline-success mb-3 ml-2"
+    style="margin-top: 32px"
+    *ngIf="!newSingleEventFormShown && !newEventSeriesFormShown"
+    (click)="newSingleEventFormShown = true"
+  >
+    Neues Einzelevent
+  </button>
 </div>
-<!-- form to create a new event -->
-<div style="margin-top: 40px" [hidden]="!newEventFormShown">
-  <h5>Daten für neues Reihenevent:</h5>
-  <form [formGroup]="newEventForm" (ngSubmit)="addNewEvent()">
+<!-- form to create a new event series -->
+<div class="newEventContainer" [hidden]="!newEventSeriesFormShown">
+  <h5>Daten für neues Reihenevent bis Ende dieses Jahres:</h5>
+  <button
+    type="button"
+    class="close pull-right"
+    aria-label="Close"
+    (click)="newEventSeriesFormShown = false"
+  >
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <form [formGroup]="newEventSeriesForm" (ngSubmit)="addNewEventSeries()">
     <div class="row">
       <div
         class="col-12 col-md-4"
-        [ngClass]="{ invalid: isInvalid(newEventForm.controls.name) }"
+        [ngClass]="{ invalid: isInvalid(newEventSeriesForm.controls.name) }"
       >
         <label for="name">Event-Name</label>
         <br />
@@ -30,7 +46,7 @@
       </div>
       <div
         class="col-6 col-md-4"
-        [ngClass]="{ invalid: isInvalid(newEventForm.controls.fromDate) }"
+        [ngClass]="{ invalid: isInvalid(newEventSeriesForm.controls.fromDate) }"
       >
         <label for="fromDate">frühester Termin</label>
         <br />
@@ -43,7 +59,7 @@
       </div>
       <div
         class="col-6 col-md-4"
-        [ngClass]="{ invalid: isInvalid(newEventForm.controls.category) }"
+        [ngClass]="{ invalid: isInvalid(newEventSeriesForm.controls.category) }"
       >
         <label for="targetClass">Kategorie</label>
         <br />
@@ -60,7 +76,7 @@
       </div>
       <div
         class="col-6 col-md-4"
-        [ngClass]="{ invalid: isInvalid(newEventForm.controls.time) }"
+        [ngClass]="{ invalid: isInvalid(newEventSeriesForm.controls.time) }"
       >
         <label for="name">Startzeit</label>
         <br />
@@ -73,7 +89,103 @@
       </div>
       <div
         class="col-6 col-md-4"
-        [ngClass]="{ invalid: isInvalid(newEventForm.controls.maxSeats) }"
+        [ngClass]="{ invalid: isInvalid(newEventSeriesForm.controls.maxSeats) }"
+      >
+        <label for="maxSeats">max. Teilnehmer</label>
+        <br />
+        <input
+          class="form-control"
+          id="maxSeats"
+          type="number"
+          formControlName="maxSeats"
+        />
+      </div>
+      <div class="col-12 col-md-4">
+        <button
+          class="btn btn-block btn-outline-success"
+          type="submit"
+          style="margin-top: 32px"
+          [disabled]="operationOngoing"
+        >
+          Eventserie erstellen
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- form to create a new event series -->
+<div class="newEventContainer" [hidden]="!newSingleEventFormShown">
+  <h5>Daten für neues Einzelevent:</h5>
+  <button
+    type="button"
+    class="close pull-right"
+    aria-label="Close"
+    (click)="newSingleEventFormShown = false"
+  >
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <form [formGroup]="newSingleEventForm" (ngSubmit)="addNewSingleEvent()">
+    <div class="row">
+      <div
+        class="col-12 col-md-4"
+        [ngClass]="{ invalid: isInvalid(newSingleEventForm.controls.name) }"
+      >
+        <label for="name">Event-Name</label>
+        <br />
+        <input
+          class="form-control"
+          id="name"
+          type="text"
+          formControlName="name"
+        />
+      </div>
+      <div
+        class="col-6 col-md-4"
+        [ngClass]="{ invalid: isInvalid(newSingleEventForm.controls.date) }"
+      >
+        <label for="date">Termin</label>
+        <br />
+        <input
+          class="form-control"
+          id="date"
+          type="date"
+          formControlName="date"
+        />
+      </div>
+      <div
+        class="col-6 col-md-4"
+        [ngClass]="{ invalid: isInvalid(newSingleEventForm.controls.category) }"
+      >
+        <label for="targetClass">Kategorie</label>
+        <br />
+        <input
+          class="form-control"
+          id="targetClass"
+          type="text"
+          formControlName="category"
+          [ngbTypeahead]="search"
+          (focus)="focus$.next($any($event).target.value)"
+          (click)="click$.next($any($event).target.value)"
+          #instance="ngbTypeahead"
+        />
+      </div>
+      <div
+        class="col-6 col-md-4"
+        [ngClass]="{ invalid: isInvalid(newSingleEventForm.controls.time) }"
+      >
+        <label for="name">Startzeit</label>
+        <br />
+        <input
+          class="form-control"
+          id="time"
+          type="time"
+          formControlName="time"
+        />
+      </div>
+      <div
+        class="col-6 col-md-4"
+        [ngClass]="{ invalid: isInvalid(newSingleEventForm.controls.maxSeats) }"
       >
         <label for="maxSeats">max. Teilnehmer</label>
         <br />
@@ -99,84 +211,88 @@
 </div>
 
 <!-- display on wide screens -->
-<table class="w-100 d-none d-xl-table mt-3" *ngIf="uniqueEvents">
-  <thead>
-    <tr>
-      <th style="width: 100px">KW</th>
-      <th
-        style="width: 300px; text-align: center"
-        *ngFor="let uniqueEvent of uniqueEvents"
-      >
-        {{ uniqueEvent.displayName() }}
-        <br />
-        {{ uniqueEvent.displayTime() }}
-        &nbsp;<i
-          class="fas fa-edit"
-          style="cursor: pointer"
-          (click)="editSeriesEvent(uniqueEvent, editSeriesEventModal)"
-        ></i>
-        <br />
-        <span class="badge badge-cvjm">{{
-          categoryName(uniqueEvent.categoryId)
-        }}</span>
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let week of weeks">
-      <td [ngClass]="{ currentCW: week.number === currentCW() }">
-        {{ week.number }}
-        <small *ngIf="week.number === currentCW()"><br />aktuelle Woche</small>
-      </td>
-      <td
-        *ngFor="let event of week.events"
-        class="greyedOut"
-        [ngClass]="{
-          'happening': event,
-          'unavailable': event && event.takenSeats >= event.maxSeats,
-          'disabled': event && event.disabled,
-          'empty': event && event.takenSeats === 0,
-          'has-passed': event && event.isInPast()
-        }"
-      >
-        <div *ngIf="event" style="position: relative">
-          {{ event.displayDate() }}<br />
-          <small>{{ event.takenSeats }} / {{ event.maxSeats }} </small
-          ><i
-            class="fas fa-file-pdf actionableIcon"
-            (click)="downloadPdf(event)"
-            title="Download Teilnehmerliste"
-          ></i
-          ><i
-            class="fas fa-users actionableIcon"
-            (click)="showEventParticipants(event, showParticipantsModal)"
-            title="Anzeige Teilnehmer"
-          ></i>
-          <small
-            class="stateToggler"
-            [ngClass]="{ clickable: !event.isInPast() }"
-            (click)="event.isInPast() || toggleDisabled(event)"
-          >
-            <i *ngIf="!event.disabled">aktiv</i>
-            <i *ngIf="event.disabled">inaktiv</i>
-          </small>
-        </div>
-      </td>
-    </tr>
-    <tr>
-      <td></td>
-      <td *ngFor="let uniqueEvent of uniqueEvents; let i = index">
-        <button
-          class="btn btn-sm btn-block btn-outline-danger my-2 my-sm-0"
-          (click)="deleteEventSeries(i)"
-          [disabled]="operationOngoing"
+<div class="w-100 d-none d-xl-block mt-3">
+  <table class="w-100" *ngIf="uniqueEvents">
+    <thead>
+      <tr>
+        <th style="width: 100px">KW</th>
+        <th
+          style="min-width: 140px; width: 300px; text-align: center"
+          *ngFor="let uniqueEvent of uniqueEvents"
         >
-          Löschen
-        </button>
-      </td>
-    </tr>
-  </tbody>
-</table>
+          {{ uniqueEvent.displayName() }}
+          <br />
+          {{ uniqueEvent.displayTime() }}
+          &nbsp;<i
+            class="fas fa-edit"
+            style="cursor: pointer"
+            (click)="editSeriesEvent(uniqueEvent, editSeriesEventModal)"
+          ></i>
+          <br />
+          <span class="badge badge-cvjm">{{
+            categoryName(uniqueEvent.categoryId)
+          }}</span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let week of weeks">
+        <td [ngClass]="{ currentCW: week.number === currentCW() }">
+          {{ week.number }}
+          <small *ngIf="week.number === currentCW()"
+            ><br />aktuelle Woche</small
+          >
+        </td>
+        <td
+          *ngFor="let event of week.events"
+          class="greyedOut"
+          [ngClass]="{
+            'happening': event,
+            'unavailable': event && event.takenSeats >= event.maxSeats,
+            'disabled': event && event.disabled,
+            'empty': event && event.takenSeats === 0,
+            'has-passed': event && event.isInPast()
+          }"
+        >
+          <div *ngIf="event" style="position: relative">
+            {{ event.displayDate() }}<br />
+            <small>{{ event.takenSeats }} / {{ event.maxSeats }} </small
+            ><i
+              class="fas fa-file-pdf actionableIcon"
+              (click)="downloadPdf(event)"
+              title="Download Teilnehmerliste"
+            ></i
+            ><i
+              class="fas fa-users actionableIcon"
+              (click)="showEventParticipants(event, showParticipantsModal)"
+              title="Anzeige Teilnehmer"
+            ></i>
+            <small
+              class="stateToggler"
+              [ngClass]="{ clickable: !event.isInPast() }"
+              (click)="event.isInPast() || toggleDisabled(event)"
+            >
+              <i *ngIf="!event.disabled">aktiv</i>
+              <i *ngIf="event.disabled">inaktiv</i>
+            </small>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td></td>
+        <td *ngFor="let uniqueEvent of uniqueEvents; let i = index">
+          <button
+            class="btn btn-sm btn-block btn-outline-danger my-2 my-sm-0"
+            (click)="deleteEventSeries(i)"
+            [disabled]="operationOngoing"
+          >
+            Löschen
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
 <!-- display on small screens -->
 <div class="d-xl-none mt-3" *ngIf="uniqueEvents">

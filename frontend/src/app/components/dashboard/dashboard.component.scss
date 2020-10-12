@@ -1,5 +1,18 @@
 @import '../../../styles-variables.scss';
 
+.newEventContainer {
+  margin-top: 40px;
+  padding: 5px;
+  border: 1px solid #e1e1e1;
+  position: relative;
+  > button {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
+  }
+}
+
 .greyedOut {
   background-color: $plevents-grey-light;
   color: $plevents-grey-dark;
