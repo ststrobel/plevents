@@ -1,9 +1,22 @@
 <h2>Übersicht über alle anstehenden Events</h2>
 <!-- button to show the "new event" form -->
-<div>
+<div
+  class="alert alert-warning d-flex flex-row"
+  *ngIf="tenant && !tenant.active"
+>
+  <div style="width: 30px">
+    <i class="fas fa-exclamation-triangle"></i>
+  </div>
+  <div>
+    Dieser Account ist derzeit noch <b>nicht</b> freigeschaltet. Events sind
+    daher noch nicht öffentlich verfübar. Bitte kontaktieren Sie den Support für
+    Unterstützung.
+  </div>
+</div>
+<div class="action-buttons-container">
+  <div></div>
   <button
     class="btn float-right btn-outline-success mb-3 ml-2"
-    style="margin-top: 32px"
     *ngIf="!newSingleEventFormShown && !newEventSeriesFormShown"
     (click)="newEventSeriesFormShown = true"
   >
@@ -11,7 +24,6 @@
   </button>
   <button
     class="btn float-right btn-outline-success mb-3 ml-2"
-    style="margin-top: 32px"
     *ngIf="!newSingleEventFormShown && !newEventSeriesFormShown"
     (click)="newSingleEventFormShown = true"
   >
@@ -211,7 +223,7 @@
 </div>
 
 <!-- display on wide screens -->
-<div class="w-100 d-none d-xl-block mt-3">
+<div class="w-100 d-none d-xl-block mt-3" style="overflow-x: auto">
   <table class="w-100" *ngIf="uniqueEvents">
     <thead>
       <tr>
