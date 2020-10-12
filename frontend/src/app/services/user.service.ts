@@ -4,6 +4,7 @@ import { UserAdapter, User } from '../models/user';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { map } from 'rxjs/operators';
+import { UserI } from '../../../../common/user';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -29,5 +30,26 @@ export class UserService {
         // Adapt the raw item
         map(item => this.userAdapter.adapt(item))
       );
+  }
+
+  getProfile(): Observable<User> {
+    return this.http.get(`${environment.apiUrl}/secure/profile`).pipe(
+      // Adapt the raw item
+      map(item => this.userAdapter.adapt(item))
+    );
+  }
+
+  updateProfile(user: User): Observable<User> {
+    return this.http.put(`${environment.apiUrl}/secure/profile`, user).pipe(
+      // Adapt the raw item
+      map(item => this.userAdapter.adapt(item))
+    );
+  }
+
+  updatePassword(oldPassword: string, newPassword: string): Observable<any> {
+    return this.http.put(`${environment.apiUrl}/secure/profile/password`, {
+      oldPassword,
+      newPassword,
+    });
   }
 }

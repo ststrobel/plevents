@@ -27,12 +27,10 @@ export class UserController {
             user.save();
             res.status(200).send(user);
           } else {
-            res
-              .status(403)
-              .send({
-                error:
-                  'You are not permitted to update users of a different organization',
-              });
+            res.status(403).send({
+              error:
+                'You are not permitted to update users of a different organization',
+            });
           }
         }
       } else {
@@ -54,12 +52,10 @@ export class UserController {
             where: { tenant: user.tenant },
           })) as User[];
           if (usersOfTenant.length === 1) {
-            res
-              .status(409)
-              .send({
-                error:
-                  'It is not possible to delete your account, as it is the last within the tenant',
-              });
+            res.status(409).send({
+              error:
+                'It is not possible to delete your account, as it is the last within the tenant',
+            });
           } else {
             getConnection()
               .createQueryBuilder()
@@ -83,16 +79,56 @@ export class UserController {
             Log.write(tenant.id, UserService.currentUser(req), logMessage);
             res.status(200).send({ message: 'Account deleted' });
           } else {
-            res
-              .status(403)
-              .send({
-                error:
-                  'You are not permitted to update users of a different organization',
-              });
+            res.status(403).send({
+              error:
+                'You are not permitted to update users of a different organization',
+            });
           }
         }
       } else {
         res.status(404).send({ error: 'User not found' });
+      }
+    });
+
+    /*
+     * retrieve the profile of the logged-in user
+     */
+    app.get('/secure/profile', async (req, res) => {
+      const user = await User.findOneOrFail({
+        where: { email: UserService.currentUser(req) },
+      });
+      res.status(200).send(user);
+    });
+
+    /*
+     * update the profile of the logged-in user
+     */
+    app.put('/secure/profile', async (req, res) => {
+      const user = await User.findOneOrFail({
+        where: { email: UserService.currentUser(req) },
+      });
+      // now update the eligible values with the values from the payload:
+      user.name = req.body.name;
+      await user.save();
+      res.status(200).send(user);
+    });
+
+    /*
+     * update the password of the logged-in user
+     */
+    app.put('/secure/profile/password', async (req, res) => {
+      const user = await User.findOneOrFail({
+        where: { email: UserService.currentUser(req) },
+      });
+      // check if the old password from the payload is correct
+      if (
+        await UserService.checkCredentials(user.email, req.body.oldPassword)
+      ) {
+        user.password = req.body.newPassword;
+        await user.save();
+        res.status(200).send({ message: 'Password updated' });
+      } else {
+        res.status(400).send({ error: 'Old password incorrect' });
       }
     });
   }

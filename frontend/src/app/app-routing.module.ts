@@ -12,8 +12,13 @@ import { ErrorComponent } from './components/error/error.component';
 import { RegistrationComponent } from './components/registration/registration.component';
 import { TenantRegistrationComponent } from './components/tenant-registration/tenant-registration.component';
 import { ImprintComponent } from './components/imprint/imprint.component';
+import { ProfileComponent } from './components/profile/profile.component';
 
 const routes: Routes = [
+  {
+    path: 'login',
+    component: LoginComponent,
+  },
   {
     path: 'registrierung',
     component: TenantRegistrationComponent,
@@ -25,6 +30,11 @@ const routes: Routes = [
   {
     path: 'impressum',
     component: ImprintComponent,
+  },
+  {
+    path: 'profil',
+    component: ProfileComponent,
+    canActivate: [AuthGuard],
   },
   {
     path: ':tenantPath',

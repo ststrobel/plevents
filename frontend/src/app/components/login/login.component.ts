@@ -33,27 +33,32 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit() {
-    // load the tenant information and redirect in case tenant path does not exist:
-    this.tenantService
-      .getByPath(this.route.snapshot.params.tenantPath)
-      .subscribe(null, error => {
-        if (
-          error === 'Not Found' ||
-          (error instanceof HttpErrorResponse && error.status === 404)
-        ) {
-          this.router.navigate(['fehler', 'account-not-found']);
+    if (this.tenantPath()) {
+      // load the tenant information and redirect in case tenant path does not exist:
+      this.tenantService.getByPath(this.tenantPath()).subscribe(
+        () => {},
+        (error: any) => {
+          if (
+            error === 'Not Found' ||
+            (error instanceof HttpErrorResponse && error.status === 404)
+          ) {
+            this.router.navigate(['fehler', 'account-not-found']);
+          }
+        }
+      );
+      this.tenantService.currentTenant.subscribe((tenant: Tenant) => {
+        if (tenant) {
+          this.tenant = tenant;
+          // get return url from route parameters or default to '/'
+          this.returnUrl =
+            this.route.snapshot.queryParams['returnUrl'] ||
+            this.tenant.path + '/dashboard';
         }
       });
-    this.tenantService.currentTenant.subscribe((tenant: Tenant) => {
-      if (tenant) {
-        this.tenant = tenant;
-        // get return url from route parameters or default to '/'
-        this.returnUrl =
-          this.route.snapshot.queryParams['returnUrl'] ||
-          this.tenant.path + '/dashboard';
-      }
-    });
-    this.tenantService.load(this.route.snapshot.params.tenantPath);
+      this.tenantService.load(this.tenantPath());
+    } else {
+      this.returnUrl = 'profil';
+    }
     this.loginForm = new FormGroup({
       username: new FormControl('', Validators.required),
       password: new FormControl('', Validators.required),
@@ -72,7 +77,6 @@ export class LoginComponent implements OnInit {
     this.loading = true;
     this.authenticationService
       .login(
-        this.tenant.id,
         this.loginForm.get('username').value,
         this.loginForm.get('password').value
       )
@@ -81,7 +85,7 @@ export class LoginComponent implements OnInit {
           this.router.navigate(this.returnUrl.split('/'));
         },
         error => {
-          this.error = error;
+          this.error = 'Nutzername oder Passwort falsch';
           this.loading = false;
         }
       );

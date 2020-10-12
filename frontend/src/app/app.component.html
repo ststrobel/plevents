@@ -58,17 +58,31 @@
           >Verwaltung</a
         >
       </li>
+      <li class="nav-item" *ngIf="isLoggedIn()">
+        <a
+          class="nav-link"
+          [routerLink]="['profil']"
+          routerLinkActive="active"
+          data-toggle="collapse"
+          data-target="#navbarSupportedContent"
+          >Mein Profil</a
+        >
+      </li>
       <li class="nav-item" *ngIf="!isLoggedIn()">
         <a
           class="nav-link"
           [routerLink]="[tenant.path, 'login']"
           routerLinkActive="active"
+          data-toggle="collapse"
+          data-target="#navbarSupportedContent"
           >Login</a
         >
       </li>
     </ul>
     <div *ngIf="isLoggedIn()">
-      angemeldet als:&nbsp;<u>{{ username() }}</u>
+      angemeldet als:&nbsp;<u class="clickable" [routerLink]="['profil']">{{
+        username
+      }}</u>
       <button
         class="btn btn-outline-danger my-2 my-sm-0 ml-3"
         (click)="logout()"

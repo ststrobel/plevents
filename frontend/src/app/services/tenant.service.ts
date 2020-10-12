@@ -73,6 +73,16 @@ export class TenantService {
     }
   }
 
+  /**
+   * loads all tenants for the current user
+   */
+  getAll(): Observable<Tenant[]> {
+    return this.http.get(`${environment.apiUrl}/secure/tenants`).pipe(
+      // Adapt the raw item
+      map((data: any[]) => data.map(item => this.tenantAdapter.adapt(item)))
+    );
+  }
+
   update(tenant: Tenant): Observable<Tenant> {
     return this.http
       .put<User>(`${environment.apiUrl}/secure/tenants/${tenant.id}`, tenant)
