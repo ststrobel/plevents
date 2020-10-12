@@ -18,6 +18,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
+import { ImprintComponent } from './components/imprint/imprint.component';
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import { ButtonsModule } from 'ngx-bootstrap/buttons';
     TenantRegistrationComponent,
     ErrorComponent,
     EventSelectComponent,
+    ImprintComponent,
   ],
   imports: [
     BrowserModule,
