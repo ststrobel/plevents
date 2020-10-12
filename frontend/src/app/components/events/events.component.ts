@@ -213,6 +213,7 @@ export class EventsComponent implements OnInit, OnDestroy {
       zip: new FormControl('', Validators.required),
       city: new FormControl('', Validators.required),
       rememberMe: new FormControl(false),
+      dataprivacy: new FormControl(false, Validators.required),
     });
     // check if stored personal information exists. if so, prefill the form:
     const previousData = JSON.parse(localStorage.getItem('rememberMe'));

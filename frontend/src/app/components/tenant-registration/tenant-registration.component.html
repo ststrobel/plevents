@@ -24,9 +24,7 @@
           }"
         />
         <div *ngIf="isInvalid('name')" class="invalid-feedback">
-          <div *ngIf="isInvalid('name')">
-            Bitte einen kurzen beschreibenden Namen angeben
-          </div>
+          Bitte einen kurzen beschreibenden Namen angeben
         </div>
       </div>
     </div>
@@ -63,12 +61,58 @@
         </div>
       </div>
     </div>
+    <div class="col-12 form-group">
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          id="agbCheck"
+          type="checkbox"
+          formControlName="agbCheck"
+          required
+        />
+        <label
+          class="form-check-label"
+          for="agbCheck"
+          [ngClass]="{
+            'is-invalid': isInvalid('agbCheck')
+          }"
+          >Hiermit bestätige ich, dass ich die
+          <a href="/rechtliches#agb" target="_blank">AGB</a> gelesen habe und
+          diesen zustimme.</label
+        >
+        <div *ngIf="isInvalid('agbCheck')" class="invalid-feedback">
+          Bitte stimmen Sie den AGB zu.
+        </div>
+      </div>
+    </div>
+    <div class="col-12 form-group">
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          id="dataPrivacyCheck"
+          type="checkbox"
+          formControlName="dataPrivacyCheck"
+          required
+        />
+        <label
+          class="form-check-label"
+          for="dataPrivacyCheck"
+          [ngClass]="{
+            'is-invalid': isInvalid('dataPrivacyCheck')
+          }"
+          >Hiermit bestätige ich, dass ich die
+          <a href="/rechtliches#datenschutz" target="_blank"
+            >Datenschutzbestimmungen</a
+          >
+          gelesen habe und diesen zustimme.</label
+        >
+        <div *ngIf="isInvalid('dataPrivacyCheck')" class="invalid-feedback">
+          Bitte stimmen Sie den Datenschutzbestimmungen zu.
+        </div>
+      </div>
+    </div>
   </div>
-  <button
-    [disabled]="loading"
-    class="btn btn-primary"
-    [disabled]="registrationForm.invalid"
-  >
+  <button [disabled]="loading" class="btn btn-primary">
     <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
     Account erstellen
   </button>

@@ -29,6 +29,8 @@ export class TenantRegistrationComponent implements OnInit {
         Validators.maxLength(40),
         Validators.pattern('[a-z-]{0,40}'),
       ]),
+      agbCheck: new FormControl(false, Validators.required),
+      dataPrivacyCheck: new FormControl(false, Validators.required),
     });
   }
 

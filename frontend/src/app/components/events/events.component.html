@@ -252,6 +252,31 @@
           </div>
           <div class="col-12 form-check sg-consent-boxes">
             <div
+              class="form-group"
+              [ngClass]="{
+                invalid:
+                  registerForm.touched &&
+                  registerForm.get('dataprivacy').value === false
+              }"
+            >
+              <input
+                class="form-check-input"
+                id="dataprivacy"
+                type="checkbox"
+                formControlName="dataprivacy"
+                required
+              />
+              <label class="form-check-label" for="dataprivacy"
+                >Hiermit bestätige ich, dass ich die
+                <a href="/rechtliches#datenschutz" target="_blank"
+                  >Datenschutzbestimmungen</a
+                >
+                von plevents.de gelesen habe und diesen zustimme. Meine Daten
+                werden nach spätestens 4 Wochen automatisch gelöscht.</label
+              >
+            </div>
+            <div
+              class="form-group"
               *ngIf="consentTeaser1 && consentTeaser1.length > 0"
               [ngClass]="{
                 invalid:
@@ -269,7 +294,6 @@
               <label class="form-check-label" for="consent1">{{
                 consentTeaser1
               }}</label>
-              &nbsp;
               <span *ngIf="consentText1 && consentText1.length > 0">
                 <small
                   *ngIf="!consentText1Shown"
@@ -287,6 +311,7 @@
               <div *ngIf="consentText1Shown" [innerHTML]="consentText1"></div>
             </div>
             <div
+              class="form-group"
               *ngIf="consentTeaser2 && consentTeaser2.length > 0"
               [ngClass]="{
                 invalid:
@@ -304,7 +329,6 @@
               <label class="form-check-label" for="consent2">{{
                 consentTeaser2
               }}</label>
-              &nbsp;
               <span *ngIf="consentText2 && consentText2.length > 0">
                 <small
                   *ngIf="!consentText2Shown"
@@ -321,7 +345,7 @@
               </span>
               <div *ngIf="consentText2Shown" [innerHTML]="consentText2"></div>
             </div>
-            <div>
+            <div class="form-group">
               <input
                 class="form-check-input"
                 id="rememberMe"

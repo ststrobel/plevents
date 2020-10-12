@@ -13,6 +13,7 @@ import { RegistrationComponent } from './components/registration/registration.co
 import { TenantRegistrationComponent } from './components/tenant-registration/tenant-registration.component';
 import { ImprintComponent } from './components/imprint/imprint.component';
 import { ProfileComponent } from './components/profile/profile.component';
+import { LegalComponent } from './components/legal/legal.component';
 
 const routes: Routes = [
   {
@@ -30,6 +31,10 @@ const routes: Routes = [
   {
     path: 'impressum',
     component: ImprintComponent,
+  },
+  {
+    path: 'rechtliches',
+    component: LegalComponent,
   },
   {
     path: 'profil',
