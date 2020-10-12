@@ -1,60 +1,65 @@
-import { LoginComponent } from "./components/login/login.component";
-import { DashboardComponent } from "./components/dashboard/dashboard.component";
-import { BasicAuthInterceptor } from "./helpers/basic-auth.interceptor";
-import { ErrorInterceptor } from "./helpers/error.interceptor";
-import { AuthGuard } from "./helpers/auth.guard";
-import { EventsComponent } from "./components/events/events.component";
-import { Routes, RouterModule } from "@angular/router";
-import { NgModule } from "@angular/core";
-import { HTTP_INTERCEPTORS } from "@angular/common/http";
-import { TenantComponent } from "./components/tenant/tenant.component";
-import { ErrorComponent } from "./components/error/error.component";
-import { RegistrationComponent } from "./components/registration/registration.component";
-import { TenantRegistrationComponent } from "./components/tenant-registration/tenant-registration.component";
+import { LoginComponent } from './components/login/login.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { BasicAuthInterceptor } from './helpers/basic-auth.interceptor';
+import { ErrorInterceptor } from './helpers/error.interceptor';
+import { AuthGuard } from './helpers/auth.guard';
+import { EventsComponent } from './components/events/events.component';
+import { Routes, RouterModule } from '@angular/router';
+import { NgModule } from '@angular/core';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { TenantComponent } from './components/tenant/tenant.component';
+import { ErrorComponent } from './components/error/error.component';
+import { RegistrationComponent } from './components/registration/registration.component';
+import { TenantRegistrationComponent } from './components/tenant-registration/tenant-registration.component';
+import { ImprintComponent } from './components/imprint/imprint.component';
 
 const routes: Routes = [
   {
-    path: "registrierung",
+    path: 'registrierung',
     component: TenantRegistrationComponent,
   },
   {
-    path: "fehler/:errortype",
+    path: 'fehler/:errortype',
     component: ErrorComponent,
   },
   {
-    path: ":tenantPath",
+    path: 'impressum',
+    component: ImprintComponent,
+  },
+  {
+    path: ':tenantPath',
     children: [
       {
-        path: "login",
+        path: 'login',
         component: LoginComponent,
       },
       {
-        path: "dashboard",
+        path: 'dashboard',
         component: DashboardComponent,
         canActivate: [AuthGuard],
       },
       {
-        path: "verwaltung",
+        path: 'verwaltung',
         component: TenantComponent,
         canActivate: [AuthGuard],
       },
       {
-        path: "events",
+        path: 'events',
         component: EventsComponent,
       },
       {
-        path: "registrierung",
+        path: 'registrierung',
         component: RegistrationComponent,
       },
       {
-        path: "**",
-        redirectTo: "events",
+        path: '**',
+        redirectTo: 'events',
       },
     ],
   },
   {
-    path: "**",
-    redirectTo: "registrierung",
+    path: '**',
+    redirectTo: 'registrierung',
   },
 ];
 
