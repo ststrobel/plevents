@@ -94,7 +94,7 @@ table {
     tr {
       height: 53px;
       td.currentCW {
-        background-color: $plevents-red;
+        background-color: var(--plevents-main-color);
         color: white;
       }
     }
@@ -103,8 +103,8 @@ table {
 
 .badge-cvjm {
   background-color: white;
-  border: 1px solid #ff0063;
-  color: #ff0063;
+  border: 1px solid var(--plevents-main-color);
+  color: var(--plevents-main-color);
 }
 
 .sg-hoverable-list-item {

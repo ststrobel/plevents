@@ -25,6 +25,7 @@ export class TenantController {
         tenant.consentText1 = req.body.consentText1;
         tenant.consentTeaser2 = req.body.consentTeaser2;
         tenant.consentText2 = req.body.consentText2;
+        tenant.color = req.body.color;
         await tenant.save();
         Log.write(tenant.id, null, `Tenant ${tenant.id} erstellt`);
         res.status(200).send(tenant);
@@ -83,6 +84,7 @@ export class TenantController {
           tenant.consentText1 = req.body.consentText1;
           tenant.consentTeaser2 = req.body.consentTeaser2;
           tenant.consentText2 = req.body.consentText2;
+          tenant.color = req.body.color;
           try {
             await tenant.save();
             res.status(200).send(tenant);

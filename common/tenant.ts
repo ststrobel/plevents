@@ -8,4 +8,5 @@ export interface TenantI {
   consentText1: string;
   consentTeaser2: string;
   consentText2: string;
+  color: string;
 }

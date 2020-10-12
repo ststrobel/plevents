@@ -27,6 +27,11 @@ body {
   height: 100%;
 }
 
+body {
+  --plevents-main-color: #ff004d;
+  --plevents-main-color-darkened: #d80041;
+}
+
 body app-root {
   display: flex;
   flex-flow: column;
@@ -40,7 +45,7 @@ h4,
 h5,
 h6 {
   text-align: center;
-  color: $plevents-red;
+  color: var(--plevents-main-color);
 }
 
 form div.invalid {
@@ -71,7 +76,7 @@ form div.invalid {
 }
 
 .dropdown-item.active {
-  background-color: #ff004d !important;
+  background-color: var(--plevents-main-color) !important;
 }
 
 // override for ngx-cookieconsent cookie button:

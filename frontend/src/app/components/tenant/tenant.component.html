@@ -46,7 +46,9 @@
       />
       <small>{{ currentLengthOf('consentTeaser1') }} / 1.000 Zeichen</small>
       <br />
-      <label for="consent">Einwilligungserklärung 1 Details</label>
+      <label style="margin-top: 25px" for="consent"
+        >Einwilligungserklärung 1 Details</label
+      >
       <br />
       <quill-editor
         formControlName="consentText1"
@@ -65,7 +67,9 @@
       />
       <small>{{ currentLengthOf('consentTeaser2') }} / 1.000 Zeichen</small>
       <br />
-      <label for="consent">Einwilligungserklärung 2 Details</label>
+      <label style="margin-top: 25px" for="consent"
+        >Einwilligungserklärung 2 Details</label
+      >
       <br />
       <quill-editor
         formControlName="consentText2"
@@ -108,6 +112,18 @@
           {{ logoValidationError }}
         </div>
       </div>
+    </div>
+    <div class="col-12 col-md-6">
+      Darstellungsfarbe<br />
+      <b
+        class="clickable"
+        [style.color]="color"
+        [cpPosition]="'bottom'"
+        [cpPositionOffset]="'50%'"
+        [cpPositionRelativeToArrow]="true"
+        [(colorPicker)]="color"
+        >Legen Sie hier Ihre persönliche Anwendungsfarbe fest</b
+      >
     </div>
     <div class="col-12 col-md-6">
       <label>Status</label>

@@ -23,11 +23,11 @@ table thead {
 }
 
 .consent-toggler {
-  color: #ff004d;
+  color: var(--plevents-main-color);
   cursor: pointer;
   text-decoration: underline;
   &:hover {
-    color: darken(#ff004d, 10%);
+    color: var(--plevents-main-color-darkened);
   }
 }
 
@@ -40,12 +40,12 @@ form div.row div label {
   @media (max-width: 575px) {
     padding: 5px 15px;
   }
-  border: 1px solid #ff004d;
-  color: #ff004d;
+  border: 1px solid var(--plevents-main-color);
+  color: var(--plevents-main-color);
   text-align: center;
   cursor: pointer;
   &:hover {
-    background-color: #ff004d;
+    background-color: var(--plevents-main-color);
     color: white;
   }
 }
@@ -53,12 +53,12 @@ form div.row div label {
 .back-to-categories {
   padding: 5px 15px;
   margin-bottom: 5px;
-  border: 1px solid #ff004d;
-  color: #ff004d;
+  border: 1px solid var(--plevents-main-color);
+  color: var(--plevents-main-color);
   cursor: pointer;
   width: max-content;
   &:hover {
-    background-color: #ff004d;
+    background-color: var(--plevents-main-color);
     color: white;
   }
 }
