@@ -252,6 +252,29 @@
           </div>
           <div class="col-12 form-check sg-consent-boxes">
             <div
+              [ngClass]="{
+                invalid:
+                  registerForm.touched &&
+                  registerForm.get('dataprivacy').value === false
+              }"
+            >
+              <input
+                class="form-check-input"
+                id="dataprivacy"
+                type="checkbox"
+                formControlName="dataprivacy"
+                required
+              />
+              <label class="form-check-label" for="dataprivacy"
+                >Hiermit bestätige ich, dass ich die
+                <a href="/rechtliches#datenschutz" target="_blank"
+                  >Datenschutzbestimmungen</a
+                >
+                gelesen habe und diesen zustimme. Meine Daten werden nach
+                spätestens 4 Wochen automatisch gelöscht.</label
+              >
+            </div>
+            <div
               *ngIf="consentTeaser1 && consentTeaser1.length > 0"
               [ngClass]="{
                 invalid:
