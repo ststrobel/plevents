@@ -116,55 +116,60 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   loadAllEvents(tenant: Tenant): void {
-    this.eventService.getEvents(tenant.id).subscribe((events: Event[]) => {
-      this.weeks = new Array<Week>();
-      this.uniqueEvents = new Array<Event>();
-      this.allEvents = events;
-      this.uniqueEvents = Event.unique(this.allEvents);
-      const sortOrder = ['weekDay', 'time', 'name'];
-      this.uniqueEvents = sortBy(this.uniqueEvents, sortOrder);
-      // prepare the weeks, calculate the past 3 weeks until the end of the year:
-      const today = moment();
-      const weekNumberThreeWeeksAgo = today.clone().subtract(3, 'weeks').week();
-      const startOfWeekThreeWeeksAgo = today
-        .clone()
-        .startOf('week')
-        .subtract(3, 'weeks');
-      const endOfWeekThreeWeeksAgo = today
-        .clone()
-        .endOf('week')
-        .subtract(3, 'weeks');
-      for (let kw = today.week() - 3; kw <= 52; kw++) {
-        const week = new Week(kw);
-        const weekStart = startOfWeekThreeWeeksAgo
+    this.eventService
+      .getEvents(tenant.id, null, null, true)
+      .subscribe((events: Event[]) => {
+        this.weeks = new Array<Week>();
+        this.uniqueEvents = new Array<Event>();
+        this.allEvents = events;
+        this.uniqueEvents = Event.unique(this.allEvents);
+        const sortOrder = ['weekDay', 'time', 'name'];
+        this.uniqueEvents = sortBy(this.uniqueEvents, sortOrder);
+        // prepare the weeks, calculate the past 3 weeks until the end of the year:
+        const today = moment();
+        const weekNumberThreeWeeksAgo = today
           .clone()
-          .add(kw - weekNumberThreeWeeksAgo, 'weeks');
-        const weekEnd = endOfWeekThreeWeeksAgo
+          .subtract(3, 'weeks')
+          .week();
+        const startOfWeekThreeWeeksAgo = today
           .clone()
-          .add(kw - weekNumberThreeWeeksAgo, 'weeks');
-        // add all events for this week
-        const eventsInThisWeek = filter(events, (event: Event) => {
-          return moment(event.date).isBetween(
-            weekStart,
-            weekEnd,
-            undefined,
-            '[]'
-          );
-        });
-        // match the event instances in this week to their according event
-        // this is necessary in case in a specific week an event is not existent
-        week.events = new Array<Event>(this.uniqueEvents.length);
-        each(this.uniqueEvents, (uniqueEvent: Event, index: number) => {
-          week.events[index] = find(eventsInThisWeek, {
-            name: uniqueEvent.name,
-            weekDay: uniqueEvent.weekDay,
-            time: uniqueEvent.time,
-            categoryId: uniqueEvent.categoryId,
+          .startOf('week')
+          .subtract(3, 'weeks');
+        const endOfWeekThreeWeeksAgo = today
+          .clone()
+          .endOf('week')
+          .subtract(3, 'weeks');
+        for (let kw = today.week() - 3; kw <= 52; kw++) {
+          const week = new Week(kw);
+          const weekStart = startOfWeekThreeWeeksAgo
+            .clone()
+            .add(kw - weekNumberThreeWeeksAgo, 'weeks');
+          const weekEnd = endOfWeekThreeWeeksAgo
+            .clone()
+            .add(kw - weekNumberThreeWeeksAgo, 'weeks');
+          // add all events for this week
+          const eventsInThisWeek = filter(events, (event: Event) => {
+            return moment(event.date).isBetween(
+              weekStart,
+              weekEnd,
+              undefined,
+              '[]'
+            );
           });
-        });
-        this.weeks.push(week);
-      }
-    });
+          // match the event instances in this week to their according event
+          // this is necessary in case in a specific week an event is not existent
+          week.events = new Array<Event>(this.uniqueEvents.length);
+          each(this.uniqueEvents, (uniqueEvent: Event, index: number) => {
+            week.events[index] = find(eventsInThisWeek, {
+              name: uniqueEvent.name,
+              weekDay: uniqueEvent.weekDay,
+              time: uniqueEvent.time,
+              categoryId: uniqueEvent.categoryId,
+            });
+          });
+          this.weeks.push(week);
+        }
+      });
   }
 
   createNewEventForm(): void {

@@ -1,9 +1,11 @@
-<h2>Anmeldung zu Aktivität</h2>
+<h2 *ngIf="tenant && tenant.active">Anmeldung zu Aktivität</h2>
 <div
   *ngIf="
     !successfullyRegistered &&
     categoryOptions != null &&
-    selectedCategory === undefined
+    selectedCategory === undefined &&
+    tenant &&
+    tenant.active
   "
   class="row"
 >
@@ -375,10 +377,18 @@
   </div>
 </div>
 
-<div *ngIf="successfullyRegistered" class="alert alert-success successBox">
+<div *ngIf="successfullyRegistered" class="alert alert-success messageBox">
   Du hast dich erfolgreich zu <b>{{ selectedEvent.name }}</b> angemeldet!
   <br />
   <br />
   Bitte beachte, dass du dich nicht für weitere Events in dieser Woche anmelden
   kannst.
+</div>
+
+<div *ngIf="tenant && !tenant.active" class="alert alert-warning messageBox">
+  Der angefragte Account ist noch nicht freigeschaltet. Daher sind noch keine
+  Anmeldungen zu Aktivitäten möglich.
+  <br /><br />
+  Bitte kontaktieren Sie den Support, falls Sie der Administrator dieses
+  Accounts sind.
 </div>

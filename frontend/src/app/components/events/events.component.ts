@@ -37,6 +37,7 @@ export class EventsComponent implements OnInit, OnDestroy {
   consentText1Shown: boolean = false;
   consentText2Shown: boolean = false;
   tenantSubscription: Subscription;
+  tenant: Tenant = null;
 
   constructor(
     private eventService: EventService,
@@ -66,6 +67,7 @@ export class EventsComponent implements OnInit, OnDestroy {
     this.tenantSubscription = this.tenantService.currentTenant.subscribe(
       (tenant: Tenant) => {
         if (tenant) {
+          this.tenant = tenant;
           this.loadEvents();
           this.consentTeaser1 = tenant.consentTeaser1;
           this.consentText1 = tenant.consentText1;

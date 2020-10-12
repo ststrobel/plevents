@@ -26,7 +26,8 @@ export class EventService {
   getEvents(
     tenantId: string,
     start?: moment.Moment,
-    end?: moment.Moment
+    end?: moment.Moment,
+    privateEvents?: boolean
   ): Observable<Event[]> {
     const params: any = {};
     if (start) {
@@ -36,7 +37,12 @@ export class EventService {
       params.end = end.format('yyyy-MM-DD');
     }
     return this.http
-      .get(`${environment.apiUrl}/tenants/${tenantId}/events`, { params })
+      .get(
+        `${environment.apiUrl}${
+          privateEvents ? '/secure' : ''
+        }/tenants/${tenantId}/events`,
+        { params }
+      )
       .pipe(
         // Adapt the raw items
         map((data: any[]) => data.map(item => this.eventAdapter.adapt(item)))

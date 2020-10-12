@@ -109,6 +109,33 @@
         </div>
       </div>
     </div>
+    <div class="col-12 col-md-6">
+      <label>Status</label>
+      <div
+        class="alert alert-warning d-flex flex-row"
+        *ngIf="tenant && !tenant.active"
+      >
+        <div style="width: 30px">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div>
+          Dieser Account ist derzeit noch <b>nicht</b> freigeschaltet. Events
+          sind daher noch nicht öffentlich verfübar. Bitte kontaktieren Sie den
+          Support für Unterstützung.
+        </div>
+      </div>
+      <div
+        class="alert alert-success d-flex flex-row"
+        *ngIf="tenant && tenant.active"
+      >
+        <div style="width: 30px">
+          <i class="fas fa-check"></i>
+        </div>
+        <div>
+          Der Account ist aktiv. Teilnehmer können sich zu Events anmelden.
+        </div>
+      </div>
+    </div>
   </div>
   <div class="col-12 col-md-3 offset-md-9">
     <button
