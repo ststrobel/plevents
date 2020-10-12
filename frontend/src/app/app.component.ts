@@ -13,7 +13,6 @@ export class AppComponent implements OnInit {
   serverResult: '';
   receivedEmail: '';
   tenant: Tenant = null;
-  navbarLogo: string = 'assets/cvjm-triangles-flipped.png';
 
   constructor(
     private authenticationService: AuthenticationService,
@@ -26,9 +25,6 @@ export class AppComponent implements OnInit {
     this.tenantService.currentTenant.subscribe((tenant: Tenant) => {
       if (tenant) {
         this.tenant = tenant;
-        if (this.tenant.logo) {
-          this.navbarLogo = this.tenant.logo;
-        }
       }
     });
   }

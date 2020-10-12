@@ -4,7 +4,10 @@
     *ngIf="tenant"
     [routerLink]="[tenant.path, 'events']"
   >
-    <img [src]="navbarLogo" />
+    <img *ngIf="tenant.logo" [src]="tenant.logo" />
+    <div style="padding: 20px 40px; font-weight: bold" *ngIf="!tenant.logo">
+      Events
+    </div>
   </a>
   <div *ngIf="!isLoggedIn() || !tenant" style="flex: 100000000 1 auto"></div>
   <button
@@ -25,14 +28,6 @@
       *ngIf="tenant"
       [ngClass]="{ 'mr-auto': isLoggedIn(), 'ml-auto': !isLoggedIn() }"
     >
-      <li class="nav-item" *ngIf="!isLoggedIn()">
-        <a
-          class="nav-link"
-          [routerLink]="[tenant.path, 'login']"
-          routerLinkActive="active"
-          >Login</a
-        >
-      </li>
       <li class="nav-item" *ngIf="isLoggedIn()">
         <a
           class="nav-link"
@@ -61,6 +56,14 @@
           data-toggle="collapse"
           data-target="#navbarSupportedContent"
           >Verwaltung</a
+        >
+      </li>
+      <li class="nav-item" *ngIf="!isLoggedIn()">
+        <a
+          class="nav-link"
+          [routerLink]="[tenant.path, 'login']"
+          routerLinkActive="active"
+          >Login</a
         >
       </li>
     </ul>
