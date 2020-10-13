@@ -13,6 +13,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Category } from 'src/app/models/category';
 import { CategoryService } from 'src/app/services/category.service';
 import { Subscription } from 'rxjs';
+import { AppService } from 'src/app/services/app.service';
 
 @Component({
   selector: 'app-events',
@@ -44,7 +45,8 @@ export class EventsComponent implements OnInit, OnDestroy {
     private tenantService: TenantService,
     private route: ActivatedRoute,
     private router: Router,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private appService: AppService
   ) {}
 
   ngOnInit() {
@@ -64,7 +66,7 @@ export class EventsComponent implements OnInit, OnDestroy {
       );
     this.createRegisterForm();
     this.tenantService.load(this.route.snapshot.params.tenantPath);
-    this.tenantSubscription = this.tenantService.currentTenant.subscribe(
+    this.tenantSubscription = this.appService.tenant.subscribe(
       (tenant: Tenant) => {
         if (tenant) {
           this.tenant = tenant;
@@ -125,7 +127,7 @@ export class EventsComponent implements OnInit, OnDestroy {
     const start = today.clone(); //.startOf('week').add(1, 'week');
     const end = today.clone().endOf('week').add(1, 'week');
     this.eventService
-      .getEvents(this.tenantService.currentTenantValue.id, start, end)
+      .getEvents(this.appService.getCurrentTenant().id, start, end)
       .subscribe((events: Event[]) => {
         // filter out all events that are disabled
         this.eventsInTimeframe = filter(events, { disabled: false });

@@ -10,22 +10,37 @@ import { UserI } from '../../../../common/user';
 export class UserService {
   constructor(private http: HttpClient, private userAdapter: UserAdapter) {}
 
-  delete(userId: string): Observable<any> {
-    return this.http.delete(`${environment.apiUrl}/secure/users/${userId}`);
+  register(user: UserI): Observable<User> {
+    return this.http.post(`${environment.apiUrl}/profile`, user).pipe(
+      // Adapt the raw item
+      map(item => this.userAdapter.adapt(item))
+    );
   }
 
-  activate(userId: string): Observable<User> {
+  removeFromTenant(tenantId: string, userId: string): Observable<any> {
+    return this.http.delete(
+      `${environment.apiUrl}/secure/tenants/${tenantId}/users/${userId}`
+    );
+  }
+
+  activate(tenantId: string, userId: string): Observable<User> {
     return this.http
-      .put(`${environment.apiUrl}/secure/users/${userId}/active/true`, null)
+      .put(
+        `${environment.apiUrl}/secure/tenants/${tenantId}/users/${userId}/active/true`,
+        null
+      )
       .pipe(
         // Adapt the raw item
         map(item => this.userAdapter.adapt(item))
       );
   }
 
-  deactivate(userId: string): Observable<User> {
+  deactivate(tenantId: string, userId: string): Observable<User> {
     return this.http
-      .put(`${environment.apiUrl}/secure/users/${userId}/active/false`, null)
+      .put(
+        `${environment.apiUrl}/secure/tenants/${tenantId}/users/${userId}/active/false`,
+        null
+      )
       .pipe(
         // Adapt the raw item
         map(item => this.userAdapter.adapt(item))

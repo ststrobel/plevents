@@ -49,9 +49,14 @@
         ></span>
         Login
       </button>
-      <span *ngIf="tenant"
+      <span
         >noch kein Account?
-        <a routerLink="/{{ tenantPath() }}/registrierung"
+        <a
+          [routerLink]="
+            tenantPath()
+              ? ['/' + tenantPath(), 'nutzer-registrierung']
+              : ['/nutzer-registrierung']
+          "
           >Hier registrieren</a
         ></span
       >

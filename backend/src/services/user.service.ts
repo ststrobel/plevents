@@ -2,10 +2,11 @@ import { User } from '../models/user';
 import { Log } from '../models/log';
 import { Tenant } from '../models/tenant';
 import { getConnection } from 'typeorm';
+import { TenantRelation } from '../models/tenant-relation';
+import { map } from 'lodash';
 
 export class UserService {
   public static async createUser(
-    tenantId: string,
     email: string,
     name: string,
     password: string
@@ -21,7 +22,6 @@ export class UserService {
         newUser.email = email;
         newUser.name = name;
         newUser.password = password;
-        newUser.tenant = (await Tenant.findOneOrFail(tenantId)) as Tenant;
         return newUser.save();
       }
     } catch (e) {
@@ -41,7 +41,6 @@ export class UserService {
         .addSelect('user.password')
         .from(User, 'user')
         .where(`user.email = "${email}"`)
-        .leftJoinAndSelect('user.tenant', 'tenant')
         .getOne();
       if (existingUser) {
         // check if user is active or not
@@ -50,11 +49,7 @@ export class UserService {
           if (authResult) {
             return true;
           } else {
-            Log.write(
-              existingUser.tenant.id,
-              existingUser.id,
-              'Fehlgeschlagener Login-Versuch'
-            );
+            Log.write(null, existingUser.id, 'Fehlgeschlagener Login-Versuch');
             return false;
           }
         }
@@ -84,16 +79,20 @@ export class UserService {
   }
 
   /**
-   * get the tenant context of the currently logged-in user
+   * get all tenants of the currently logged-in user that he is an active admin for
    * @param request
    */
-  public static async currentTenant(request: any): Promise<Tenant> {
+  public static async tenantsOfRequestUser(request: any): Promise<Tenant[]> {
     try {
       // first get the current user, to then search for the corresponding tenant
-      const user = await User.findOne({
+      const user = await User.findOneOrFail({
         email: UserService.currentUser(request),
       });
-      return user.tenant;
+      const tenantRelations = await TenantRelation.find({
+        where: { userId: user.id, active: true },
+        relations: ['tenant'],
+      });
+      return map(tenantRelations, 'tenant');
     } catch (e) {
       throw e;
     }

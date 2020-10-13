@@ -4,6 +4,7 @@ import { User } from 'src/app/models/user';
 import { TenantService } from 'src/app/services/tenant.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthenticationService } from 'src/app/services/authentication.service';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-registration',
@@ -20,11 +21,14 @@ export class RegistrationComponent implements OnInit {
     private tenantService: TenantService,
     private route: ActivatedRoute,
     private authenticationService: AuthenticationService,
-    private router: Router
+    private router: Router,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
-    this.tenantService.load(this.route.snapshot.params.tenantPath);
+    if (this.route.snapshot.params.tenantPath) {
+      this.tenantService.load(this.route.snapshot.params.tenantPath);
+    }
     this.registrationForm = new FormGroup({
       email: new FormControl('', [Validators.required, Validators.email]),
       name: new FormControl('', Validators.required),
@@ -47,22 +51,18 @@ export class RegistrationComponent implements OnInit {
     const user = new User(this.registrationForm.get('email').value);
     user.name = this.registrationForm.get('name').value;
     user.password = this.registrationForm.get('password').value;
-    this.tenantService
-      .addUser(user, this.tenantService.currentTenantValue.id)
-      .subscribe((createdUser: User) => {
-        // if the user is active immediatly, log him in. else, show a notification
-        if (createdUser.active) {
-          this.authenticationService
-            .login(user.email, user.password)
-            .subscribe(data => {
-              this.router.navigate([
-                this.route.snapshot.params.tenantPath,
-                'dashboard',
-              ]);
-            });
-        } else {
-          this.success = true;
-        }
-      });
+    this.userService.register(user).subscribe(
+      () => {
+        this.success = true;
+        this.authenticationService
+          .login(user.email, user.password)
+          .subscribe(() => {
+            this.router.navigate(['profil']);
+          });
+      },
+      error => {
+        console.error(error);
+      }
+    );
   }
 }

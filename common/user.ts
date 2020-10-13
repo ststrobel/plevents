@@ -1,6 +1,8 @@
+import { TenantI } from './tenant';
+
 export interface UserI {
   id?: string;
-  tenantId?: string;
+  tenants?: TenantI[];
   email: string;
   name: string;
   password: string;

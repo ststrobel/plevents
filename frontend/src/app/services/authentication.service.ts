@@ -7,25 +7,19 @@ import { UserI } from '../../../../common/user';
 import { environment } from 'src/environments/environment';
 import { User } from '../models/user';
 import { TenantService } from './tenant.service';
+import { AppService } from './app.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthenticationService {
-  private userSubject: BehaviorSubject<UserI>;
-  public user: Observable<UserI>;
-
   constructor(
     private router: Router,
     private http: HttpClient,
-    private tenantService: TenantService
+    private tenantService: TenantService,
+    private appService: AppService
   ) {
-    this.userSubject = new BehaviorSubject<UserI>(
-      JSON.parse(localStorage.getItem('user'))
-    );
-    this.user = this.userSubject.asObservable();
-  }
-
-  public get userValue(): UserI {
-    return this.userSubject.value;
+    if (localStorage.getItem('user')) {
+      this.appService.setCurrentUser(JSON.parse(localStorage.getItem('user')));
+    }
   }
 
   login(email: string, password: string) {
@@ -57,22 +51,19 @@ export class AuthenticationService {
       }
       const updatedUserData = Object.assign(existingUserData, user);
       localStorage.setItem('user', JSON.stringify(updatedUserData));
-      this.userSubject.next(updatedUserData);
+      this.appService.setCurrentUser(updatedUserData);
     }
   }
 
   logout() {
     // remove user from local storage to log user out
     localStorage.removeItem('user');
-    this.userSubject.next(null);
+    this.appService.setCurrentUser(null);
     if (
-      this.tenantService.currentTenantValue &&
-      this.tenantService.currentTenantValue.path
+      this.appService.getCurrentTenant() &&
+      this.appService.getCurrentTenant().path
     ) {
-      this.router.navigate([
-        this.tenantService.currentTenantValue.path,
-        'login',
-      ]);
+      this.router.navigate([this.appService.getCurrentTenant().path, 'login']);
     } else {
       this.router.navigate(['login']);
     }

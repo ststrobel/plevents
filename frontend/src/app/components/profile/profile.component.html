@@ -91,23 +91,80 @@
 <hr />
 
 <h4>Accounts</h4>
-<p>
-  Die folgende Übersicht listet alle Accounts auf, denen Sie als Administrator
-  zugeordnet sind.
-</p>
-<ul class="list-group" *ngIf="tenants && tenants.length > 0">
+<div class="row">
+  <div class="col-12 col-md-8 col-lg-10">
+    <p>
+      Die folgende Übersicht listet alle Accounts auf, denen Sie als
+      Administrator zugeordnet sind.
+    </p>
+  </div>
+  <div class="col-12 col-md-4 col-lg-2">
+    <a
+      class="btn btn-block btn-sm btn-outline-success"
+      [routerLink]="['/account-registrierung']"
+    >
+      Neuen Account anlegen
+    </a>
+  </div>
+</div>
+
+<ul class="list-group" *ngIf="tenantRelations && tenantRelations.length > 0">
   <li
-    class="list-group-item sg-hoverable-list-item clickable"
-    *ngFor="let tenant of tenants"
-    [routerLink]="['/' + tenant.path, 'verwaltung']"
+    class="list-group-item sg-hoverable-list-item"
+    *ngFor="let tenantRelation of tenantRelations"
   >
-    {{ tenant.name }}
+    <i
+      class="fas fa-power-off mr-2"
+      [ngClass]="{
+        'text-success': tenantRelation.tenant.active,
+        'text-secondary': !tenantRelation.tenant.active
+      }"
+      title="{{
+        tenantRelation.tenant.active
+          ? 'Account ist aktiv'
+          : 'Account ist inaktiv'
+      }}"
+    ></i>
+    <a
+      *ngIf="tenantRelation.active"
+      [routerLink]="['/' + tenantRelation.tenant.path, 'verwaltung']"
+      >{{ tenantRelation.tenant.name }}<br /><small
+        >/{{ tenantRelation.tenant.path }}</small
+      ></a
+    >
+    <span *ngIf="!tenantRelation.active"
+      >{{ tenantRelation.tenant.name }}<br /><small
+        >/{{ tenantRelation.tenant.path }}</small
+      ></span
+    >
+    <button
+      class="float-right btn btn-sm ml-2 btn-outline-danger"
+      (click)="detach(tenantRelation)"
+    >
+      von Account trennen
+    </button>
+    <span
+      class="badge badge-warning mt-2 float-right"
+      *ngIf="!tenantRelation.active"
+    >
+      noch nicht zugelassen
+    </span>
+    <span
+      class="badge badge-success mt-2 float-right"
+      *ngIf="tenantRelation.active"
+    >
+      Administrator
+    </span>
   </li>
 </ul>
-<div class="alert alert-secondary" *ngIf="tenants && tenants.length === 0">
-  Sie sind noch keinem Account zugeordnet. Möchten Sie einen erstellen?
+<div
+  class="alert alert-secondary"
+  *ngIf="tenantRelations && tenantRelations.length === 0"
+>
+  Sie sind noch keinem Account zugeordnet. Möchten Sie einen
+  <a [routerLink]="['/account-registrierung']">neuen Account erstellen</a>?
 </div>
-<div class="alert alert-light" *ngIf="!tenants">
+<div class="alert alert-light" *ngIf="!tenantRelations">
   Accounts werden geladen ...
 </div>
 

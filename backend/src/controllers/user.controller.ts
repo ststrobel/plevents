@@ -1,93 +1,118 @@
 import * as express from 'express';
-import { Email } from '../models/email';
 import { User } from '../models/user';
 import { UserService } from '../services/user.service';
 import { Tenant } from '../models/tenant';
 import { Log } from '../models/log';
 import { getConnection } from 'typeorm';
+import tenantCorrelationHandler from '../handlers/tenant-correlation-handler';
+import { TenantRelation } from '../models/tenant-relation';
 
 export class UserController {
   public static register(app: express.Application): void {
     /*
      * update the active status of a user
      */
-    app.put('/secure/users/:id/active/:active', async (req, res) => {
-      // check if the user exists
-      const user = (await User.findOne(req.params.id)) as User;
-      if (user) {
-        // now check if the user tries to update himself - this is not allowed
-        if (user.email === UserService.currentUser(req)) {
-          res
-            .status(409)
-            .send({ error: 'It is not possible to update himself' });
-        } else {
-          // now check if the user to change belongs to the organization of the logged-in admin
-          if (user.tenant.id === (await UserService.currentTenant(req)).id) {
-            user.active = req.params.active === 'true';
-            user.save();
-            res.status(200).send(user);
+    app.put(
+      '/secure/tenants/:tenantId/users/:userId/active/:active',
+      tenantCorrelationHandler,
+      async (req, res) => {
+        // check if the user exists
+        const user = (await User.findOne(req.params.userId)) as User;
+        if (user) {
+          // now check if the user tries to update himself - this is not allowed
+          if (user.email === UserService.currentUser(req)) {
+            res
+              .status(409)
+              .send({ error: 'It is not possible to update himself' });
           } else {
-            res.status(403).send({
-              error:
-                'You are not permitted to update users of a different organization',
+            // now check if the user to change belongs to the organization of the logged-in admin
+            const relation = await TenantRelation.findOne({
+              userId: user.id,
+              tenantId: req.params.tenantId,
             });
+            if (relation) {
+              relation.active = req.params.active === 'true';
+              relation.save();
+              res.status(200).send(relation);
+            } else {
+              res.status(400).send({
+                error: 'No relation found',
+              });
+            }
           }
+        } else {
+          res.status(404).send({ error: 'User not found' });
         }
-      } else {
-        res.status(404).send({ error: 'User not found' });
       }
-    });
+    );
 
     /*
      * delete a user - this can be triggered by the user himself OR another admin of the same tenant
      */
-    app.delete('/secure/users/:id', async (req, res) => {
-      // check if the user exists
-      const user = (await User.findOne(req.params.id)) as User;
-      if (user) {
-        // now check if the user tries to delete himself
-        if (user.email === UserService.currentUser(req)) {
-          // this is only allowed if he/she is NOT the last admin of the tenant
-          const usersOfTenant = (await User.find({
-            where: { tenant: user.tenant },
-          })) as User[];
-          if (usersOfTenant.length === 1) {
-            res.status(409).send({
-              error:
-                'It is not possible to delete your account, as it is the last within the tenant',
+    app.delete(
+      '/secure/tenants/:tenantId/users/:userId',
+      tenantCorrelationHandler,
+      async (req, res) => {
+        // check if the user exists
+        const user = (await User.findOne(req.params.id)) as User;
+        if (user) {
+          // now check if the user tries to delete himself
+          if (user.email === UserService.currentUser(req)) {
+            // this is only allowed if he/she is NOT the last admin of the tenant
+            const usersOfTenantCount = await TenantRelation.count({
+              tenantId: req.params.tenantId,
+              active: true,
             });
+            if (usersOfTenantCount === 1) {
+              res.status(409).send({
+                error:
+                  'It is not possible to delete your account, as it is the last active within the tenant',
+              });
+            } else {
+              TenantRelation.delete({
+                tenantId: req.params.tenantId,
+                userId: req.params.userId,
+              });
+              res
+                .status(200)
+                .send({ message: 'You removed yourself from the account' });
+            }
           } else {
-            getConnection()
-              .createQueryBuilder()
-              .delete()
-              .from(User)
-              .where(`id = '${user.id}'`)
-              .execute();
-            res.status(200).send({ message: 'Account deleted' });
+            // now check if the user to change belongs to the organization of the logged-in admin
+            const relation = await TenantRelation.findOne({
+              tenantId: req.params.tenantId,
+              userId: req.params.userId,
+            });
+            if (relation) {
+              relation.remove();
+              res.status(200).send({ message: 'User removed from account' });
+            } else {
+              res.status(400).send({
+                error: 'No relation found',
+              });
+            }
           }
         } else {
-          // now check if the user to change belongs to the organization of the logged-in admin
-          const tenant = (await UserService.currentTenant(req)) as Tenant;
-          if (user.tenant === tenant) {
-            getConnection()
-              .createQueryBuilder()
-              .delete()
-              .from(User)
-              .where(`id = '${user.id}'`)
-              .execute();
-            const logMessage = `Nutzer ${user.id} (${user.email}) gelöscht`;
-            Log.write(tenant.id, UserService.currentUser(req), logMessage);
-            res.status(200).send({ message: 'Account deleted' });
-          } else {
-            res.status(403).send({
-              error:
-                'You are not permitted to update users of a different organization',
-            });
-          }
+          res.status(404).send({ error: 'User not found' });
         }
-      } else {
-        res.status(404).send({ error: 'User not found' });
       }
+    );
+
+    /*
+     * register a new private user account
+     */
+    app.post('/profile', async (req, res) => {
+      if ((await User.count({ where: { email: req.body.email } })) === 0) {
+        // create the user
+        await UserService.createUser(
+          req.body.email,
+          req.body.name,
+          req.body.password
+        );
+      } else {
+        // the user account already exists. do sth, like notify him by email
+      }
+      res.status(200).send({ message: 'User profile created' });
     });
 
     /*

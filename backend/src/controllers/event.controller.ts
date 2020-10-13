@@ -8,6 +8,7 @@ import { Log } from '../models/log';
 import { UserService } from '../services/user.service';
 import { getConnection } from 'typeorm';
 import { Tenant } from '../models/tenant';
+import tenantCorrelationHandler from '../handlers/tenant-correlation-handler';
 
 export class EventController {
   private static async handleGetEvents(req, res): Promise<void> {
@@ -56,63 +57,70 @@ export class EventController {
   }
 
   public static register(app: express.Application): void {
-    app.get('/tenants/:id/events', async (req, res) => {
+    app.get('/tenants/:tenantId/events', async (req, res) => {
       // check if the related tenant is active. if not, respond with an error:
-      const tenant = await Tenant.findOneOrFail(req.params.id);
+      const tenant = await Tenant.findOneOrFail(req.params.tenantId);
       if (!tenant.active) {
         return res.status(402).send({ error: 'Tenant not active' });
       }
       EventController.handleGetEvents(req, res);
     });
 
-    app.get('/secure/tenants/:id/events', async (req, res) => {
+    app.get('/secure/tenants/:tenantId/events', async (req, res) => {
       EventController.handleGetEvents(req, res);
     });
 
-    app.post('/secure/events', async (req, res) => {
-      const eventToCreate = <EventI>req.body;
-      const event = new Event();
-      event.name = eventToCreate.name;
-      event.date = eventToCreate.date;
-      event.categoryId = eventToCreate.categoryId;
-      event.maxSeats = eventToCreate.maxSeats;
-      event.tenantId = (await UserService.currentTenant(req)).id;
-      await event.save();
-      Log.write(
-        UserService.currentTenant(req),
-        UserService.currentUser(req),
-        `Event ${event.id} erstellt`
-      );
-      res.status(200).send(event);
-    });
-
-    app.get('/secure/events/:eventid/participants', async (req, res) => {
-      const event = await Event.findOneOrFail(req.params.eventid);
-      // now check if the logged-in user belongs to the tenant that the event belongs to
-      if (event.tenantId === (await UserService.currentTenant(req)).id) {
-        const participants = await Participant.find({
-          where: { eventId: req.params.eventid },
-        });
-        res.status(200).send(participants);
-      } else {
-        res
-          .status(403)
-          .send({ error: 'You are not authorized to delete this event' });
+    app.post(
+      '/secure/tenants/:tenantId/events',
+      tenantCorrelationHandler,
+      async (req, res) => {
+        const eventToCreate = <EventI>req.body;
+        const event = new Event();
+        event.name = eventToCreate.name;
+        event.date = eventToCreate.date;
+        event.categoryId = eventToCreate.categoryId;
+        event.maxSeats = eventToCreate.maxSeats;
+        event.tenantId = req.params.tenantId;
+        await event.save();
+        Log.write(
+          event.tenantId,
+          UserService.currentUser(req),
+          `Event ${event.id} erstellt`
+        );
+        res.status(200).send(event);
       }
-    });
+    );
 
-    app.delete(
-      '/secure/events/:eventid/participants/:participantid',
+    app.get(
+      '/secure/tenants/:tenantId/events/:eventid/participants',
+      tenantCorrelationHandler,
       async (req, res) => {
         const event = await Event.findOneOrFail(req.params.eventid);
         // now check if the logged-in user belongs to the tenant that the event belongs to
-        if (event.tenantId === (await UserService.currentTenant(req)).id) {
+        if (event.tenantId === req.params.tenantId) {
+          const participants = await Participant.find({
+            where: { eventId: req.params.eventid },
+          });
+          res.status(200).send(participants);
+        } else {
+          res.status(403).send({ error: 'Mismatch of tenant and event ID' });
+        }
+      }
+    );
+
+    app.delete(
+      '/secure/tenants/:tenantId/events/:eventid/participants/:participantid',
+      tenantCorrelationHandler,
+      async (req, res) => {
+        const event = await Event.findOneOrFail(req.params.eventid);
+        // now check if the logged-in user belongs to the tenant that the event belongs to
+        if (event.tenantId === req.params.tenantId) {
           const participant = await Participant.findOneOrFail(
             req.params.participantid
           );
           if (participant.eventId === event.id) {
             Log.write(
-              UserService.currentTenant(req),
+              req.params.tenantId,
               UserService.currentUser(req),
               `Teilnehmer mit ID ${participant.id} von Event ${event.id} gelöscht`
             );
@@ -124,82 +132,90 @@ export class EventController {
               .send({ error: 'Participant belongs to other event' });
           }
         } else {
-          res
-            .status(403)
-            .send({ error: 'You are not authorized to delete this event' });
+          res.status(403).send({ error: 'Mismatch of tenant and event ID' });
         }
       }
     );
 
-    app.put('/secure/events/:eventid', async (req, res) => {
-      const eventToUpdate = await Event.findOneOrFail(req.params.eventid);
-      eventToUpdate.name = req.body.name;
-      eventToUpdate.date = req.body.date;
-      eventToUpdate.categoryId = req.body.categoryId;
-      eventToUpdate.maxSeats = req.body.maxSeats;
-      await eventToUpdate.save();
-      Log.write(
-        UserService.currentTenant(req),
-        UserService.currentUser(req),
-        `Event ${eventToUpdate.id} aktualisiert`
-      );
-      res.status(200).send(eventToUpdate);
-    });
-
-    app.put('/secure/events/:id/disabled/:disabled', async (req, res) => {
-      const event = await Event.findOne(req.params.id);
-      if (event) {
-        // now check if the logged-in user belongs to the tenant that the event belongs to
-        if (event.tenantId === (await UserService.currentTenant(req)).id) {
-          event.disabled = req.params.disabled === 'true';
-          event.save();
-          Log.write(
-            UserService.currentTenant(req),
-            UserService.currentUser(req),
-            `Event ${req.params.id} wurde auf ${
-              event.disabled ? 'disabled' : 'enabled'
-            } gesetzt`
-          );
-          res.status(200).send(event);
-        } else {
-          res
-            .status(403)
-            .send({ error: 'You are not authorized to delete this event' });
-        }
-      } else {
-        res.status(404).send({ error: 'Event not found' });
+    app.put(
+      '/secure/tenants/:tenantId/events/:eventid',
+      tenantCorrelationHandler,
+      async (req, res) => {
+        const eventToUpdate = await Event.findOneOrFail(req.params.eventid);
+        eventToUpdate.name = req.body.name;
+        eventToUpdate.date = req.body.date;
+        eventToUpdate.categoryId = req.body.categoryId;
+        eventToUpdate.maxSeats = req.body.maxSeats;
+        await eventToUpdate.save();
+        Log.write(
+          req.params.tenantId,
+          UserService.currentUser(req),
+          `Event ${eventToUpdate.id} aktualisiert`
+        );
+        res.status(200).send(eventToUpdate);
       }
-    });
+    );
 
-    app.delete('/secure/events/:id', async (req, res) => {
-      // first check if the event exists at all
-      const eventToDelete = (await Event.findOne(req.params.id)) as Event;
-      if (eventToDelete) {
-        // now check if the logged-in user belongs to the tenant that the event belongs to
-        if (
-          eventToDelete.tenantId === (await UserService.currentTenant(req)).id
-        ) {
-          getConnection()
-            .createQueryBuilder()
-            .delete()
-            .from(Event)
-            .where(`id = '${req.params.id}'`)
-            .execute();
-          Log.write(
-            UserService.currentTenant(req),
-            UserService.currentUser(req),
-            `Event ${req.params.id} gelöscht`
-          );
-          res.status(200).send({ message: 'Event deleted' });
+    app.put(
+      '/secure/tenants/:tenantId/events/:id/disabled/:disabled',
+      tenantCorrelationHandler,
+      async (req, res) => {
+        const event = await Event.findOne(req.params.id);
+        if (event) {
+          // now check if the logged-in user belongs to the tenant that the event belongs to
+          if (event.tenantId === req.params.tenantId) {
+            event.disabled = req.params.disabled === 'true';
+            event.save();
+            Log.write(
+              req.params.tenantId,
+              UserService.currentUser(req),
+              `Event ${req.params.id} wurde auf ${
+                event.disabled ? 'disabled' : 'enabled'
+              } gesetzt`
+            );
+            res.status(200).send(event);
+          } else {
+            res
+              .status(403)
+              .send({ error: 'You Mismatch of tenant and event ID' });
+          }
         } else {
-          res
-            .status(403)
-            .send({ error: 'You are not authorized to delete this event' });
+          res.status(404).send({ error: 'Event not found' });
         }
-      } else {
-        res.status(404).send({ error: 'Event not found' });
       }
-    });
+    );
+
+    app.delete(
+      '/secure/tenants/:tenantId/events/:id',
+      tenantCorrelationHandler,
+      async (req, res) => {
+        // first check if the event exists at all
+        const eventToDelete = (await Event.findOne(req.params.id)) as Event;
+        if (eventToDelete) {
+          // now check if the logged-in user belongs to the tenant that the event belongs to
+          if (eventToDelete.tenantId === req.params.tenantId) {
+            getConnection()
+              .createQueryBuilder()
+              .delete()
+              .from(Event)
+              .where(`id = '${req.params.id}'`)
+              .execute();
+            Log.write(
+              req.params.tenantId,
+              UserService.currentUser(req),
+              `Event ${req.params.id} gelöscht`
+            );
+            res.status(200).send({ message: 'Event deleted' });
+          } else {
+            res
+              .status(403)
+              .send({ error: 'You are not authorized to delete this event' });
+          }
+        } else {
+          res.status(404).send({ error: 'Event not found' });
+        }
+      }
+    );
 
     app.post('/events/:id/participant', async (req, res) => {
       const newParticipant = <ParticipantI>req.body;

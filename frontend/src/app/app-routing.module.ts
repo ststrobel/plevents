@@ -14,6 +14,7 @@ import { TenantRegistrationComponent } from './components/tenant-registration/te
 import { ImprintComponent } from './components/imprint/imprint.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { LegalComponent } from './components/legal/legal.component';
+import { TenantGuard } from './helpers/tenant.guard';
 
 const routes: Routes = [
   {
@@ -21,8 +22,13 @@ const routes: Routes = [
     component: LoginComponent,
   },
   {
-    path: 'registrierung',
+    path: 'account-registrierung',
     component: TenantRegistrationComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'nutzer-registrierung',
+    component: RegistrationComponent,
   },
   {
     path: 'fehler/:errortype',
@@ -51,19 +57,19 @@ const routes: Routes = [
       {
         path: 'dashboard',
         component: DashboardComponent,
-        canActivate: [AuthGuard],
+        canActivate: [AuthGuard, TenantGuard],
       },
       {
         path: 'verwaltung',
         component: TenantComponent,
-        canActivate: [AuthGuard],
+        canActivate: [AuthGuard, TenantGuard],
       },
       {
         path: 'events',
         component: EventsComponent,
       },
       {
-        path: 'registrierung',
+        path: 'nutzer-registrierung',
         component: RegistrationComponent,
       },
       {
@@ -74,7 +80,7 @@ const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'registrierung',
+    redirectTo: 'login',
   },
 ];
 
