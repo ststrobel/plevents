@@ -203,11 +203,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     this.operationOngoing = true;
     // first - check if the category is new or existed previously:
-    const category = this.newEventSeriesForm.get('category').value;
+    const category = this.newEventSeriesForm.get('category').value as string;
     let existingCategory = find(
       this.categories,
       (existingCategory: Category) =>
-        existingCategory.name.toLowerCase() === category
+        existingCategory.name.toLowerCase() === category.toLowerCase()
     );
     let categoryObservable: Observable<Category>;
     if (existingCategory) {
@@ -261,11 +261,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     this.operationOngoing = true;
     // first - check if the category is new or existed previously:
-    const category = this.newSingleEventForm.get('category').value;
+    const category = this.newSingleEventForm.get('category').value as string;
     let existingCategory = find(
       this.categories,
       (existingCategory: Category) =>
-        existingCategory.name.toLowerCase() === category
+        existingCategory.name.toLowerCase() === category.toLowerCase()
     );
     let categoryObservable: Observable<Category>;
     if (existingCategory) {
@@ -333,7 +333,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
       });
       const observables = [];
       each(eventsToDelete, (event: Event) => {
-        observables.push(this.eventService.deleteEvent(event.id));
+        observables.push(
+          this.eventService.deleteEvent(this.tenant.id, event.id)
+        );
       });
       forkJoin(observables).subscribe(
         () => {
@@ -433,11 +435,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
       );
     });
     // first - check if the category is new or existed previously:
-    const category = this.editEventForm.get('category').value;
+    const category = this.editEventForm.get('category').value as string;
     let existingCategory = find(
       this.categories,
       (existingCategory: Category) =>
-        existingCategory.name.toLowerCase() === category
+        existingCategory.name.toLowerCase() === category.toLowerCase()
     );
     let categoryObservable: Observable<Category>;
     if (existingCategory) {

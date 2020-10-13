@@ -12,7 +12,7 @@ import { Tenant } from 'src/app/models/tenant';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Category } from 'src/app/models/category';
 import { CategoryService } from 'src/app/services/category.service';
-import { Subscription } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import { AppService } from 'src/app/services/app.service';
 
 @Component({
@@ -97,19 +97,6 @@ export class EventsComponent implements OnInit, OnDestroy {
           } else {
             this.registerForm.removeControl('consent2');
           }
-          this.categoryService
-            .getCategorys(tenant.path)
-            .subscribe(categories => {
-              this.categories = categories;
-              this.categoryOptions = new Array<string>();
-              this.categoryOptions.push(
-                ...filter(map(this.categories, 'name'))
-              );
-              // sort the values
-              this.categoryOptions = this.categoryOptions.sort();
-              // add 'alle' at the top
-              this.categoryOptions.unshift('alle');
-            });
         }
       }
     );
@@ -126,13 +113,39 @@ export class EventsComponent implements OnInit, OnDestroy {
     const today = moment();
     const start = today.clone(); //.startOf('week').add(1, 'week');
     const end = today.clone().endOf('week').add(1, 'week');
-    this.eventService
-      .getEvents(this.appService.getCurrentTenant().id, start, end)
-      .subscribe((events: Event[]) => {
-        // filter out all events that are disabled
-        this.eventsInTimeframe = filter(events, { disabled: false });
-        this.weeks = new Array<Week>(2);
+    const observables = [];
+    observables.push(
+      this.eventService.getEvents(
+        this.appService.getCurrentTenant().id,
+        start,
+        end
+      )
+    );
+    observables.push(this.categoryService.getCategorys(this.tenant.path));
+    forkJoin(observables).subscribe(results => {
+      /////////////////////////////////////////
+      const events = results[0] as Event[];
+      // filter out all events that are disabled
+      this.eventsInTimeframe = filter(events, { disabled: false });
+      this.weeks = new Array<Week>(2);
+      /////////////////////////////////////////
+      this.categories = results[1] as Category[];
+      // only consider categories that have at least one event present
+      this.categories = filter(this.categories, (category: Category) => {
+        return (
+          filter(
+            this.eventsInTimeframe,
+            event => event.categoryId === category.id
+          ).length > 0
+        );
       });
+      this.categoryOptions = new Array<string>();
+      this.categoryOptions.push(...filter(map(this.categories, 'name')));
+      // sort the values
+      this.categoryOptions = this.categoryOptions.sort();
+      // add 'alle' at the top
+      this.categoryOptions.unshift('alle');
+    });
   }
 
   selectCategory(category: Category): void {

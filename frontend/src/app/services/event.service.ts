@@ -58,15 +58,20 @@ export class EventService {
 
   updateEvent(event: Event): Observable<Event> {
     return this.http
-      .put(`${environment.apiUrl}/secure/events/${event.id}`, event)
+      .put(
+        `${environment.apiUrl}/secure/tenants/${event.tenantId}/events/${event.id}`,
+        event
+      )
       .pipe(
         // Adapt the raw items
         map(data => this.eventAdapter.adapt(data))
       );
   }
 
-  deleteEvent(id: string): Observable<any> {
-    return this.http.delete(`${environment.apiUrl}/secure/events/${id}`);
+  deleteEvent(tenantId: string, eventId: string): Observable<any> {
+    return this.http.delete(
+      `${environment.apiUrl}/secure/tenants/${tenantId}/events/${eventId}`
+    );
   }
 
   setDisabled(id: string, disabled: boolean): Observable<Event> {

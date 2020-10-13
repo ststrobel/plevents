@@ -17,7 +17,7 @@ export class EventController {
       .createQueryBuilder()
       .select('event')
       .from(Event, 'event')
-      .where(`tenantId = '${req.params.id}'`);
+      .where(`tenantId = '${req.params.tenantId}'`);
     // construct the where clause
     if (req.query.start) {
       query = query.andWhere(`date >= '${req.query.start}'`);

@@ -16,6 +16,7 @@ export class Event implements EventI {
   // time in seconds on that day
   time: number;
   disabled: boolean;
+  tenantId: string;
 
   downloadLink(): string {
     return `${environment.apiUrl}/secure/events/${this.id}/pdf`;
@@ -83,6 +84,7 @@ export class EventAdapter implements Adapter<Event> {
     event.maxSeats = item.maxSeats;
     event.takenSeats = item.takenSeats;
     event.disabled = item.disabled;
+    event.tenantId = item.tenantId;
     return event;
   }
 }
