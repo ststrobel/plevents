@@ -2,7 +2,6 @@ import { UserService } from '../services/user.service';
 import * as express from 'express';
 import { UserI } from '../../../common/user';
 import { Log } from '../models/log';
-import { userInfo } from 'os';
 import { User } from '../models/user';
 
 export class AuthController {
@@ -14,7 +13,6 @@ export class AuthController {
         try {
           const newUserData = <UserI>request.body;
           await UserService.createUser(
-            newUserData.tenantId,
             newUserData.email,
             newUserData.name,
             newUserData.password
@@ -38,11 +36,8 @@ export class AuthController {
             authRequest.password
           )
         ) {
-          const user = await User.findOne(
-            { email: authRequest.email },
-            { relations: ['tenant'] }
-          );
-          Log.write(user.tenant.id, user.id, `Erfolgreicher Login`);
+          const user = await User.findOne({ email: authRequest.email });
+          Log.write(null, user.id, `Erfolgreicher Login`);
           response.status(200).send(user);
         } else {
           let email = '"unbekannter Benutzer"';

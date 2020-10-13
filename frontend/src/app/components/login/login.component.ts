@@ -6,6 +6,7 @@ import { AuthenticationService } from 'src/app/services/authentication.service';
 import { TenantService } from 'src/app/services/tenant.service';
 import { Tenant } from 'src/app/models/tenant';
 import { HttpErrorResponse } from '@angular/common/http';
+import { AppService } from 'src/app/services/app.service';
 
 @Component({
   selector: 'app-login',
@@ -24,10 +25,11 @@ export class LoginComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private authenticationService: AuthenticationService,
-    private tenantService: TenantService
+    private tenantService: TenantService,
+    private appService: AppService
   ) {
     // redirect to home if already logged in
-    if (this.authenticationService.userValue) {
+    if (this.appService.getCurrentUser()) {
       this.router.navigate(['/']);
     }
   }
@@ -46,7 +48,7 @@ export class LoginComponent implements OnInit {
           }
         }
       );
-      this.tenantService.currentTenant.subscribe((tenant: Tenant) => {
+      this.appService.tenant.subscribe((tenant: Tenant) => {
         if (tenant) {
           this.tenant = tenant;
           // get return url from route parameters or default to '/'

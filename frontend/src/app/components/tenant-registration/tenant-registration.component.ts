@@ -4,6 +4,8 @@ import { TenantService } from 'src/app/services/tenant.service';
 import { Subscription } from 'rxjs';
 import { Tenant } from 'src/app/models/tenant';
 import { Router } from '@angular/router';
+import { TenantRelation } from 'src/app/models/tenant-relation';
+import { AppService } from 'src/app/services/app.service';
 
 @Component({
   selector: 'app-tenant-registration',
@@ -19,7 +21,11 @@ export class TenantRegistrationComponent implements OnInit {
     pathTaken: false,
   };
 
-  constructor(private tenantService: TenantService, private router: Router) {}
+  constructor(
+    private tenantService: TenantService,
+    private router: Router,
+    private appService: AppService
+  ) {}
 
   ngOnInit(): void {
     this.registrationForm = new FormGroup({
@@ -27,7 +33,7 @@ export class TenantRegistrationComponent implements OnInit {
       path: new FormControl('', [
         Validators.required,
         Validators.maxLength(40),
-        Validators.pattern('[a-z-]{0,40}'),
+        Validators.pattern('[a-z0-9-]{0,40}'),
       ]),
       agbCheck: new FormControl(false, Validators.required),
       dataPrivacyCheck: new FormControl(false, Validators.required),
@@ -58,7 +64,17 @@ export class TenantRegistrationComponent implements OnInit {
     const path = this.registrationForm.get('path').value;
     const tenantToCreate = new Tenant(name, path);
     this.tenantService.create(tenantToCreate).subscribe((tenant: Tenant) => {
-      this.router.navigate([tenant.path, 'registrierung']);
+      // the assignment was done on serverside already. go to the management view of the new tenant
+      const relation = new TenantRelation();
+      relation.user = this.appService.getCurrentUser();
+      relation.userId = this.appService.getCurrentUser().id;
+      relation.tenant = tenant;
+      relation.tenantId = tenant.id;
+      relation.active = true;
+      const relations = this.appService.getCurrentTenantRelations();
+      relations.push(relation);
+      this.appService.setCurrentTenantRelations(relations);
+      this.router.navigate([tenant.path, 'verwaltung']);
     });
   }
 

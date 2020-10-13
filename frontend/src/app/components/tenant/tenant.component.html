@@ -13,7 +13,10 @@
   <div>
     Dieser Account ist derzeit noch <b>nicht</b> freigeschaltet. Events sind
     daher noch nicht öffentlich verfübar. Bitte kontaktieren Sie den Support für
-    Unterstützung.
+    Unterstützung:
+    <a href="mailto:stefan.strobel@s4-consulting.de"
+      >stefan.strobel@s4-consulting.de</a
+    >
   </div>
 </div>
 <div
@@ -163,24 +166,51 @@
 <hr />
 
 <h4>Administratoren</h4>
-<div *ngFor="let user of users" class="row emailEntry">
+<button
+  *ngIf="!showInvitationForm"
+  class="btn btn-sm btn-outline-success mb-3"
+  (click)="showInvitationForm = true"
+>
+  Neuen Admin einladen
+</button>
+<form
+  *ngIf="showInvitationForm"
+  class="mb-3"
+  [formGroup]="inviteAdminForm"
+  (ngSubmit)="inviteNewAdmin()"
+>
+  <label for="inviteEmail">Email-Adresse des neuen Admins</label>
+  <input
+    class="form-control"
+    id="inviteEmail"
+    type="email"
+    placeholder="Bitte gültige Email-Adresse eingeben"
+    formControlName="email"
+  />
+</form>
+<div
+  *ngFor="let tenantUserRelation of tenantUserRelations"
+  class="row emailEntry"
+>
   <div class="col-8">
-    {{ user.name }}<br />
+    {{ tenantUserRelation.user.name }}<br />
     <small
-      ><a href="mailto:{{ user.email }}">{{ user.email }}</a></small
+      ><a href="mailto:{{ tenantUserRelation.user.email }}">{{
+        tenantUserRelation.user.email
+      }}</a></small
     >
   </div>
   <div class="col-4">
     <button
-      *ngIf="!user.active"
+      *ngIf="!tenantUserRelation.active"
       class="float-right btn btn-sm btn-success ml-2"
-      (click)="activate(user)"
+      (click)="activate(tenantUserRelation.user)"
     >
       Zulassen
     </button>
     <button
       class="float-right btn btn-sm btn-outline-danger"
-      (click)="delete(user)"
+      (click)="delete(tenantUserRelation.user)"
       [disabled]="operationOngoing"
     >
       Admin löschen

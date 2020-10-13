@@ -6,9 +6,7 @@ import {
   Entity,
   BeforeInsert,
   BeforeUpdate,
-  ManyToOne,
 } from 'typeorm';
-import { Tenant } from './tenant';
 const bcrypt = require('bcrypt');
 
 @Entity()
@@ -16,21 +14,13 @@ export class User extends BaseEntity implements UserI {
   @PrimaryGeneratedColumn('uuid')
   id: string;
   @Column()
-  active: boolean;
+  active: boolean = true;
   @Column()
   name: string;
-  @Column()
+  @Column({ unique: true })
   email: string;
   @Column({ select: false })
   password: string;
-  @ManyToOne(type => Tenant, {
-    cascade: true,
-    onDelete: 'CASCADE',
-    eager: true,
-  })
-  tenant: Tenant;
-  @Column()
-  tenantId: string;
 
   async validPassword(password: string): Promise<boolean> {
     return await bcrypt.compare(password, this.password);
@@ -50,9 +40,3 @@ export class User extends BaseEntity implements UserI {
     }
   }
 }
-/*
-User.prototype.toJSON = function () {
-  var values = Object.assign({}, this.get());
-  delete values.password;
-  return values;
-};*/

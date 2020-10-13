@@ -6,6 +6,9 @@ import { UserI } from '../../../common/user';
 import { User } from '../models/user';
 import { TenantI } from '../../../common/tenant';
 import { getConnection } from 'typeorm';
+import tenantCorrelationHandler from '../handlers/tenant-correlation-handler';
+import { TenantRelation } from '../models/tenant-relation';
+import { map } from 'lodash';
 
 export class TenantController {
   public static register(app: express.Application): void {
@@ -27,7 +30,20 @@ export class TenantController {
         tenant.consentText2 = req.body.consentText2;
         tenant.color = req.body.color;
         await tenant.save();
-        Log.write(tenant.id, null, `Tenant ${tenant.id} erstellt`);
+        // check if there is an auth header present. if so, it means that an existing user was creating a new organisation. therefore directly assign him as an active admin
+        const user = await User.findOne({
+          where: { email: UserService.currentUser(req) },
+        });
+        if (user) {
+          const relation = new TenantRelation();
+          relation.user = user;
+          relation.tenant = tenant;
+          relation.active = true;
+          relation.save();
+          Log.write(tenant.id, user.id, `Tenant ${tenant.id} erstellt`);
+        } else {
+          Log.write(tenant.id, null, `Tenant ${tenant.id} erstellt`);
+        }
         res.status(200).send(tenant);
       } else {
         res.status(404).send({ error: 'Tenant already exists' });
@@ -38,9 +54,14 @@ export class TenantController {
      * get all tenants for the currently logged-in user
      */
     app.get('/secure/tenants', async (req, res) => {
-      const tenants = new Array<Tenant>();
-      tenants.push(await UserService.currentTenant(req));
-      res.status(200).send(tenants);
+      const user = await User.findOneOrFail({
+        email: UserService.currentUser(req),
+      });
+      const tenantRelations = await TenantRelation.find({
+        where: { user },
+        relations: ['tenant'],
+      });
+      res.status(200).send(tenantRelations);
     });
 
     /*
@@ -72,125 +93,105 @@ export class TenantController {
     /*
      * update a tenant
      */
-    app.put('/secure/tenants/:id', async (req, res) => {
-      const tenant = await Tenant.findOne(req.params.id);
-      if (tenant) {
-        // check if the user is allowed to update this tenant's information:
-        if (tenant.id === (await UserService.currentTenant(req)).id) {
-          tenant.name = req.body.name;
-          tenant.path = req.body.path;
-          tenant.logo = req.body.logo;
-          tenant.consentTeaser1 = req.body.consentTeaser1;
-          tenant.consentText1 = req.body.consentText1;
-          tenant.consentTeaser2 = req.body.consentTeaser2;
-          tenant.consentText2 = req.body.consentText2;
-          tenant.color = req.body.color;
-          try {
-            await tenant.save();
-            res.status(200).send(tenant);
-          } catch (e) {
-            res.status(500).send({ error: 'Error saving tenant' });
-          }
-        } else {
-          res
-            .status(403)
-            .send({ message: 'You are not allowed to update this tenant' });
+    app.put(
+      '/secure/tenants/:tenantId',
+      tenantCorrelationHandler,
+      async (req, res) => {
+        const tenant = await Tenant.findOneOrFail(req.params.tenantId);
+        tenant.name = req.body.name;
+        tenant.path = req.body.path;
+        tenant.logo = req.body.logo;
+        tenant.consentTeaser1 = req.body.consentTeaser1;
+        tenant.consentText1 = req.body.consentText1;
+        tenant.consentTeaser2 = req.body.consentTeaser2;
+        tenant.consentText2 = req.body.consentText2;
+        tenant.color = req.body.color;
+        try {
+          await tenant.save();
+          res.status(200).send(tenant);
+        } catch (e) {
+          res.status(500).send({ error: 'Error saving tenant' });
         }
-      } else {
-        res.status(404).send({ error: 'Tenant not existing' });
       }
-    });
+    );
 
     /*
      * delete the tenant, including all its users and events (including their participants)
      */
-    app.delete('/secure/tenants/:id', async (request, res) => {
-      // first, check if the client is connected to the tenant he/she wants to delete:
-      const currentUser = await User.findOne({
-        email: UserService.currentUser(request),
-      });
-      // if the user does not belong to this tenant, deny the request
-      if (currentUser.tenant.id === request.params.id) {
+    app.delete(
+      '/secure/tenants/:tenantId',
+      tenantCorrelationHandler,
+      async (request, res) => {
+        // first, check if the client is connected to the tenant he/she wants to delete:
+        const currentUser = await User.findOne({
+          email: UserService.currentUser(request),
+        });
         getConnection()
           .createQueryBuilder()
           .delete()
           .from(Tenant)
-          .where(`id = '${request.params.id}'`)
+          .where(`id = '${request.params.tenantId}'`)
           .execute();
         Log.write(
-          currentUser.tenant.id,
+          request.params.tenantId,
           currentUser.id,
-          `Tenant ${request.params.id} gelöscht`
+          `Tenant ${request.params.tenantId} gelöscht`
         );
         res.status(200).send({ message: 'Tenant deleted' });
-      } else {
-        // user does not belong to this tenant. Prevent it from being deleted!
-        res
-          .status(403)
-          .send({ message: 'You are not allowed to delete this tenant' });
       }
-    });
+    );
 
     /*
-     * add a new user to the tenant using self-registration, this is public
+     * add a new user to the tenant using an email address
      */
-    app.post('/tenants/:id/users', async (request, response) => {
-      const newUser = <UserI>request.body;
-      // make sure user doesn't exist yet
-      const existingUser = await User.findOne({
-        where: { email: newUser.email },
-      });
-      if (!existingUser) {
-        // create the user
-        const createdUser = await UserService.createUser(
-          request.params.id,
-          newUser.email,
-          newUser.name,
-          newUser.password
-        );
-        // check if this is the first user on this tenant. if so, activate him immediatly:
-        delete createdUser.password;
-        const currentUserCount = await getConnection()
-          .createQueryBuilder()
-          .select('user')
-          .from(User, 'user')
-          .where('user.tenantId = "' + request.params.id + '"')
-          .getCount();
-        if (currentUserCount === 1) {
-          createdUser.active = true;
-          await createdUser.save();
+    app.post(
+      '/secure/tenants/:tenantId/users',
+      tenantCorrelationHandler,
+      async (request, response) => {
+        const existingUser = await User.findOne({
+          where: { email: request.body.email },
+        });
+        if (
+          !existingUser ||
+          (existingUser &&
+            (await TenantRelation.count({
+              where: { tenantId: request.params.tenantId, user: existingUser },
+            })) === 0)
+        ) {
+          // if the user exists, simply add him to the tenant. if not, invite him by email:
+          if (existingUser) {
+            // attach user directly
+            const relation = new TenantRelation();
+            relation.user = existingUser;
+            relation.tenantId = request.params.tenantId;
+            relation.active = true;
+            relation.save();
+            response.status(200).send({ message: 'User added to account' });
+          } else {
+            // send invitation email
+            // TODO
+          }
+        } else {
+          response
+            .status(409)
+            .send({ error: 'User already attached to this acount' });
         }
-        response.status(201).send(createdUser);
-      } else {
-        // a user already exists in the system, maybe for another tenant
-        response.status(409).send({ error: 'User already exists in system' });
       }
-    });
+    );
 
     /*
      * retrieve all users for a given tenant
      */
-    app.get('/secure/tenants/:id/users', async (request, response) => {
-      // first, check if the tenant exists
-      const tenantOfLoggedInUser = await Tenant.findOne({
-        id: (await UserService.currentTenant(request)).id,
-      });
-      if (tenantOfLoggedInUser) {
-        // if the user does not belong to this tenant, deny the request
-        if (tenantOfLoggedInUser.id === request.params.id) {
-          const users = await User.find({
-            tenant: tenantOfLoggedInUser,
-          });
-          response.status(200).send(users);
-        } else {
-          // user does not belong to this tenant. Prevent users showing to wrong audience
-          response.status(403).send({
-            message: 'You are not allowed to retrieve users for this tenant',
-          });
-        }
-      } else {
-        response.status(404).send({ message: 'Tenant not found' });
+    app.get(
+      '/secure/tenants/:tenantId/users',
+      tenantCorrelationHandler,
+      async (request, response) => {
+        const tenantRelations = await TenantRelation.find({
+          where: { tenantId: request.params.tenantId },
+          relations: ['user'],
+        });
+        response.status(200).send(tenantRelations);
       }
-    });
+    );
   }
 }

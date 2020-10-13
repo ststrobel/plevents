@@ -25,10 +25,9 @@
   <div id="navbarSupportedContent" class="collapse navbar-collapse">
     <ul
       class="navbar-nav mr-auto"
-      *ngIf="tenant"
       [ngClass]="{ 'mr-auto': isLoggedIn(), 'ml-auto': !isLoggedIn() }"
     >
-      <li class="nav-item" *ngIf="isLoggedIn()">
+      <li class="nav-item" *ngIf="tenant">
         <a
           class="nav-link"
           [routerLink]="[tenant.path, 'events']"
@@ -38,7 +37,7 @@
           >Events</a
         >
       </li>
-      <li class="nav-item" *ngIf="isLoggedIn()">
+      <li class="nav-item" *ngIf="isAdminOfCurrentTenant()">
         <a
           class="nav-link"
           [routerLink]="[tenant.path, 'dashboard']"
@@ -48,7 +47,7 @@
           >Dashboard</a
         >
       </li>
-      <li class="nav-item" *ngIf="isLoggedIn()">
+      <li class="nav-item" *ngIf="isAdminOfCurrentTenant()">
         <a
           class="nav-link"
           [routerLink]="[tenant.path, 'verwaltung']"
@@ -71,7 +70,7 @@
       <li class="nav-item" *ngIf="!isLoggedIn()">
         <a
           class="nav-link"
-          [routerLink]="[tenant.path, 'login']"
+          [routerLink]="tenant ? [tenant.path, 'login'] : ['login']"
           routerLinkActive="active"
           data-toggle="collapse"
           data-target="#navbarSupportedContent"

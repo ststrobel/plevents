@@ -4,33 +4,32 @@ import { Event } from '../models/event';
 import { Participant } from '../models/participant';
 import { UserService } from '../services/user.service';
 import { Log } from '../models/log';
+import tenantCorrelationHandler from '../handlers/tenant-correlation-handler';
 
 export class PdfController {
   public static register(app: express.Application): void {
-    app.get('/secure/events/:eventid/pdf', async (req, res, next) => {
-      try {
-        // check that the logged in user belongs to the org to see this data
-        const tenantOfLoggedInUser = await UserService.currentTenant(req);
-        const event = await Event.findOne(req.params.eventid);
-        if (event.tenantId === tenantOfLoggedInUser.id) {
+    app.get(
+      '/secure/tenants/:tenantId/events/:eventId/pdf',
+      tenantCorrelationHandler,
+      async (req, res, next) => {
+        try {
           Log.write(
-            UserService.currentTenant(req),
+            req.params.tenantId,
             UserService.currentUser(req),
-            `Zugriff auf Teilnehmerliste zu Event ${event.id}`
+            `Zugriff auf Teilnehmerliste zu Event ${req.params.eventId}`
           );
+          const event = await Event.findOneOrFail(req.params.eventId);
           const participants = await Participant.find({
             where: { eventId: event.id },
           });
           const binaryResult = await PdfService.generate(event, participants);
           res.contentType('application/pdf').send(binaryResult);
-        } else {
-          res.status(403).send({ message: `No access to this data` });
+        } catch (err) {
+          res
+            .status(500)
+            .send({ message: `Error generating PDF: ${err.message}` });
         }
-      } catch (err) {
-        res
-          .status(500)
-          .send({ message: `Error generating PDF: ${err.message}` });
       }
-    });
+    );
   }
 }

@@ -32,6 +32,7 @@ import {
   map as rxjsMap,
 } from 'rxjs/operators';
 import { Participant } from 'src/app/models/participant';
+import { AppService } from 'src/app/services/app.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -72,7 +73,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private categoryService: CategoryService,
-    private modalService: BsModalService
+    private modalService: BsModalService,
+    private appService: AppService
   ) {}
 
   ngOnInit() {
@@ -93,7 +95,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           }
         }
       );
-    this.tenantService.currentTenant.subscribe((tenant: Tenant) => {
+    this.appService.tenant.subscribe((tenant: Tenant) => {
       if (tenant && tenant != this.tenant) {
         this.tenant = tenant;
         this.loadAllEvents(tenant);
@@ -214,7 +216,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     } else {
       categoryObservable = this.categoryService.createCategory({
         name: category,
-        tenantId: this.tenantService.currentTenantValue.id,
+        tenantId: this.appService.getCurrentTenant().id,
       });
     }
     // continue only when a category is available
@@ -239,7 +241,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       forkJoin(observables).subscribe(
         () => {
           alert('Neue Eventserie angelegt');
-          this.loadAllEvents(this.tenantService.currentTenantValue);
+          this.loadAllEvents(this.appService.getCurrentTenant());
           this.operationOngoing = false;
           this.newEventSeriesFormShown = false;
         },
@@ -272,7 +274,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     } else {
       categoryObservable = this.categoryService.createCategory({
         name: category,
-        tenantId: this.tenantService.currentTenantValue.id,
+        tenantId: this.appService.getCurrentTenant().id,
       });
     }
     // continue only when a category is available
@@ -290,7 +292,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.eventService.createEvent(event).subscribe(
         () => {
           alert('Neues Einzelevent angelegt');
-          this.loadAllEvents(this.tenantService.currentTenantValue);
+          this.loadAllEvents(this.appService.getCurrentTenant());
           this.operationOngoing = false;
           this.newSingleEventFormShown = false;
         },
@@ -336,7 +338,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       forkJoin(observables).subscribe(
         () => {
           alert('Serienevent gelöscht');
-          this.loadAllEvents(this.tenantService.currentTenantValue);
+          this.loadAllEvents(this.appService.getCurrentTenant());
           this.operationOngoing = false;
         },
         error => {
@@ -444,7 +446,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     } else {
       categoryObservable = this.categoryService.createCategory({
         name: category,
-        tenantId: this.tenantService.currentTenantValue.id,
+        tenantId: this.appService.getCurrentTenant().id,
       });
     }
     // continue only when a category is available

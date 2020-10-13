@@ -4,12 +4,14 @@ import { User } from 'src/app/models/user';
 import { TenantService } from '../../services/tenant.service';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { clone, reject, findIndex } from 'lodash';
+import { clone, reject, findIndex, find } from 'lodash';
 import { UserService } from 'src/app/services/user.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DomSanitizer } from '@angular/platform-browser';
+import { TenantRelation } from 'src/app/models/tenant-relation';
+import { AppService } from 'src/app/services/app.service';
 
 @Component({
   selector: 'app-tenant',
@@ -18,7 +20,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 })
 export class TenantComponent implements OnInit, OnDestroy {
   tenant: Tenant = null;
-  users: User[] = new Array<User>();
+  tenantUserRelations: TenantRelation[] = new Array<TenantRelation>();
   tenantForm: FormGroup;
   logoValidationError: string = null;
   private tenantSubscription: Subscription;
@@ -27,6 +29,10 @@ export class TenantComponent implements OnInit, OnDestroy {
     pathTaken: false,
   };
   color: string;
+  showInvitationForm: boolean = false;
+  inviteAdminForm: FormGroup = new FormGroup({
+    email: new FormControl('', [Validators.required, Validators.email]),
+  });
 
   constructor(
     private authService: AuthenticationService,
@@ -34,7 +40,8 @@ export class TenantComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private route: ActivatedRoute,
     private router: Router,
-    private domSanitizer: DomSanitizer
+    private domSanitizer: DomSanitizer,
+    private appService: AppService
   ) {}
 
   ngOnInit(): void {
@@ -61,7 +68,7 @@ export class TenantComponent implements OnInit, OnDestroy {
       consentTeaser2: new FormControl('', Validators.maxLength(1000)),
       consentText2: new FormControl('', Validators.maxLength(10000)),
     });
-    this.tenantSubscription = this.tenantService.currentTenant.subscribe(
+    this.tenantSubscription = this.appService.tenant.subscribe(
       (tenant: Tenant) => {
         if (tenant && tenant !== this.tenant) {
           // load tenant details
@@ -84,9 +91,11 @@ export class TenantComponent implements OnInit, OnDestroy {
             this.color = this.tenant.color;
           });
           // load users for this tenant
-          this.tenantService.getUsers(tenant.id).subscribe((users: User[]) => {
-            this.users = users;
-          });
+          this.tenantService
+            .getUsers(tenant.id)
+            .subscribe((relations: TenantRelation[]) => {
+              this.tenantUserRelations = relations;
+            });
         }
       }
     );
@@ -107,11 +116,12 @@ export class TenantComponent implements OnInit, OnDestroy {
   }
 
   activate(user: User): void {
-    this.userService.activate(user.id).subscribe((activatedUser: User) => {
-      const index = findIndex(this.users, { id: user.id });
-      // Replace item at index using native splice
-      this.users.splice(index, 1, activatedUser);
-    });
+    this.userService
+      .activate(this.tenant.id, user.id)
+      .subscribe((activatedUser: User) => {
+        const index = findIndex(this.tenantUserRelations, { userId: user.id });
+        this.tenantUserRelations[index].active = true;
+      });
   }
 
   updateTenant(): void {
@@ -120,7 +130,6 @@ export class TenantComponent implements OnInit, OnDestroy {
       this.pathCheck.pathTaken ||
       this.logoValidationError
     ) {
-      console.log(this.tenantForm.errors);
       alert('Bitte alle Felder korrekt ausfüllen');
       this.tenantForm.markAllAsTouched();
       return;
@@ -150,6 +159,14 @@ export class TenantComponent implements OnInit, OnDestroy {
     const pathChanged = updatedTenant.path !== this.tenant.path;
     this.tenantService.update(updatedTenant).subscribe(
       (tenant: Tenant) => {
+        // update the tenant in the relations array
+        const relations = this.appService.getCurrentTenantRelations();
+        const relation = find(relations, { tenantId: tenant.id });
+        if (relation) {
+          relation.tenant = tenant;
+        }
+        this.appService.setCurrentTenantRelations(relations);
+        this.appService.setCurrentTenant(tenant);
         if (pathChanged) {
           // the path was changed, reload the page
           this.router.navigate([tenant.path, 'verwaltung']);
@@ -168,15 +185,18 @@ export class TenantComponent implements OnInit, OnDestroy {
   }
 
   delete(user: User): void {
-    if (confirm('Wirklich diesen Nutzer löschen?')) {
+    if (confirm('Wirklich diesen Nutzer entfernen?')) {
       this.operationOngoing = true;
-      this.userService.delete(user.id).subscribe(
+      this.userService.removeFromTenant(this.tenant.id, user.id).subscribe(
         () => {
-          this.users = reject(this.users, user);
+          this.tenantUserRelations = reject(this.tenantUserRelations, {
+            userId: user.id,
+          });
           this.operationOngoing = false;
-          // if the user deleted himself, log out explicitly:
-          if (user.id === this.authService.userValue.id) {
-            this.authService.logout();
+          // if the user removed himself, jump to the profile:
+          if (user.id === this.appService.getCurrentUser().id) {
+            this.tenantService.getAll().subscribe();
+            this.router.navigate(['/profil']);
           }
         },
         error => {
@@ -193,7 +213,10 @@ export class TenantComponent implements OnInit, OnDestroy {
       this.operationOngoing = true;
       this.tenantService.delete(this.tenant.id).subscribe(() => {
         alert('Account gelöscht!');
-        this.authService.logout();
+        // go to profile view
+        this.appService.setCurrentTenant(null);
+        this.tenantService.getAll().subscribe();
+        this.router.navigate(['/profil']);
       });
     }
   }
@@ -244,5 +267,30 @@ export class TenantComponent implements OnInit, OnDestroy {
    */
   selectNewLogo(): void {
     document.getElementById('logo_file_input').click();
+  }
+
+  inviteNewAdmin(): void {
+    if (this.inviteAdminForm.invalid) {
+      this.inviteAdminForm.markAllAsTouched();
+      return;
+    }
+    this.tenantService
+      .addUser(this.tenant.id, this.inviteAdminForm.get('email').value)
+      .subscribe(
+        () => {
+          // reload the user list, just in case
+          this.tenantService
+            .getUsers(this.tenant.id)
+            .subscribe((relations: TenantRelation[]) => {
+              this.tenantUserRelations = relations;
+            });
+          alert('Nutzer wurde eingeladen');
+          this.inviteAdminForm.reset();
+        },
+        error => {
+          console.error(error);
+          alert('Es trat ein Fehler auf');
+        }
+      );
   }
 }

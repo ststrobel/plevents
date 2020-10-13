@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { clone } from 'lodash';
+import { clone, reject } from 'lodash';
 import { Tenant } from 'src/app/models/tenant';
+import { TenantRelation } from 'src/app/models/tenant-relation';
 import { User } from 'src/app/models/user';
+import { AppService } from 'src/app/services/app.service';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { TenantService } from 'src/app/services/tenant.service';
 import { UserService } from 'src/app/services/user.service';
@@ -13,7 +15,7 @@ import { UserService } from 'src/app/services/user.service';
   styleUrls: ['./profile.component.scss'],
 })
 export class ProfileComponent implements OnInit {
-  tenants: Tenant[] = null;
+  tenantRelations: TenantRelation[] = null;
   user: User = null;
   nameForm: FormGroup = new FormGroup({
     name: new FormControl('', Validators.required),
@@ -29,7 +31,8 @@ export class ProfileComponent implements OnInit {
   constructor(
     private userService: UserService,
     private authService: AuthenticationService,
-    private tenantService: TenantService
+    private tenantService: TenantService,
+    private appService: AppService
   ) {}
 
   ngOnInit(): void {
@@ -40,9 +43,11 @@ export class ProfileComponent implements OnInit {
       this.nameForm.get('name').setValue(this.user.name);
       this.operationOngoing = false;
     });
-    this.tenantService.getAll().subscribe((tenants: Tenant[]) => {
-      this.tenants = tenants;
-    });
+    this.tenantService
+      .getAll()
+      .subscribe((tenantRelations: TenantRelation[]) => {
+        this.tenantRelations = tenantRelations;
+      });
   }
 
   isInvalid(formControlName: string): boolean {
@@ -110,6 +115,38 @@ export class ProfileComponent implements OnInit {
           this.operationOngoing = false;
         }
       );
+  }
+
+  detach(tenantRelation: TenantRelation): void {
+    if (confirm('Möchten Sie sich wirklich von diesem Account trennen?')) {
+      this.userService
+        .removeFromTenant(tenantRelation.tenantId, tenantRelation.userId)
+        .subscribe(
+          () => {
+            alert(
+              'Sie haben sich vom Account "' +
+                tenantRelation.tenant.name +
+                '" getrennt'
+            );
+            if (
+              this.appService.getCurrentTenant() &&
+              this.appService.getCurrentTenant().id === tenantRelation.tenantId
+            ) {
+              this.appService.setCurrentTenant(null);
+            }
+            this.tenantRelations = reject(this.tenantRelations, tenantRelation);
+          },
+          error => {
+            if (error === 'Conflict') {
+              alert(
+                'Sie sind der einzige Administrator für diesen Account und können sich daher nicht von ihm trennen'
+              );
+            } else {
+              alert('Es trat ein Fehler auf');
+            }
+          }
+        );
+    }
   }
 
   deleteProfile(): void {}

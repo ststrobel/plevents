@@ -3,27 +3,24 @@ import { HttpClient } from '@angular/common/http';
 import { map, tap } from 'rxjs/operators';
 import { TenantAdapter, Tenant } from '../models/tenant';
 import { UserAdapter, User } from '../models/user';
-import { Observable, BehaviorSubject, Subscription, of } from 'rxjs';
+import { Observable, Subscription, of } from 'rxjs';
 import { environment } from '../../environments/environment';
+import {
+  TenantRelation,
+  TenantRelationAdapter,
+} from '../models/tenant-relation';
+import { AppService } from './app.service';
 
 @Injectable({ providedIn: 'root' })
 export class TenantService {
-  private currentTenantSubject: BehaviorSubject<Tenant>;
-  public currentTenant: Observable<Tenant>;
   private checkPathSubscription: Subscription = null;
 
   constructor(
     private http: HttpClient,
     private tenantAdapter: TenantAdapter,
-    private userAdapter: UserAdapter
-  ) {
-    this.currentTenantSubject = new BehaviorSubject<Tenant>(null);
-    this.currentTenant = this.currentTenantSubject.asObservable();
-  }
-
-  public get currentTenantValue(): Tenant {
-    return this.currentTenantSubject.value;
-  }
+    private tenantRelationAdapter: TenantRelationAdapter,
+    private appService: AppService
+  ) {}
 
   /**
    * loads the tenant for the given path.
@@ -32,24 +29,24 @@ export class TenantService {
    */
   load(tenantPath: string) {
     if (
-      this.currentTenantValue &&
-      this.currentTenantValue.path === tenantPath
+      this.appService.getCurrentTenant() &&
+      this.appService.getCurrentTenant().path === tenantPath
     ) {
-      this.currentTenantSubject.next(this.currentTenantValue);
+      this.appService.setCurrentTenant(this.appService.getCurrentTenant());
     } else {
       // we must load the tenant from server-side
       this.getByPath(tenantPath).subscribe((tenant: Tenant) => {
-        this.currentTenantSubject.next(tenant);
+        this.appService.setCurrentTenant(tenant);
       });
     }
   }
 
   getByPath(tenantPath: string): Observable<Tenant> {
     if (
-      this.currentTenantValue &&
-      this.currentTenantValue.path === tenantPath
+      this.appService.getCurrentTenant() &&
+      this.appService.getCurrentTenant().path === tenantPath
     ) {
-      return of(this.currentTenantValue);
+      return of(this.appService.getCurrentTenant());
     } else {
       return this.http
         .get<User>(`${environment.apiUrl}/tenants/${tenantPath}`)
@@ -61,8 +58,11 @@ export class TenantService {
   }
 
   get(tenantId: string): Observable<Tenant> {
-    if (this.currentTenantValue && this.currentTenantValue.id === tenantId) {
-      return of(this.currentTenantValue);
+    if (
+      this.appService.getCurrentTenant() &&
+      this.appService.getCurrentTenant().id === tenantId
+    ) {
+      return of(this.appService.getCurrentTenant());
     } else {
       return this.http
         .get<User>(`${environment.apiUrl}/secure/tenants/${tenantId}`)
@@ -74,12 +74,17 @@ export class TenantService {
   }
 
   /**
-   * loads all tenants for the current user
+   * loads all tenant relationships for the current user
    */
-  getAll(): Observable<Tenant[]> {
+  getAll(): Observable<TenantRelation[]> {
     return this.http.get(`${environment.apiUrl}/secure/tenants`).pipe(
       // Adapt the raw item
-      map((data: any[]) => data.map(item => this.tenantAdapter.adapt(item)))
+      map((data: any[]) =>
+        data.map(item => this.tenantRelationAdapter.adapt(item))
+      ),
+      tap(tenantRelations => {
+        this.appService.setCurrentTenantRelations(tenantRelations);
+      })
     );
   }
 
@@ -90,8 +95,8 @@ export class TenantService {
         // Adapt the raw item
         map(item => this.tenantAdapter.adapt(item)),
         tap((tenant: Tenant) => {
-          if (tenant.id === this.currentTenantValue.id) {
-            this.currentTenantSubject.next(tenant);
+          if (tenant.id === this.appService.getCurrentTenant().id) {
+            this.appService.setCurrentTenant(tenant);
           }
         })
       );
@@ -108,22 +113,26 @@ export class TenantService {
     return this.http.delete(`${environment.apiUrl}/secure/tenants/${tenantId}`);
   }
 
-  getUsers(tenantId: string): Observable<User[]> {
+  getUsers(tenantId: string): Observable<TenantRelation[]> {
     return this.http
-      .get<User[]>(`${environment.apiUrl}/secure/tenants/${tenantId}/users`)
+      .get<TenantRelation[]>(
+        `${environment.apiUrl}/secure/tenants/${tenantId}/users`
+      )
       .pipe(
         // Adapt the raw items
-        map((data: any[]) => data.map(item => this.userAdapter.adapt(item)))
+        map((data: any[]) =>
+          data.map(item => this.tenantRelationAdapter.adapt(item))
+        )
       );
   }
 
-  addUser(user: User, tenantId: string): Observable<User> {
-    return this.http
-      .post<User[]>(`${environment.apiUrl}/tenants/${tenantId}/users`, user)
-      .pipe(
-        // Adapt the raw items
-        map(item => this.userAdapter.adapt(item))
-      );
+  addUser(tenantId: string, email: string): Observable<any> {
+    return this.http.post(
+      `${environment.apiUrl}/secure/tenants/${tenantId}/users`,
+      {
+        email,
+      }
+    );
   }
 
   /**

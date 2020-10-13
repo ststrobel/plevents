@@ -4,7 +4,8 @@ import * as moment from 'moment';
 import { TenantService } from './services/tenant.service';
 import { Tenant } from './models/tenant';
 import { User } from './models/user';
-import { NgcCookieConsentService } from 'ngx-cookieconsent';
+import { TenantRelation } from './models/tenant-relation';
+import { AppService } from './services/app.service';
 
 @Component({
   selector: 'app-root',
@@ -16,17 +17,18 @@ export class AppComponent implements OnInit {
   receivedEmail: '';
   tenant: Tenant = null;
   username: string = null;
+  tenantRelations: TenantRelation[];
 
   constructor(
     private authenticationService: AuthenticationService,
     private tenantService: TenantService,
-    private ccService: NgcCookieConsentService
+    private appService: AppService
   ) {
     moment.locale('de');
   }
 
   ngOnInit(): void {
-    this.tenantService.currentTenant.subscribe((tenant: Tenant) => {
+    this.appService.tenant.subscribe((tenant: Tenant) => {
       if (tenant) {
         this.tenant = tenant;
         // when a (potentially other) tenant is selected, check if a specific color is set. if so, modify the body variable to reflect the color (theme) change
@@ -37,27 +39,50 @@ export class AppComponent implements OnInit {
         }
       }
     });
-    this.authenticationService.user.subscribe((user: User) => {
+    this.appService.user.subscribe((user: User) => {
       if (user) {
         this.username = user.name;
         // if there is a user, load all related tenants for this user
-        this.tenantService.getAll().subscribe(tenants => {
-          if (tenants.length === 1) {
-            this.tenantService.load(tenants[0].path);
-          }
-        });
+        this.loadTenantRelations();
       } else {
         this.username = null;
       }
     });
-    this.ccService.initialize$.subscribe((event: any) => {
-      console.log(event);
-      // you can use this.ccService.getConfig() to do stuff...
+    this.appService.tenantRelations.subscribe(tenantRelations => {
+      this.tenantRelations = tenantRelations;
     });
   }
 
+  private loadTenantRelations(): void {
+    this.tenantService
+      .getAll()
+      .subscribe((tenantRelations: TenantRelation[]) => {
+        if (
+          tenantRelations.length === 1 &&
+          tenantRelations[0].active &&
+          (!this.tenant ||
+            (this.tenant &&
+              this.tenant.path !== tenantRelations[0].tenant.path))
+        ) {
+          this.tenantService.load(tenantRelations[0].tenant.path);
+        }
+      });
+  }
+
+  isAdminOfCurrentTenant(): boolean {
+    if (this.appService.getCurrentTenant() && this.tenantRelations) {
+      return (
+        this.tenantRelations.find(
+          tr =>
+            tr.tenantId === this.appService.getCurrentTenant().id && tr.active
+        ) !== undefined
+      );
+    }
+    return false;
+  }
+
   isLoggedIn(): boolean {
-    return this.authenticationService.userValue !== null;
+    return this.appService.getCurrentUser() !== null;
   }
 
   logout(): void {
