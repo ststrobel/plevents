@@ -10,7 +10,7 @@ export class PdfController {
   public static register(app: express.Application): void {
     app.get(
       '/secure/tenants/:tenantId/events/:eventId/pdf',
-      tenantCorrelationHandler,
+      tenantCorrelationHandler(),
       async (req, res, next) => {
         try {
           Log.write(

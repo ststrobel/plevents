@@ -37,7 +37,7 @@
           >Events</a
         >
       </li>
-      <li class="nav-item" *ngIf="isAdminOfCurrentTenant()">
+      <li class="nav-item" *ngIf="isMemberOfCurrentTenant()">
         <a
           class="nav-link"
           [routerLink]="[tenant.path, 'dashboard']"

@@ -192,7 +192,7 @@
   *ngFor="let tenantUserRelation of tenantUserRelations"
   class="row emailEntry"
 >
-  <div class="col-8">
+  <div class="col-12 col-md-8">
     {{ tenantUserRelation.user.name }}<br />
     <small
       ><a href="mailto:{{ tenantUserRelation.user.email }}">{{
@@ -200,7 +200,7 @@
       }}</a></small
     >
   </div>
-  <div class="col-4">
+  <div class="col-12 col-md-4">
     <button
       *ngIf="!tenantUserRelation.active"
       class="float-right btn btn-sm btn-success ml-2"
@@ -208,6 +208,34 @@
     >
       Zulassen
     </button>
+    <div class="dropdown" *ngIf="tenantUserRelation.active">
+      <button
+        class="btn btn-secondary dropdown-toggle"
+        type="button"
+        data-toggle="dropdown"
+      >
+        <span *ngIf="tenantUserRelation.role === ROLE.OWNER">Owner</span>
+        <span *ngIf="tenantUserRelation.role === ROLE.ADMIN">Admin</span>
+        <span *ngIf="tenantUserRelation.role === ROLE.MEMBER">Leiter</span>
+      </button>
+      <div class="dropdown-menu">
+        <a
+          class="dropdown-item clickable"
+          (click)="assignRole(tenantUserRelation, ROLE.OWNER)"
+          >Owner</a
+        >
+        <a
+          class="dropdown-item clickable"
+          (click)="assignRole(tenantUserRelation, ROLE.ADMIN)"
+          >Admin</a
+        >
+        <a
+          class="dropdown-item clickable"
+          (click)="assignRole(tenantUserRelation, ROLE.MEMBER)"
+          >Leiter</a
+        >
+      </div>
+    </div>
     <button
       class="float-right btn btn-sm btn-outline-danger"
       (click)="delete(tenantUserRelation.user)"

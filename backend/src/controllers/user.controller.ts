@@ -1,11 +1,9 @@
 import * as express from 'express';
 import { User } from '../models/user';
 import { UserService } from '../services/user.service';
-import { Tenant } from '../models/tenant';
-import { Log } from '../models/log';
-import { getConnection } from 'typeorm';
 import tenantCorrelationHandler from '../handlers/tenant-correlation-handler';
 import { TenantRelation } from '../models/tenant-relation';
+import { ROLE } from '../../../common/tenant-relation';
 
 export class UserController {
   public static register(app: express.Application): void {
@@ -14,7 +12,7 @@ export class UserController {
      */
     app.put(
       '/secure/tenants/:tenantId/users/:userId/active/:active',
-      tenantCorrelationHandler,
+      tenantCorrelationHandler(),
       async (req, res) => {
         // check if the user exists
         const user = (await User.findOne(req.params.userId)) as User;
@@ -47,11 +45,48 @@ export class UserController {
     );
 
     /*
+     * update the role of a user
+     */
+    app.put(
+      '/secure/tenants/:tenantId/users/:userId/role/:roleName',
+      tenantCorrelationHandler(ROLE.OWNER),
+      async (req, res) => {
+        // check if the user exists
+        const user = (await User.findOne(req.params.userId)) as User;
+        if (user) {
+          // now check if the user tries to update himself - this is not allowed
+          if (user.email === UserService.currentUser(req)) {
+            res
+              .status(409)
+              .send({ error: 'It is not possible to update yourself' });
+          } else {
+            // now check if the user to change belongs to the organization of the logged-in admin
+            const relation = await TenantRelation.findOne({
+              userId: user.id,
+              tenantId: req.params.tenantId,
+            });
+            if (relation) {
+              relation.role = req.params.roleName as ROLE;
+              relation.save();
+              res.status(200).send(relation);
+            } else {
+              res.status(400).send({
+                error: 'No relation found',
+              });
+            }
+          }
+        } else {
+          res.status(404).send({ error: 'User not found' });
+        }
+      }
+    );
+
+    /*
      * delete a user - this can be triggered by the user himself OR another admin of the same tenant
      */
     app.delete(
       '/secure/tenants/:tenantId/users/:userId',
-      tenantCorrelationHandler,
+      tenantCorrelationHandler(),
       async (req, res) => {
         // check if the user exists
         const user = (await User.findOne(req.params.id)) as User;
