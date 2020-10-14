@@ -11,6 +11,7 @@ import { find } from 'lodash';
 import { of } from 'rxjs';
 import { TenantService } from '../services/tenant.service';
 import { map } from 'rxjs/operators';
+import { ROLE } from '../../../../common/tenant-relation';
 
 @Injectable({ providedIn: 'root' })
 export class TenantGuard implements CanActivate {
@@ -46,17 +47,18 @@ export class TenantGuard implements CanActivate {
     route: ActivatedRouteSnapshot
   ): boolean {
     const tenantPath = route.params.tenantPath;
-    if (
-      find(tenantRelations, (tenantRelation: TenantRelation) => {
-        return (
-          tenantRelation.active && tenantRelation.tenant.path === tenantPath
-        );
-      })
-    ) {
-      // logged-in user is an admin for the tenant in the URL
+    const relation = find(tenantRelations, (tenantRelation: TenantRelation) => {
+      return tenantRelation.active && tenantRelation.tenant.path === tenantPath;
+    });
+    if (relation) {
+      const requiredRole = route.data.role as ROLE;
+      if (requiredRole) {
+        return relation.hasRole(requiredRole);
+      }
+      // no specific role required
       return true;
     }
-    // not allowed to edit the tenant - redirect user to the public events screen
+    // not an internal member of the tenant - redirect user to the public events screen
     this.router.navigate([route.params.tenantPath, 'events']);
     return false;
   }

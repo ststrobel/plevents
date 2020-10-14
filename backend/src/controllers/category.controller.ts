@@ -11,7 +11,7 @@ export class CategoryController {
     });
 
     app.delete('/secure/categories/:categoryId', async (req, res) => {
-      CategoryService.get().deleteCategory(req.params.id);
+      CategoryService.get().deleteCategory(req.params.categoryId);
       res.status(200).send({ message: 'Category deleted' });
     });
 
@@ -19,6 +19,14 @@ export class CategoryController {
       const categoryI = req.body as CategoryI;
       const category = await CategoryService.get().addCategory(categoryI);
       res.status(201).send(category);
+    });
+
+    app.put('/secure/categories/:categoryId', async (req, res) => {
+      const categoryI = req.body as CategoryI;
+      const updatedCategory = await CategoryService.get().updateCategory(
+        categoryI
+      );
+      res.status(200).send(updatedCategory);
     });
   }
 }

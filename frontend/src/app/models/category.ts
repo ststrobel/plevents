@@ -8,9 +8,11 @@ export class Category implements CategoryI {
   name: string;
 
   constructor(item?: any) {
-    this.id = item.id;
-    this.tenantId = item.tenantId;
-    this.name = item.name;
+    if (item) {
+      this.id = item.id;
+      this.tenantId = item.tenantId;
+      this.name = item.name;
+    }
   }
 }
 

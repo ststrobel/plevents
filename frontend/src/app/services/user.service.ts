@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { map } from 'rxjs/operators';
 import { UserI } from '../../../../common/user';
+import { ROLE } from '../../../../common/tenant-relation';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -21,6 +22,18 @@ export class UserService {
     return this.http.delete(
       `${environment.apiUrl}/secure/tenants/${tenantId}/users/${userId}`
     );
+  }
+
+  setRole(tenantId: string, userId: string, role: ROLE): Observable<User> {
+    return this.http
+      .put(
+        `${environment.apiUrl}/secure/tenants/${tenantId}/users/${userId}/role/${role}`,
+        null
+      )
+      .pipe(
+        // Adapt the raw item
+        map(item => this.userAdapter.adapt(item))
+      );
   }
 
   activate(tenantId: string, userId: string): Observable<User> {

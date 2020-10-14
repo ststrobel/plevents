@@ -12,6 +12,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DomSanitizer } from '@angular/platform-browser';
 import { TenantRelation } from 'src/app/models/tenant-relation';
 import { AppService } from 'src/app/services/app.service';
+import { ROLE } from '../../../../../common/tenant-relation';
 
 @Component({
   selector: 'app-tenant',
@@ -33,6 +34,7 @@ export class TenantComponent implements OnInit, OnDestroy {
   inviteAdminForm: FormGroup = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
   });
+  ROLE = ROLE;
 
   constructor(
     private authService: AuthenticationService,
@@ -41,7 +43,7 @@ export class TenantComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private domSanitizer: DomSanitizer,
-    private appService: AppService
+    public appService: AppService
   ) {}
 
   ngOnInit(): void {
@@ -292,5 +294,14 @@ export class TenantComponent implements OnInit, OnDestroy {
           alert('Es trat ein Fehler auf');
         }
       );
+  }
+
+  assignRole(relation: TenantRelation, role: ROLE): void {
+    relation.role = role;
+    this.userService
+      .setRole(relation.tenantId, relation.userId, role)
+      .subscribe(() => {
+        alert('Rolle zugewiesen');
+      });
   }
 }

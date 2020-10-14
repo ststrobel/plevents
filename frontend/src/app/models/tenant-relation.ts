@@ -1,4 +1,4 @@
-import { TenantRelationI } from '../../../../common/tenant-relation';
+import { ROLE, TenantRelationI } from '../../../../common/tenant-relation';
 import { Injectable } from '@angular/core';
 import { Adapter } from '../helpers/adapter';
 import { User, UserAdapter } from './user';
@@ -11,6 +11,25 @@ export class TenantRelation implements TenantRelationI {
   userId: string;
   tenant?: Tenant;
   tenantId: string;
+  role: ROLE;
+
+  isOwner(): boolean {
+    return this.role === ROLE.OWNER;
+  }
+
+  isAdmin(): boolean {
+    return this.role === ROLE.OWNER || this.role === ROLE.ADMIN;
+  }
+
+  isMember(): boolean {
+    return true;
+  }
+
+  hasRole(roleName: string): boolean {
+    if (this.role === ROLE.OWNER) return true;
+    if (this.role === ROLE.ADMIN && roleName !== ROLE.OWNER) return true;
+    return false;
+  }
 }
 
 @Injectable({
@@ -27,6 +46,7 @@ export class TenantRelationAdapter implements Adapter<TenantRelation> {
     relation.active = item.active;
     relation.userId = item.userId;
     relation.tenantId = item.tenantId;
+    relation.role = item.role;
     if (item.user) {
       relation.user = this.userAdapter.adapt(item.user);
     }

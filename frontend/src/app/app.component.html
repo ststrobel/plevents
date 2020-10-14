@@ -37,7 +37,7 @@
           >Events</a
         >
       </li>
-      <li class="nav-item" *ngIf="isAdminOfCurrentTenant()">
+      <li class="nav-item" *ngIf="isMemberOfCurrentTenant()">
         <a
           class="nav-link"
           [routerLink]="[tenant.path, 'dashboard']"
@@ -83,8 +83,8 @@
         username
       }}</u>
       <button
+        id="logout-button"
         class="btn btn-outline-danger my-2 my-sm-0 ml-3"
-        style="color: #dc3545"
         (click)="logout()"
       >
         Logout

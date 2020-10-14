@@ -103,10 +103,12 @@ export class TenantService {
   }
 
   create(tenant: Tenant): Observable<Tenant> {
-    return this.http.post<User>(`${environment.apiUrl}/tenants`, tenant).pipe(
-      // Adapt the raw item
-      map(item => this.tenantAdapter.adapt(item))
-    );
+    return this.http
+      .post<User>(`${environment.apiUrl}/secure/tenants`, tenant)
+      .pipe(
+        // Adapt the raw item
+        map(item => this.tenantAdapter.adapt(item))
+      );
   }
 
   delete(tenantId: string): Observable<any> {

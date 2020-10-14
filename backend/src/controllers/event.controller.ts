@@ -72,7 +72,7 @@ export class EventController {
 
     app.post(
       '/secure/tenants/:tenantId/events',
-      tenantCorrelationHandler,
+      tenantCorrelationHandler(),
       async (req, res) => {
         const eventToCreate = <EventI>req.body;
         const event = new Event();
@@ -93,7 +93,7 @@ export class EventController {
 
     app.get(
       '/secure/tenants/:tenantId/events/:eventid/participants',
-      tenantCorrelationHandler,
+      tenantCorrelationHandler(),
       async (req, res) => {
         const event = await Event.findOneOrFail(req.params.eventid);
         // now check if the logged-in user belongs to the tenant that the event belongs to
@@ -110,7 +110,7 @@ export class EventController {
 
     app.delete(
       '/secure/tenants/:tenantId/events/:eventid/participants/:participantid',
-      tenantCorrelationHandler,
+      tenantCorrelationHandler(),
       async (req, res) => {
         const event = await Event.findOneOrFail(req.params.eventid);
         // now check if the logged-in user belongs to the tenant that the event belongs to
@@ -139,7 +139,7 @@ export class EventController {
 
     app.put(
       '/secure/tenants/:tenantId/events/:eventid',
-      tenantCorrelationHandler,
+      tenantCorrelationHandler(),
       async (req, res) => {
         const eventToUpdate = await Event.findOneOrFail(req.params.eventid);
         eventToUpdate.name = req.body.name;
@@ -158,7 +158,7 @@ export class EventController {
 
     app.put(
       '/secure/tenants/:tenantId/events/:id/disabled/:disabled',
-      tenantCorrelationHandler,
+      tenantCorrelationHandler(),
       async (req, res) => {
         const event = await Event.findOne(req.params.id);
         if (event) {
@@ -187,7 +187,7 @@ export class EventController {
 
     app.delete(
       '/secure/tenants/:tenantId/events/:id',
-      tenantCorrelationHandler,
+      tenantCorrelationHandler(),
       async (req, res) => {
         // first check if the event exists at all
         const eventToDelete = (await Event.findOne(req.params.id)) as Event;

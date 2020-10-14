@@ -127,7 +127,10 @@
     ></i>
     <a
       *ngIf="tenantRelation.active"
-      [routerLink]="['/' + tenantRelation.tenant.path, 'verwaltung']"
+      [routerLink]="[
+        '/' + tenantRelation.tenant.path,
+        tenantRelation.isAdmin() ? 'verwaltung' : 'dashboard'
+      ]"
       >{{ tenantRelation.tenant.name }}<br /><small
         >/{{ tenantRelation.tenant.path }}</small
       ></a
@@ -150,10 +153,22 @@
       noch nicht zugelassen
     </span>
     <span
-      class="badge badge-success mt-2 float-right"
+      class="badge mt-2 float-right"
       *ngIf="tenantRelation.active"
+      [ngClass]="{
+        'badge-success': tenantRelation.isAdmin() && !tenantRelation.isOwner(),
+        'badge-primary': tenantRelation.isOwner(),
+        'badge-secondary':
+          !tenantRelation.isAdmin() && !tenantRelation.isOwner()
+      }"
     >
-      Administrator
+      <span *ngIf="tenantRelation.isOwner()">Owner</span>
+      <span *ngIf="tenantRelation.isAdmin() && !tenantRelation.isOwner()"
+        >Admin</span
+      >
+      <span *ngIf="!tenantRelation.isAdmin() && !tenantRelation.isOwner()"
+        >Leiter</span
+      >
     </span>
   </li>
 </ul>

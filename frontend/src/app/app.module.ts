@@ -27,6 +27,7 @@ import {
   NgcCookieConsentConfig,
 } from 'ngx-cookieconsent';
 import { environment } from 'src/environments/environment';
+import { CategoryManagementComponent } from './components/category-management/category-management.component';
 
 const cookieConfig: NgcCookieConsentConfig = {
   cookie: {
@@ -70,6 +71,7 @@ const cookieConfig: NgcCookieConsentConfig = {
     ImprintComponent,
     ProfileComponent,
     LegalComponent,
+    CategoryManagementComponent,
   ],
   imports: [
     BrowserModule,

@@ -6,6 +6,7 @@ import { Tenant } from './models/tenant';
 import { User } from './models/user';
 import { TenantRelation } from './models/tenant-relation';
 import { AppService } from './services/app.service';
+import { ROLE } from '../../../common/tenant-relation';
 
 @Component({
   selector: 'app-root',
@@ -69,14 +70,28 @@ export class AppComponent implements OnInit {
       });
   }
 
+  isOwnerOfCurrentTenant(): boolean {
+    return this.hasRole(ROLE.OWNER);
+  }
+
   isAdminOfCurrentTenant(): boolean {
+    return this.hasRole(ROLE.ADMIN);
+  }
+
+  isMemberOfCurrentTenant(): boolean {
+    return this.hasRole(ROLE.MEMBER);
+  }
+
+  private hasRole(role: ROLE): boolean {
     if (this.appService.getCurrentTenant() && this.tenantRelations) {
-      return (
-        this.tenantRelations.find(
-          tr =>
-            tr.tenantId === this.appService.getCurrentTenant().id && tr.active
-        ) !== undefined
+      const relation = this.tenantRelations.find(
+        tr => tr.tenantId === this.appService.getCurrentTenant().id && tr.active
       );
+      if (relation) {
+        if (role === ROLE.OWNER) return relation.isOwner();
+        if (role === ROLE.ADMIN) return relation.isAdmin();
+        if (role === ROLE.MEMBER) return relation.isMember();
+      }
     }
     return false;
   }
