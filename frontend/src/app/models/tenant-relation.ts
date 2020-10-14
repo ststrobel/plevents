@@ -24,6 +24,12 @@ export class TenantRelation implements TenantRelationI {
   isMember(): boolean {
     return true;
   }
+
+  hasRole(roleName: string): boolean {
+    if (this.role === ROLE.OWNER) return true;
+    if (this.role === ROLE.ADMIN && roleName !== ROLE.OWNER) return true;
+    return false;
+  }
 }
 
 @Injectable({

@@ -16,7 +16,10 @@
     >
   </div>
 </div>
-<div class="action-buttons-container">
+<div
+  class="action-buttons-container"
+  *ngIf="tenant && appService.hasRole(tenant.id, ROLE.ADMIN)"
+>
   <div></div>
   <button
     class="btn float-right btn-outline-success mb-3 ml-2"
@@ -73,21 +76,19 @@
         />
       </div>
       <div
+        *ngIf="categories && categories.length > 0"
         class="col-6 col-md-4"
-        [ngClass]="{ invalid: isInvalid(newEventSeriesForm.controls.category) }"
+        [ngClass]="{
+          invalid: isInvalid(newEventSeriesForm.controls.categoryId)
+        }"
       >
-        <label for="targetClass">Kategorie</label>
+        <label>Kategorie</label>
         <br />
-        <input
-          class="form-control"
-          id="targetClass"
-          type="text"
-          formControlName="category"
-          [ngbTypeahead]="search"
-          (focus)="focus$.next($any($event).target.value)"
-          (click)="click$.next($any($event).target.value)"
-          #instance="ngbTypeahead"
-        />
+        <select class="form-control" formControlName="categoryId">
+          <option *ngFor="let category of categories" [ngValue]="category.id">
+            {{ category.name }}
+          </option>
+        </select>
       </div>
       <div
         class="col-6 col-md-4"
@@ -169,21 +170,19 @@
         />
       </div>
       <div
+        *ngIf="categories && categories.length > 0"
         class="col-6 col-md-4"
-        [ngClass]="{ invalid: isInvalid(newSingleEventForm.controls.category) }"
+        [ngClass]="{
+          invalid: isInvalid(newSingleEventForm.controls.categoryId)
+        }"
       >
-        <label for="targetClass">Kategorie</label>
+        <label>Kategorie</label>
         <br />
-        <input
-          class="form-control"
-          id="targetClass"
-          type="text"
-          formControlName="category"
-          [ngbTypeahead]="search"
-          (focus)="focus$.next($any($event).target.value)"
-          (click)="click$.next($any($event).target.value)"
-          #instance="ngbTypeahead"
-        />
+        <select class="form-control" formControlName="categoryId">
+          <option *ngFor="let category of categories" [ngValue]="category.id">
+            {{ category.name }}
+          </option>
+        </select>
       </div>
       <div
         class="col-6 col-md-4"
@@ -242,6 +241,7 @@
             class="fas fa-edit"
             style="cursor: pointer"
             (click)="editSeriesEvent(uniqueEvent, editSeriesEventModal)"
+            *ngIf="appService.hasRole(tenant.id, ROLE.ADMIN)"
           ></i>
           <br />
           <span class="badge badge-cvjm">{{
@@ -293,7 +293,7 @@
           </div>
         </td>
       </tr>
-      <tr>
+      <tr *ngIf="appService.hasRole(tenant.id, ROLE.OWNER)">
         <td></td>
         <td *ngFor="let uniqueEvent of uniqueEvents; let i = index">
           <button
@@ -400,6 +400,7 @@
         class="btn btn-sm btn-block btn-outline-danger my-2"
         (click)="deleteEventSeries(i)"
         [disabled]="operationOngoing"
+        *ngIf="appService.hasRole(tenant.id, ROLE.OWNER)"
       >
         Eventserie löschen
       </button>
@@ -462,21 +463,17 @@
           </div>
         </div>
         <div
+          *ngIf="categories && categories.length > 0"
           class="col-12 form-group"
-          [ngClass]="{ invalid: isInvalid(editEventForm.controls.category) }"
+          [ngClass]="{ invalid: isInvalid(editEventForm.controls.categoryId) }"
         >
-          <label for="editEventCategory">Kategorie</label>
+          <label>Kategorie</label>
           <br />
-          <input
-            class="form-control"
-            id="editEventCategory"
-            type="text"
-            formControlName="category"
-            [ngbTypeahead]="search"
-            (focus)="focus$.next($any($event).target.value)"
-            (click)="click$.next($any($event).target.value)"
-            #instance="ngbTypeahead"
-          />
+          <select class="form-control" formControlName="categoryId">
+            <option *ngFor="let category of categories" [ngValue]="category.id">
+              {{ category.name }}
+            </option>
+          </select>
         </div>
         <div
           class="col-12 form-group"

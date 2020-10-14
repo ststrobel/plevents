@@ -43,7 +43,7 @@ export class TenantComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private domSanitizer: DomSanitizer,
-    private appService: AppService
+    public appService: AppService
   ) {}
 
   ngOnInit(): void {

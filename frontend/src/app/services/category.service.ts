@@ -10,7 +10,7 @@ import { CategoryI } from '../../../../common/category';
 export class CategoryService {
   constructor(private http: HttpClient, private adapter: CategoryAdapter) {}
 
-  getCategorys(tenantPath: string): Observable<Category[]> {
+  getCategories(tenantPath: string): Observable<Category[]> {
     return this.http
       .get(`${environment.apiUrl}/tenants/${tenantPath}/categories`)
       .pipe(
@@ -19,13 +19,22 @@ export class CategoryService {
       );
   }
 
-  deleteCategory(id: number): Observable<any> {
+  deleteCategory(id: string): Observable<any> {
     return this.http.delete(`${environment.apiUrl}/secure/categories/${id}`);
   }
 
   createCategory(category: CategoryI): Observable<Category> {
     return this.http
       .post(`${environment.apiUrl}/secure/categories`, category)
+      .pipe(
+        // Adapt the raw items
+        map((data: any) => this.adapter.adapt(data))
+      );
+  }
+
+  updateCategory(category: Category): Observable<Category> {
+    return this.http
+      .put(`${environment.apiUrl}/secure/categories/${category.id}`, category)
       .pipe(
         // Adapt the raw items
         map((data: any) => this.adapter.adapt(data))

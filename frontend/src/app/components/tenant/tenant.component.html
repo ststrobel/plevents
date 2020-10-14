@@ -165,87 +165,135 @@
 
 <hr />
 
-<h4>Administratoren</h4>
-<button
-  *ngIf="!showInvitationForm"
-  class="btn btn-sm btn-outline-success mb-3"
-  (click)="showInvitationForm = true"
->
-  Neuen Admin einladen
-</button>
-<form
-  *ngIf="showInvitationForm"
-  class="mb-3"
-  [formGroup]="inviteAdminForm"
-  (ngSubmit)="inviteNewAdmin()"
->
-  <label for="inviteEmail">Email-Adresse des neuen Admins</label>
-  <input
-    class="form-control"
-    id="inviteEmail"
-    type="email"
-    placeholder="Bitte gültige Email-Adresse eingeben"
-    formControlName="email"
-  />
-</form>
-<div
-  *ngFor="let tenantUserRelation of tenantUserRelations"
-  class="row emailEntry"
->
-  <div class="col-12 col-md-8">
-    {{ tenantUserRelation.user.name }}<br />
-    <small
-      ><a href="mailto:{{ tenantUserRelation.user.email }}">{{
-        tenantUserRelation.user.email
-      }}</a></small
-    >
+<div class="row">
+  <div
+    class="col-12 col-lg-6"
+    *ngIf="tenant && appService.hasRole(tenant.id, ROLE.ADMIN)"
+  >
+    <category-management [tenant]="tenant"></category-management>
   </div>
-  <div class="col-12 col-md-4">
-    <button
-      *ngIf="!tenantUserRelation.active"
-      class="float-right btn btn-sm btn-success ml-2"
-      (click)="activate(tenantUserRelation.user)"
+  <div class="col-12 col-lg-6">
+    <h4>Administratoren</h4>
+    <p>
+      Verwalten Sie die Mitglieder Ihres Accounts und vergeben Sie entsprechende
+      Rollen.
+    </p>
+    <div
+      *ngFor="let tenantUserRelation of tenantUserRelations"
+      class="row emailEntry"
     >
-      Zulassen
-    </button>
-    <div class="dropdown" *ngIf="tenantUserRelation.active">
-      <button
-        class="btn btn-secondary dropdown-toggle"
-        type="button"
-        data-toggle="dropdown"
-      >
-        <span *ngIf="tenantUserRelation.role === ROLE.OWNER">Owner</span>
-        <span *ngIf="tenantUserRelation.role === ROLE.ADMIN">Admin</span>
-        <span *ngIf="tenantUserRelation.role === ROLE.MEMBER">Leiter</span>
-      </button>
-      <div class="dropdown-menu">
-        <a
-          class="dropdown-item clickable"
-          (click)="assignRole(tenantUserRelation, ROLE.OWNER)"
-          >Owner</a
-        >
-        <a
-          class="dropdown-item clickable"
-          (click)="assignRole(tenantUserRelation, ROLE.ADMIN)"
-          >Admin</a
-        >
-        <a
-          class="dropdown-item clickable"
-          (click)="assignRole(tenantUserRelation, ROLE.MEMBER)"
-          >Leiter</a
+      <div class="col-12 col-md-8">
+        {{ tenantUserRelation.user.name }}<br />
+        <small
+          ><a href="mailto:{{ tenantUserRelation.user.email }}">{{
+            tenantUserRelation.user.email
+          }}</a></small
         >
       </div>
+      <div class="col-12 col-md-4">
+        <button
+          *ngIf="!tenantUserRelation.active"
+          class="float-right btn btn-sm btn-success ml-2"
+          (click)="activate(tenantUserRelation.user)"
+        >
+          Zulassen
+        </button>
+        <div
+          class="dropdown"
+          *ngIf="
+            tenantUserRelation.active &&
+            appService.hasRole(tenantUserRelation.tenantId, ROLE.OWNER)
+          "
+        >
+          <button
+            class="btn btn-secondary dropdown-toggle"
+            type="button"
+            data-toggle="dropdown"
+          >
+            <span *ngIf="tenantUserRelation.role === ROLE.OWNER">Owner</span>
+            <span *ngIf="tenantUserRelation.role === ROLE.ADMIN">Admin</span>
+            <span *ngIf="tenantUserRelation.role === ROLE.MEMBER">Leiter</span>
+          </button>
+          <div class="dropdown-menu">
+            <a
+              class="dropdown-item clickable"
+              (click)="assignRole(tenantUserRelation, ROLE.OWNER)"
+              >Owner</a
+            >
+            <a
+              class="dropdown-item clickable"
+              (click)="assignRole(tenantUserRelation, ROLE.ADMIN)"
+              >Admin</a
+            >
+            <a
+              class="dropdown-item clickable"
+              (click)="assignRole(tenantUserRelation, ROLE.MEMBER)"
+              >Leiter</a
+            >
+          </div>
+        </div>
+        <span
+          class="badge"
+          *ngIf="
+            tenantUserRelation.active &&
+            !appService.hasRole(tenantUserRelation.tenantId, ROLE.OWNER)
+          "
+          [ngClass]="{
+            'badge-success':
+              tenantUserRelation.isAdmin() && !tenantUserRelation.isOwner(),
+            'badge-primary': tenantUserRelation.isOwner(),
+            'badge-secondary':
+              !tenantUserRelation.isAdmin() && !tenantUserRelation.isOwner()
+          }"
+        >
+          <span *ngIf="tenantUserRelation.isOwner()">Owner</span>
+          <span
+            *ngIf="
+              tenantUserRelation.isAdmin() && !tenantUserRelation.isOwner()
+            "
+            >Admin</span
+          >
+          <span
+            *ngIf="
+              !tenantUserRelation.isAdmin() && !tenantUserRelation.isOwner()
+            "
+            >Leiter</span
+          >
+        </span>
+        <button
+          class="float-right btn btn-sm btn-outline-danger"
+          (click)="delete(tenantUserRelation.user)"
+          [disabled]="operationOngoing"
+        >
+          Admin löschen
+        </button>
+      </div>
     </div>
+
     <button
-      class="float-right btn btn-sm btn-outline-danger"
-      (click)="delete(tenantUserRelation.user)"
-      [disabled]="operationOngoing"
+      *ngIf="!showInvitationForm"
+      class="btn btn-sm btn-outline-success mt-3"
+      (click)="showInvitationForm = true"
     >
-      Admin löschen
+      Neuen Admin einladen
     </button>
+    <form
+      *ngIf="showInvitationForm"
+      class="mt-3"
+      [formGroup]="inviteAdminForm"
+      (ngSubmit)="inviteNewAdmin()"
+    >
+      <label for="inviteEmail">Email-Adresse des neuen Admins</label>
+      <input
+        class="form-control"
+        id="inviteEmail"
+        type="email"
+        placeholder="Bitte gültige Email-Adresse eingeben"
+        formControlName="email"
+      />
+    </form>
   </div>
 </div>
-
 <hr />
 
 <h4>Löschung</h4>

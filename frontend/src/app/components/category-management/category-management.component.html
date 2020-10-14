@@ -1,0 +1,68 @@
+<div>
+  <h4>Kategorien</h4>
+  <p>Definieren Sie hier die Kategorien, denen Events zugeordnet werden.</p>
+  <form [formGroup]="categoryForm">
+    <ul class="list-group">
+      <li
+        class="list-group-item list-group-item-action"
+        *ngFor="let category of categories"
+      >
+        <div class="row">
+          <div class="col-8 col-md-9">
+            <span *ngIf="!isBeingEdited(category.id)">
+              {{ category.name }}
+            </span>
+            <input
+              *ngIf="isBeingEdited(category.id)"
+              class="form-control"
+              type="text"
+              [formControlName]="category.id"
+              [ngClass]="{
+                'is-invalid': categoryForm.controls[category.id].invalid
+              }"
+            />
+          </div>
+          <div class="col-4 col-md-3">
+            <i
+              *ngIf="!isBeingEdited(category.id)"
+              class="fas fa-edit clickable ml-2 float-right"
+              (click)="edit(category)"
+            ></i>
+            <i
+              *ngIf="!isBeingEdited(category.id)"
+              class="fas fa-trash-alt clickable ml-2 float-right text-danger"
+              (click)="deleteCategory(category)"
+            ></i>
+            <button
+              *ngIf="isBeingEdited(category.id)"
+              class="btn btn-block btn-outline-success"
+              (click)="save(category)"
+            >
+              Speichern
+            </button>
+          </div>
+        </div>
+      </li>
+      <li class="list-group-item list-group-item-action">
+        <div class="row">
+          <div class="col-8 col-md-9">
+            <input
+              class="form-control"
+              type="text"
+              formControlName="newCategory"
+              [ngClass]="{
+                'is-invalid': categoryForm.controls.newCategory.invalid
+              }"
+            />
+          </div>
+          <div class="col-4 col-md-3">
+            <button class="btn btn-block btn-outline-success" (click)="save()">
+              Hinzufügen
+            </button>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </form>
+  <hr class="d-lg-none" />
+</div>

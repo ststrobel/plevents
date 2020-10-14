@@ -121,7 +121,7 @@ export class EventsComponent implements OnInit, OnDestroy {
         end
       )
     );
-    observables.push(this.categoryService.getCategorys(this.tenant.path));
+    observables.push(this.categoryService.getCategories(this.tenant.path));
     forkJoin(observables).subscribe(results => {
       /////////////////////////////////////////
       const events = results[0] as Event[];

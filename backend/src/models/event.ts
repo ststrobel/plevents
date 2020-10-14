@@ -23,9 +23,9 @@ export class Event extends BaseEntity implements EventI {
   takenSeats: number;
   @Column()
   disabled: boolean;
-  @ManyToOne(type => Category)
+  @ManyToOne(type => Category, { nullable: true, onDelete: 'SET NULL' })
   category: Category;
-  @Column()
+  @Column({ nullable: true })
   categoryId: string;
   @ManyToOne(type => Tenant, { cascade: true, onDelete: 'CASCADE' })
   tenant: Tenant;

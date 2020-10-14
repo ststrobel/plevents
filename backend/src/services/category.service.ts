@@ -30,6 +30,12 @@ export class CategoryService {
     return await category.save();
   }
 
+  async updateCategory(category: CategoryI): Promise<Category> {
+    let categoryToUpdate = await Category.findOne(category.id);
+    categoryToUpdate.name = category.name;
+    return await categoryToUpdate.save();
+  }
+
   deleteCategory(categoryId: string): void {
     Category.delete(categoryId);
   }

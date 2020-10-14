@@ -15,6 +15,7 @@ import { ImprintComponent } from './components/imprint/imprint.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { LegalComponent } from './components/legal/legal.component';
 import { TenantGuard } from './helpers/tenant.guard';
+import { ROLE } from '../../../common/tenant-relation';
 
 const routes: Routes = [
   {
@@ -63,6 +64,7 @@ const routes: Routes = [
         path: 'verwaltung',
         component: TenantComponent,
         canActivate: [AuthGuard, TenantGuard],
+        data: { role: ROLE.ADMIN },
       },
       {
         path: 'events',

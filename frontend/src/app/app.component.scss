@@ -94,3 +94,10 @@ footer {
     }
   }
 }
+
+#logout-button {
+  color: #dc3545;
+  &:hover {
+    color: white;
+  }
+}

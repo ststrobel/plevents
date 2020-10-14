@@ -3,6 +3,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Tenant } from '../models/tenant';
 import { User } from '../models/user';
 import { TenantRelation } from '../models/tenant-relation';
+import { ROLE } from '../../../../common/tenant-relation';
+import { find } from 'lodash';
 
 @Injectable({ providedIn: 'root' })
 export class AppService {
@@ -48,5 +50,13 @@ export class AppService {
 
   getCurrentUser(): User {
     return this.userSubject.value;
+  }
+
+  hasRole(tenantId: string, role: ROLE): boolean {
+    if (this.getCurrentTenantRelations()) {
+      const relation = find(this.getCurrentTenantRelations(), { tenantId });
+      return relation && relation.hasRole(role);
+    }
+    return false;
   }
 }
