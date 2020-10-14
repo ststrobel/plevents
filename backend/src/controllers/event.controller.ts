@@ -24,6 +24,7 @@ export class EventController {
     }
     if (req.query.end) {
       query = query.andWhere(`date <= '${req.query.end}'`);
+      query = query.orWhere(`registrationOpenFrom <= now()`);
     }
     const allEvents = await query.getMany();
 
@@ -81,6 +82,8 @@ export class EventController {
         event.categoryId = eventToCreate.categoryId;
         event.maxSeats = eventToCreate.maxSeats;
         event.tenantId = req.params.tenantId;
+        event.singleOccurence = eventToCreate.singleOccurence;
+        event.registrationOpenFrom = eventToCreate.registrationOpenFrom;
         await event.save();
         Log.write(
           event.tenantId,
@@ -146,6 +149,7 @@ export class EventController {
         eventToUpdate.date = req.body.date;
         eventToUpdate.categoryId = req.body.categoryId;
         eventToUpdate.maxSeats = req.body.maxSeats;
+        eventToUpdate.registrationOpenFrom = req.body.registrationOpenFrom;
         await eventToUpdate.save();
         Log.write(
           req.params.tenantId,

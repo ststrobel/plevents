@@ -49,11 +49,13 @@ export class EventService {
       );
   }
 
-  createEvent(event: EventI): Observable<Event> {
-    return this.http.post(`${environment.apiUrl}/secure/events`, event).pipe(
-      // Adapt the raw items
-      map(data => this.eventAdapter.adapt(data))
-    );
+  createEvent(tenantId: string, event: EventI): Observable<Event> {
+    return this.http
+      .post(`${environment.apiUrl}/secure/tenants/${tenantId}/events`, event)
+      .pipe(
+        // Adapt the raw items
+        map(data => this.eventAdapter.adapt(data))
+      );
   }
 
   updateEvent(event: Event): Observable<Event> {

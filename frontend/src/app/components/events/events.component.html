@@ -32,15 +32,15 @@
     <i class="fas fa-chevron-left"></i>
     zurück zur Kategorie-Auswahl
   </div>
-  <p>
+  <span>
     Registriere dich bitte für eine der folgenden Aktivitäten in der Kategorie
     <span style="color: var(--plevents-main-color)">{{
       selectedCategory === null ? 'alle Events' : selectedCategory.name
     }}</span
     >:
-  </p>
+  </span>
   <!-- horizontal table -->
-  <table class="w-100 d-none d-lg-table">
+  <table class="w-100 d-none d-lg-table mt-3">
     <thead>
       <tr *ngIf="uniqueEvents">
         <th [ngStyle]="{ width: 100 / (uniqueEvents.length + 1) + '%' }">KW</th>
@@ -58,19 +58,13 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngIf="weeks[0] != null">
-        <td>{{ weeks[0].number }}<br />(diese Woche)</td>
-        <td *ngFor="let event of weeks[0].events">
-          <app-event-select
-            [event]="event"
-            (click)="selectEvent(event)"
-            [selected]="event === selectedEvent"
-          ></app-event-select>
+      <tr *ngFor="let week of weeks; index as i">
+        <td>
+          {{ week.number }}
+          <span *ngIf="i === 0"><br />(diese Woche)</span>
+          <span *ngIf="i === 1"><br />(nächste Woche)</span>
         </td>
-      </tr>
-      <tr *ngIf="weeks[1] != null">
-        <td>{{ weeks[1].number }}<br />(nächste Woche)</td>
-        <td *ngFor="let event of weeks[1].events">
+        <td *ngFor="let event of week.events">
           <app-event-select
             [event]="event"
             (click)="selectEvent(event)"
@@ -81,46 +75,80 @@
     </tbody>
   </table>
   <!-- vertical table -->
-  <table class="w-100 d-lg-none">
-    <thead>
-      <tr>
-        <th style="width: 30%"></th>
-        <th style="width: 35%" *ngIf="weeks[0] != null">
-          {{ weeks[0].number }}<br />(diese Woche)
-        </th>
-        <th style="width: 35%" *ngIf="weeks[1] != null">
-          {{ weeks[1].number }}<br />(nächste Woche)
-        </th>
-      </tr>
-    </thead>
-    <tbody *ngIf="uniqueEvents">
-      <tr *ngFor="let uniqueEvent of uniqueEvents; index as i">
-        <td>
-          {{ uniqueEvent.displayName() }}
-          <br />
-          <span class="badge badge-secondary">{{
-            uniqueEvent.displayTime()
-          }}</span>
-        </td>
-        <td>
-          <app-event-select
-            *ngIf="weeks[0].events[i]"
-            [event]="weeks[0].events[i]"
-            (click)="selectEvent(weeks[0].events[i])"
-            [selected]="weeks[0].events[i] === selectedEvent"
-          ></app-event-select>
-        </td>
-        <td>
-          <app-event-select
-            *ngIf="weeks[1].events[i]"
-            [event]="weeks[1].events[i]"
-            (click)="selectEvent(weeks[1].events[i])"
-            [selected]="weeks[1].events[i] === selectedEvent"
-          ></app-event-select>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div
+    *ngIf="uniqueEvents && recurringEvents(uniqueEvents).length > 0"
+    class="mt-3 d-lg-none"
+  >
+    <h5>Regelmäßige Aktivitäten</h5>
+    <table class="w-100">
+      <thead>
+        <tr>
+          <th style="width: 30%"></th>
+          <th style="width: 35%" *ngIf="weeks[0] != null">
+            {{ weeks[0].number }}<br />(diese Woche)
+          </th>
+          <th style="width: 35%" *ngIf="weeks[1] != null">
+            {{ weeks[1].number }}<br />(nächste Woche)
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let uniqueEvent of recurringEvents(uniqueEvents); index as i"
+        >
+          <td>
+            {{ uniqueEvent.displayName() }}
+            <br />
+            <span class="badge badge-secondary">{{
+              uniqueEvent.displayTime()
+            }}</span>
+          </td>
+          <td>
+            <app-event-select
+              *ngIf="weeks[0].events[i]"
+              [event]="weeks[0].events[i]"
+              (click)="selectEvent(weeks[0].events[i])"
+              [selected]="weeks[0].events[i] === selectedEvent"
+            ></app-event-select>
+          </td>
+          <td>
+            <app-event-select
+              *ngIf="weeks[1].events[i]"
+              [event]="weeks[1].events[i]"
+              (click)="selectEvent(weeks[1].events[i])"
+              [selected]="weeks[1].events[i] === selectedEvent"
+            ></app-event-select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div
+    *ngIf="uniqueEvents && singleEvents(uniqueEvents).length > 0"
+    class="mt-3 d-lg-none"
+  >
+    <h5>Einmalige Aktivitäten</h5>
+    <table class="w-100">
+      <tbody *ngIf="uniqueEvents">
+        <tr *ngFor="let singleEvent of singleEvents(uniqueEvents)">
+          <td>
+            {{ singleEvent.displayName() }}
+            <br />
+            <span class="badge badge-secondary">{{
+              singleEvent.displayTime()
+            }}</span>
+          </td>
+          <td>
+            <app-event-select
+              [event]="singleEvent"
+              (click)="selectEvent(singleEvent)"
+              [selected]="singleEvent === selectedEvent"
+            ></app-event-select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
   <div style="margin-top: 40px" *ngIf="selectedEvent">
     <div
@@ -151,7 +179,9 @@
       <p>
         für die Anmeldung zu
         <b>{{ selectedEvent.name }}</b> am
-        <b>{{ selectedEvent.displayDate() }}</b> um
+        <span *ngIf="!selectedEvent.singleOccurence"
+          ><b>{{ selectedEvent.displayDate() }}</b> um</span
+        >
         <b>{{ selectedEvent.displayTime(false) }} Uhr</b>:
       </p>
       <form [formGroup]="registerForm" (ngSubmit)="registerParticipant()">

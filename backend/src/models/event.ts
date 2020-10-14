@@ -22,6 +22,10 @@ export class Event extends BaseEntity implements EventI {
   @Column()
   takenSeats: number;
   @Column()
+  singleOccurence: boolean;
+  @Column({ nullable: true })
+  registrationOpenFrom: Date;
+  @Column()
   disabled: boolean;
   @ManyToOne(type => Category, {
     nullable: true,
