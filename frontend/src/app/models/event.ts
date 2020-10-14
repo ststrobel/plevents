@@ -17,6 +17,8 @@ export class Event implements EventI {
   time: number;
   disabled: boolean;
   tenantId: string;
+  singleOccurence: boolean;
+  registrationOpenFrom: Date;
 
   downloadLink(): string {
     return `${environment.apiUrl}/secure/events/${this.id}/pdf`;
@@ -28,6 +30,9 @@ export class Event implements EventI {
 
   displayTime(includeWeekDay: boolean = true): string {
     const m = moment(this.date);
+    if (this.singleOccurence) {
+      return m.format('DD.MM. (ddd) HH:mm');
+    }
     if (includeWeekDay) {
       return m.format('ddd HH:mm');
     }
@@ -85,6 +90,10 @@ export class EventAdapter implements Adapter<Event> {
     event.takenSeats = item.takenSeats;
     event.disabled = item.disabled;
     event.tenantId = item.tenantId;
+    event.singleOccurence = item.singleOccurence;
+    if (item.registrationOpenFrom) {
+      event.registrationOpenFrom = moment(item.registrationOpenFrom).toDate();
+    }
     return event;
   }
 }

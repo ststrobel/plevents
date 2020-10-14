@@ -73,6 +73,7 @@
           id="fromDate"
           type="date"
           formControlName="fromDate"
+          min="{{ today | date: 'yyyy-MM-dd' }}"
         />
       </div>
       <div
@@ -130,7 +131,7 @@
   </form>
 </div>
 
-<!-- form to create a new event series -->
+<!-- form to create a new single event -->
 <div class="newEventContainer" [hidden]="!newSingleEventFormShown">
   <h5>Daten für neues Einzelevent:</h5>
   <button
@@ -147,7 +148,7 @@
         class="col-12 col-md-4"
         [ngClass]="{ invalid: isInvalid(newSingleEventForm.controls.name) }"
       >
-        <label for="name">Event-Name</label>
+        <label for="name">Event-Name *</label>
         <br />
         <input
           class="form-control"
@@ -160,13 +161,14 @@
         class="col-6 col-md-4"
         [ngClass]="{ invalid: isInvalid(newSingleEventForm.controls.date) }"
       >
-        <label for="date">Termin</label>
+        <label for="date">Termin *</label>
         <br />
         <input
           class="form-control"
           id="date"
           type="date"
           formControlName="date"
+          min="{{ today | date: 'yyyy-MM-dd' }}"
         />
       </div>
       <div
@@ -188,7 +190,7 @@
         class="col-6 col-md-4"
         [ngClass]="{ invalid: isInvalid(newSingleEventForm.controls.time) }"
       >
-        <label for="name">Startzeit</label>
+        <label for="name">Startzeit *</label>
         <br />
         <input
           class="form-control"
@@ -201,13 +203,29 @@
         class="col-6 col-md-4"
         [ngClass]="{ invalid: isInvalid(newSingleEventForm.controls.maxSeats) }"
       >
-        <label for="maxSeats">max. Teilnehmer</label>
+        <label for="maxSeats">max. Teilnehmer *</label>
         <br />
         <input
           class="form-control"
           id="maxSeats"
           type="number"
           formControlName="maxSeats"
+        />
+      </div>
+      <div
+        class="col-6 col-md-4"
+        [ngClass]="{
+          invalid: isInvalid(newSingleEventForm.controls.registrationOpenFrom)
+        }"
+      >
+        <label for="registrationOpenFrom">Anmeldung möglich ab</label>
+        <br />
+        <input
+          class="form-control"
+          id="registrationOpenFrom"
+          type="date"
+          formControlName="registrationOpenFrom"
+          min="{{ today | date: 'yyyy-MM-dd' }}"
         />
       </div>
       <div class="col-12 col-md-4">
@@ -431,8 +449,11 @@
   <div class="modal-body">
     <p>
       Ändern Sie hier den Titel des Events, den Tag sowie die Uhrzeit beliebig
-      ab. Diese Änderung wirkt sich auf alle in der Zukunft liegenden Events
-      aus.
+      ab.
+      <span *ngIf="!eventBeingEdited.singleOccurence"
+        >Diese Änderung wirkt sich auf alle in der Zukunft liegenden Events
+        aus.</span
+      >
     </p>
     <form [formGroup]="editEventForm">
       <div class="row">
@@ -449,7 +470,10 @@
             formControlName="name"
           />
         </div>
-        <div class="col-12 form-group">
+        <div
+          class="col-12 form-group"
+          *ngIf="!eventBeingEdited.singleOccurence"
+        >
           <label>Wochentag</label>
           <br />
           <div class="btn-group w-100" btnRadioGroup formControlName="weekDay">
@@ -461,6 +485,17 @@
             <label class="btn btn-success" [btnRadio]="6">Sa</label>
             <label class="btn btn-success" [btnRadio]="7">So</label>
           </div>
+        </div>
+        <div class="col-12 form-group" *ngIf="eventBeingEdited.singleOccurence">
+          <label for="date">Datum</label>
+          <br />
+          <input
+            class="form-control"
+            id="date"
+            type="date"
+            formControlName="date"
+            min="{{ today | date: 'yyyy-MM-dd' }}"
+          />
         </div>
         <div
           *ngIf="categories && categories.length > 0"
@@ -499,6 +534,23 @@
             id="maxSeats"
             type="number"
             formControlName="maxSeats"
+          />
+        </div>
+        <div
+          *ngIf="eventBeingEdited.singleOccurence"
+          class="col-12 form-group"
+          [ngClass]="{
+            invalid: isInvalid(editEventForm.controls.registrationOpenFrom)
+          }"
+        >
+          <label for="registrationOpenFrom">Anmeldung möglich ab</label>
+          <br />
+          <input
+            class="form-control"
+            id="registrationOpenFrom"
+            type="date"
+            formControlName="registrationOpenFrom"
+            min="{{ today | date: 'yyyy-MM-dd' }}"
           />
         </div>
       </div>

@@ -44,14 +44,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
   eventBeingEdited: Event = null;
   editEventForm: FormGroup = new FormGroup({
     name: new FormControl('', Validators.required),
-    weekDay: new FormControl('', Validators.required),
+    date: new FormControl(null),
+    weekDay: new FormControl(''),
     time: new FormControl('', Validators.required),
     maxSeats: new FormControl('', Validators.required),
     categoryId: new FormControl(null),
+    registrationOpenFrom: new FormControl(null),
   });
   selectedEvent: Event = null;
   participants: Participant[] = null;
   ROLE = ROLE;
+  today = new Date();
 
   constructor(
     private eventService: EventService,
@@ -189,6 +192,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       date: new FormControl('', Validators.required),
       time: new FormControl('', Validators.required),
       maxSeats: new FormControl('', Validators.required),
+      registrationOpenFrom: new FormControl(null),
     });
   }
 
@@ -207,12 +211,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const observables = [];
     for (let cw = currentWeek; cw <= 52; cw++) {
       const event = new Event();
+      event.singleOccurence = false;
       event.name = this.newEventSeriesForm.get('name').value;
       event.categoryId = this.newEventSeriesForm.get('categoryId')
         .value as string;
       event.maxSeats = this.newEventSeriesForm.get('maxSeats').value;
       event.date = m.toDate();
-      observables.push(this.eventService.createEvent(event));
+      observables.push(this.eventService.createEvent(this.tenant.id, event));
       // add 1 week each
       m.add(1, 'weeks');
     }
@@ -241,14 +246,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const time = <string>this.newSingleEventForm.get('time').value;
     m.hours(parseInt(time.split(':')[0]));
     m.minutes(parseInt(time.split(':')[1]));
-    const currentWeek = m.week();
     const event = new Event();
+    event.singleOccurence = true;
     event.name = this.newSingleEventForm.get('name').value;
     event.categoryId = this.newSingleEventForm.get('categoryId')
       .value as string;
     event.maxSeats = this.newSingleEventForm.get('maxSeats').value;
     event.date = m.toDate();
-    this.eventService.createEvent(event).subscribe(
+    const startOfRegistration = moment(
+      this.newSingleEventForm.get('registrationOpenFrom').value
+    );
+    if (startOfRegistration) {
+      startOfRegistration.hours(0).minutes(0).seconds(0).milliseconds(0);
+      event.registrationOpenFrom = startOfRegistration.toDate();
+    }
+    this.eventService.createEvent(this.tenant.id, event).subscribe(
       () => {
         alert('Neues Einzelevent angelegt');
         this.loadAllEvents(this.appService.getCurrentTenant());
@@ -274,13 +286,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   deleteEventSeries(uniqueEventSeriesIndex: number): void {
+    const eventToDelete = this.uniqueEvents[uniqueEventSeriesIndex];
     if (
       confirm(
-        'Wollen Sie alle Events in dieser Spalte wirklich löschen? Alle Daten aller einzelnen Events gehen unwiderbringlich verloren!'
+        eventToDelete.singleOccurence
+          ? 'Wollen Sie wirklich dieses Event löschen? Alle Daten gehen unwiderbringlich verloren'
+          : 'Wollen Sie alle Events in dieser Spalte wirklich löschen? Alle Daten aller einzelnen Events gehen unwiderbringlich verloren!'
       )
     ) {
       this.operationOngoing = true;
-      const eventToDelete = this.uniqueEvents[uniqueEventSeriesIndex];
       // delete all event instances
       const eventsToDelete = filter(this.allEvents, (event: Event) => {
         return (
@@ -297,7 +311,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
       });
       forkJoin(observables).subscribe(
         () => {
-          alert('Serienevent gelöscht');
+          if (eventToDelete.singleOccurence) {
+            alert('Event gelöscht');
+          } else {
+            alert('Eventserie gelöscht');
+          }
           this.loadAllEvents(this.appService.getCurrentTenant());
           this.operationOngoing = false;
         },
@@ -340,16 +358,35 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.newSingleEventFormShown = false;
     this.modalRef = this.modalService.show(template);
     this.eventBeingEdited = uniqueEvent;
-    this.editEventForm.get('name').setValue(uniqueEvent.name);
-    this.editEventForm.get('weekDay').setValue(uniqueEvent.weekDay);
-    this.editEventForm.get('time').setValue(uniqueEvent.displayTime(false));
+    this.editEventForm.get('name').setValue(this.eventBeingEdited.name);
+    this.editEventForm.get('weekDay').setValue(this.eventBeingEdited.weekDay);
+    this.editEventForm
+      .get('date')
+      .setValue(moment(this.eventBeingEdited.date).format('yyyy-MM-DD'));
+    this.editEventForm
+      .get('time')
+      .setValue(moment(this.eventBeingEdited.date).format('HH:mm'));
     const optionalCategory = find(this.categories, {
-      id: uniqueEvent.categoryId,
+      id: this.eventBeingEdited.categoryId,
     });
     if (optionalCategory) {
       this.editEventForm.get('categoryId').setValue(optionalCategory.id);
     }
-    this.editEventForm.get('maxSeats').setValue(uniqueEvent.maxSeats);
+    this.editEventForm.get('maxSeats').setValue(this.eventBeingEdited.maxSeats);
+    if (this.eventBeingEdited.singleOccurence) {
+      this.editEventForm
+        .get('registrationOpenFrom')
+        .setValue(
+          moment(this.eventBeingEdited.registrationOpenFrom).format(
+            'yyyy-MM-DD'
+          )
+        );
+      this.editEventForm.get('date').setValidators(Validators.required);
+      this.editEventForm.get('weekDay').setValidators(null);
+    } else {
+      this.editEventForm.get('weekDay').setValidators(Validators.required);
+      this.editEventForm.get('date').setValidators(null);
+    }
   }
 
   updateEvents(): void {
@@ -358,15 +395,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
       return;
     }
     // first of all determine all events that are in the future for the instance being edited
-    const eventsToUpdate = filter(this.allEvents, (event: Event) => {
-      return (
-        event.name === this.eventBeingEdited.name &&
-        event.weekDay === this.eventBeingEdited.weekDay &&
-        event.categoryId === this.eventBeingEdited.categoryId &&
-        event.time === this.eventBeingEdited.time &&
-        moment(event.date).isAfter(moment())
-      );
-    });
+    let eventsToUpdate;
+    if (this.eventBeingEdited.singleOccurence) {
+      eventsToUpdate = new Array<Event>();
+      eventsToUpdate.push(this.eventBeingEdited);
+    } else {
+      eventsToUpdate = filter(this.allEvents, (event: Event) => {
+        return (
+          event.name === this.eventBeingEdited.name &&
+          event.weekDay === this.eventBeingEdited.weekDay &&
+          event.categoryId === this.eventBeingEdited.categoryId &&
+          event.time === this.eventBeingEdited.time &&
+          moment(event.date).isAfter(moment())
+        );
+      });
+    }
+
     // now edit and update each of those events:
     const observables = new Array<Observable<Event>>();
     each(eventsToUpdate, (event: Event) => {
@@ -375,15 +419,33 @@ export class DashboardComponent implements OnInit, OnDestroy {
       event.categoryId = this.editEventForm.get('categoryId').value as string;
       // the date is being constructed out of weekday and time
       const time = <string>this.editEventForm.get('time').value;
-      event.date = moment(event.date)
-        .isoWeekday(this.editEventForm.get('weekDay').value)
-        .hours(parseInt(time.split(':')[0]))
-        .minutes(parseInt(time.split(':')[1]))
-        .toDate();
+      if (event.singleOccurence) {
+        event.date = moment(this.editEventForm.get('date').value)
+          .hours(parseInt(time.split(':')[0]))
+          .minutes(parseInt(time.split(':')[1]))
+          .toDate();
+        const startOfRegistration = moment(
+          this.editEventForm.get('registrationOpenFrom').value
+        );
+        if (startOfRegistration) {
+          startOfRegistration.hours(0).minutes(0).seconds(0).milliseconds(0);
+          event.registrationOpenFrom = startOfRegistration.toDate();
+        }
+      } else {
+        event.date = moment(event.date)
+          .isoWeekday(this.editEventForm.get('weekDay').value)
+          .hours(parseInt(time.split(':')[0]))
+          .minutes(parseInt(time.split(':')[1]))
+          .toDate();
+      }
       observables.push(this.eventService.updateEvent(event));
     });
     forkJoin(observables).subscribe(() => {
-      alert('Alle künftigen Events aktualisiert');
+      if (this.eventBeingEdited.singleOccurence) {
+        alert('Eventdaten aktualisiert');
+      } else {
+        alert('Alle künftigen Events aktualisiert');
+      }
       this.modalRef.hide();
       location.reload();
     });

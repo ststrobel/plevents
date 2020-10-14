@@ -5,4 +5,6 @@ export interface EventI {
   takenSeats: number;
   disabled: boolean;
   categoryId: string;
+  singleOccurence: boolean;
+  registrationOpenFrom: Date;
 }

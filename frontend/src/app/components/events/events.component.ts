@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { EventService } from 'src/app/services/event.service';
 import { Week } from 'src/app/models/week';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { sortBy, each, filter, find, map } from 'lodash';
+import { sortBy, each, filter, find, map, max, uniq } from 'lodash';
 import * as moment from 'moment';
 import { Event } from 'src/app/models/event';
 import { Participant } from 'src/app/models/participant';
@@ -127,7 +127,6 @@ export class EventsComponent implements OnInit, OnDestroy {
       const events = results[0] as Event[];
       // filter out all events that are disabled
       this.eventsInTimeframe = filter(events, { disabled: false });
-      this.weeks = new Array<Week>(2);
       /////////////////////////////////////////
       this.categories = results[1] as Category[];
       // only consider categories that have at least one event present
@@ -152,8 +151,6 @@ export class EventsComponent implements OnInit, OnDestroy {
     this.selectedCategory = category;
     this.selectedEvent = null;
     this.registerForm.markAsUntouched();
-    this.weeks[0] = new Week(moment().isoWeek());
-    this.weeks[1] = new Week(moment().add(1, 'week').isoWeek());
     this.determineUniqueEvents();
     const eventsToDisplay = <Event[]>(
       filter(this.eventsInTimeframe, (event: Event) => {
@@ -163,11 +160,7 @@ export class EventsComponent implements OnInit, OnDestroy {
         return event.categoryId === this.selectedCategory.id;
       })
     );
-    const today = moment();
-    const startOfWeek = today.clone().startOf('week');
-    const endOfWeek = today.clone().endOf('week');
-    this.weeks[0].events = new Array<Event>(this.uniqueEvents.length);
-    this.weeks[1].events = new Array<Event>(this.uniqueEvents.length);
+    this.weeks = this.generateWeeksNeededToDisplayEvents(eventsToDisplay);
     each(eventsToDisplay, (event: Event) => {
       // find out at which position to display the event
       each(this.uniqueEvents, (uniqueEvent: Event, index: number) => {
@@ -176,24 +169,36 @@ export class EventsComponent implements OnInit, OnDestroy {
           uniqueEvent.weekDay === event.weekDay &&
           uniqueEvent.displayTime() === event.displayTime()
         ) {
-          // check if its in this week or next week
-          if (
-            moment(event.date).isBetween(
-              startOfWeek,
-              endOfWeek,
-              undefined,
-              '[]'
-            )
-          ) {
-            // this week
-            this.weeks[0].events[index] = event;
-          } else {
-            // next week
-            this.weeks[1].events[index] = event;
-          }
+          // find the calendar week to put it in to
+          const week = find(this.weeks, {
+            number: moment(event.date).isoWeek(),
+          });
+          week.events[index] = event;
         }
       });
     });
+  }
+
+  generateWeeksNeededToDisplayEvents(events: Event[]): Week[] {
+    const weeks = new Array<Week>();
+    let maxDate = new Date();
+    each(events, event => {
+      if (event.date > maxDate) {
+        maxDate = event.date;
+      }
+    });
+    for (
+      let isoWeek = moment().isoWeek();
+      isoWeek <= moment(maxDate).isoWeek();
+      isoWeek++
+    ) {
+      const week = new Week(isoWeek);
+      week.startOfWeek = moment().isoWeek(isoWeek).startOf('week');
+      week.endOfWeek = moment().isoWeek(isoWeek).endOf('week');
+      week.events = new Array<Event>(this.uniqueEvents.length);
+      weeks.push(week);
+    }
+    return weeks;
   }
 
   private determineUniqueEvents(): void {
@@ -303,5 +308,13 @@ export class EventsComponent implements OnInit, OnDestroy {
       this.successfullyRegistered = true;
       this.registerForm.reset();
     });
+  }
+
+  singleEvents(uniqueEvents: Event[]): Event[] {
+    return filter(uniqueEvents, { singleOccurence: true });
+  }
+
+  recurringEvents(uniqueEvents: Event[]): Event[] {
+    return filter(uniqueEvents, { singleOccurence: false });
   }
 }
