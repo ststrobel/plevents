@@ -14,7 +14,7 @@ import { Tenant } from './tenant';
 export class Category extends BaseEntity implements CategoryI {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  @ManyToOne(type => Tenant)
+  @ManyToOne(type => Tenant, { cascade: true, onDelete: 'CASCADE' })
   tenant: Tenant;
   @Column()
   tenantId: string;
