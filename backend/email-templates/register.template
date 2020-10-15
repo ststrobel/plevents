@@ -1,0 +1,47 @@
+<body style="margin: 0; padding: 0; background-color: #fafafa;">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #fafafa;">
+    <tr>
+      <td width="20"></td> 
+      <td style="text-align: center;">
+        <table style="background-color: #fafafa;">
+          <tr>
+            <td>&nbsp;&nbsp;&nbsp;Plevents
+          </td>
+        </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>  
+      <td>&nbsp;</td>
+    </tr>
+    <tr>  
+      <td colspan="2" style="background:none; border-top:solid 1px #999999; border-width:1px 0 0 0; height:1px; width:100%; margin:0px 0px 0px 0px; padding-top:10px;padding-bottom:10px;">&nbsp;</td>
+    </tr>
+    <tr>
+      <td width="20"></td>     
+      <td style="font-size: 24px; color: #009688;">
+        <b>Registrierung für Plevents</b>
+        <br><br>
+      </td>
+    </tr>
+    <tr>
+      <td width="20"></td> 
+      <td>
+        Vielen Dank für die Registrierung. Bitte klicken Sie auf den folgenden Link, um Ihre Email zu verifizieren und die Registrierung abzuschließen:
+      </td>
+    </tr>
+    <tr>
+      <td width="20"></td> 
+      <td>
+        <br><br><a href="{{confirmationlink}}" style="padding: 10px; background-color: #009688; color: white;">Registrierung abschließen</a>
+      </td>
+    </tr>
+    <tr>
+      <td width="20"></td> 
+      <td>
+        <br><br>
+        Falls Darstellungsprobleme auftreten, kopieren Sie diesen Link in die Adress-Zeile Ihres Browsers:<br>{{confirmationlink}}
+      </td>
+    </tr>
+  </table>
+</body>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { first } from 'rxjs/operators';
@@ -7,19 +7,21 @@ import { TenantService } from 'src/app/services/tenant.service';
 import { Tenant } from 'src/app/models/tenant';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AppService } from 'src/app/services/app.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   loginForm: FormGroup;
   loading = false;
   submitted = false;
   returnUrl: string;
   error = '';
   tenant: Tenant;
+  userSubscription: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -35,6 +37,12 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit() {
+    // check if there is a logged-in user already. if so, forward directly to the profile
+    this.userSubscription = this.appService.user.subscribe(user => {
+      if (user) {
+        this.router.navigate(['/profil']);
+      }
+    });
     if (this.tenantPath()) {
       // load the tenant information and redirect in case tenant path does not exist:
       this.tenantService.getByPath(this.tenantPath()).subscribe(
@@ -67,6 +75,12 @@ export class LoginComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    if (this.userSubscription) {
+      this.userSubscription.unsubscribe();
+    }
+  }
+
   tenantPath(): string {
     return this.route.snapshot.params.tenantPath;
   }
@@ -87,7 +101,8 @@ export class LoginComponent implements OnInit {
           this.router.navigate(this.returnUrl.split('/'));
         },
         error => {
-          this.error = 'Nutzername oder Passwort falsch';
+          this.error =
+            'Nutzername oder Passwort ist falsch, oder Ihr Account ist noch nicht aktiviert.';
           this.loading = false;
         }
       );

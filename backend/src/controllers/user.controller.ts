@@ -4,6 +4,7 @@ import { UserService } from '../services/user.service';
 import tenantCorrelationHandler from '../handlers/tenant-correlation-handler';
 import { TenantRelation } from '../models/tenant-relation';
 import { ROLE } from '../../../common/tenant-relation';
+import { Verification } from '../models/verification';
 
 export class UserController {
   public static register(app: express.Application): void {
@@ -139,7 +140,7 @@ export class UserController {
     app.post('/profile', async (req, res) => {
       if ((await User.count({ where: { email: req.body.email } })) === 0) {
         // create the user
-        await UserService.createUser(
+        await UserService.createUserProfile(
           req.body.email,
           req.body.name,
           req.body.password
@@ -148,6 +149,23 @@ export class UserController {
         // the user account already exists. do sth, like notify him by email
       }
       res.status(200).send({ message: 'User profile created' });
+    });
+
+    /*
+     * finish a user registration by confirming an account with a generated unique code
+     */
+    app.post('/profile/activate/:code', async (req, res) => {
+      const verification = await Verification.findOneOrFail({
+        code: req.params.code,
+      });
+      if (verification && verification.userId) {
+        const user = await User.findOneOrFail(verification.userId);
+        user.active = true;
+        await user.save();
+        verification.remove();
+        res.status(200).send({ message: 'User profile activated' });
+      }
+      res.status(400).send({ error: 'Code not found or invalid' });
     });
 
     /*
@@ -190,6 +208,17 @@ export class UserController {
       } else {
         res.status(400).send({ error: 'Old password incorrect' });
       }
+    });
+
+    /*
+     * delete the profile of the logged-in user
+     */
+    app.delete('/secure/profile', async (req, res) => {
+      const user = await User.findOneOrFail({
+        where: { email: UserService.currentUser(req) },
+      });
+      await user.remove();
+      res.status(200).send({ message: 'Profile deleted' });
     });
   }
 }

@@ -149,5 +149,24 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  deleteProfile(): void {}
+  deleteProfile(): void {
+    if (
+      confirm(
+        'Möchten Sie wirklich Ihr persönliches Profil löschen? Alle Daten werden sofort gelöscht. Diese Aktion kann nicht rückgängig gemacht werden!'
+      )
+    ) {
+      this.operationOngoing = true;
+      this.userService.deleteProfile().subscribe(
+        () => {
+          alert('Ihr Profil wurde gelöscht');
+          this.authService.logout();
+        },
+        error => {
+          console.error(error);
+          alert('Es trat ein Fehler auf');
+          this.operationOngoing = false;
+        }
+      );
+    }
+  }
 }
