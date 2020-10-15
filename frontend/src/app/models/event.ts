@@ -21,7 +21,7 @@ export class Event implements EventI {
   registrationOpenFrom: Date;
 
   downloadLink(): string {
-    return `${environment.apiUrl}/secure/events/${this.id}/pdf`;
+    return `${environment.apiUrl}/secure/tenants/${this.tenantId}/events/${this.id}/pdf`;
   }
 
   displayName(): string {

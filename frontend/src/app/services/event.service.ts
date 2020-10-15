@@ -100,9 +100,14 @@ export class EventService {
       );
   }
 
-  getParticipants(eventId: string): Observable<Participant[]> {
+  getParticipants(
+    tenantId: string,
+    eventId: string
+  ): Observable<Participant[]> {
     return this.http
-      .get(`${environment.apiUrl}/secure/events/${eventId}/participants`)
+      .get(
+        `${environment.apiUrl}/secure/tenants/${tenantId}/events/${eventId}/participants`
+      )
       .pipe(
         // Adapt the raw items
         map((data: any[]) =>
@@ -111,9 +116,13 @@ export class EventService {
       );
   }
 
-  deleteParticipant(eventId: string, participantId: number): Observable<any> {
+  deleteParticipant(
+    tenantId: string,
+    eventId: string,
+    participantId: number
+  ): Observable<any> {
     return this.http.delete(
-      `${environment.apiUrl}/secure/events/${eventId}/participants/${participantId}`
+      `${environment.apiUrl}/secure/tenants/${tenantId}/events/${eventId}/participants/${participantId}`
     );
   }
 
