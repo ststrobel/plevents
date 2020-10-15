@@ -458,15 +458,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
   showEventParticipants(event: Event, template: TemplateRef<any>): void {
     this.selectedEvent = event;
     this.participants = null;
-    this.eventService.getParticipants(event.id).subscribe(participants => {
-      this.participants = participants;
-    });
+    this.eventService
+      .getParticipants(this.tenant.id, event.id)
+      .subscribe(participants => {
+        this.participants = participants;
+      });
     this.modalRef = this.modalService.show(template, { class: 'modal-xl' });
   }
 
   deleteParticipant(participant: Participant): void {
     this.eventService
-      .deleteParticipant(this.selectedEvent.id, participant.id)
+      .deleteParticipant(this.tenant.id, this.selectedEvent.id, participant.id)
       .subscribe(() => {
         alert('Teilnehmer von Aktivität entfernt');
         this.participants = reject(this.participants, { id: participant.id });

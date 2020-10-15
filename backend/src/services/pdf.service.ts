@@ -45,8 +45,11 @@ export class PdfService {
   }
 
   private static generateHeader(event: Event): any {
-    const m = moment(event.date);
-    const dateTime = m.format('DD.MM.yyyy') + ' um ' + m.format('HH:mm');
+    const dateTime =
+      moment(event.date).format('DD.MM.yyyy') +
+      ' um ' +
+      moment(event.date).format('HH:mm');
+    console.log(dateTime);
     return {
       margin: [40, 20, 40, 10],
       columns: [
