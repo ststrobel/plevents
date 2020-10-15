@@ -14,7 +14,7 @@ export class User extends BaseEntity implements UserI {
   @PrimaryGeneratedColumn('uuid')
   id: string;
   @Column()
-  active: boolean = true;
+  active: boolean = false;
   @Column()
   name: string;
   @Column({ unique: true })

@@ -4,25 +4,36 @@ import { Tenant } from '../models/tenant';
 import { getConnection } from 'typeorm';
 import { TenantRelation } from '../models/tenant-relation';
 import { map } from 'lodash';
+import { Verification, VerificationType } from '../models/verification';
+import { EmailService, EMAIL_TEMPLATES } from './email-service';
+import { link } from 'fs';
 
 export class UserService {
-  public static async createUser(
+  public static async createUserProfile(
     email: string,
     name: string,
     password: string
-  ): Promise<User> {
+  ): Promise<void> {
     try {
       // check first if user already exists
       const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        existingUser.password = password;
-        return existingUser.save();
-      } else {
+      if (!existingUser) {
         const newUser = new User();
         newUser.email = email;
         newUser.name = name;
         newUser.password = password;
-        return newUser.save();
+        await newUser.save();
+        // after the user is created, generate a verification code and send an email
+        const verification = new Verification();
+        verification.userId = newUser.id;
+        verification.type = VerificationType.REGISTRATION;
+        await verification.save();
+        // now send out an email to make the user confirm his profile
+        const confirmationlink = process.env.domain + 
+        EmailService.get().send(EMAIL_TEMPLATES.REGISTER, newUser.email, {s
+          name: newUser.name,
+          confirmationlink
+        });
       }
     } catch (e) {
       throw e;
