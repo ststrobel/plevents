@@ -6,7 +6,6 @@ import { TenantRelation } from '../models/tenant-relation';
 import { map } from 'lodash';
 import { Verification, VerificationType } from '../models/verification';
 import { EmailService, EMAIL_TEMPLATES } from './email-service';
-import { link } from 'fs';
 
 export class UserService {
   public static async createUserProfile(
@@ -29,10 +28,10 @@ export class UserService {
         verification.type = VerificationType.REGISTRATION;
         await verification.save();
         // now send out an email to make the user confirm his profile
-        const confirmationlink = process.env.domain + 
-        EmailService.get().send(EMAIL_TEMPLATES.REGISTER, newUser.email, {s
+        const confirmationlink = `${process.env.DOMAIN}/registrierung?code=${verification.code}`;
+        EmailService.get().send(EMAIL_TEMPLATES.REGISTER, newUser.email, {
           name: newUser.name,
-          confirmationlink
+          confirmationlink,
         });
       }
     } catch (e) {
@@ -52,17 +51,16 @@ export class UserService {
         .addSelect('user.password')
         .from(User, 'user')
         .where(`user.email = "${email}"`)
+        .andWhere(`user.active = 1`)
         .getOne();
       if (existingUser) {
         // check if user is active or not
-        if (existingUser.active) {
-          const authResult = await existingUser.validPassword(password);
-          if (authResult) {
-            return true;
-          } else {
-            Log.write(null, existingUser.id, 'Fehlgeschlagener Login-Versuch');
-            return false;
-          }
+        const authResult = await existingUser.validPassword(password);
+        if (authResult) {
+          return true;
+        } else {
+          Log.write(null, existingUser.id, 'Fehlgeschlagener Login-Versuch');
+          return false;
         }
       }
       return false;

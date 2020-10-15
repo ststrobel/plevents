@@ -16,6 +16,7 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { LegalComponent } from './components/legal/legal.component';
 import { TenantGuard } from './helpers/tenant.guard';
 import { ROLE } from '../../../common/tenant-relation';
+import { CompleteRegistrationComponent } from './components/complete-registration/complete-registration.component';
 
 const routes: Routes = [
   {
@@ -42,6 +43,10 @@ const routes: Routes = [
   {
     path: 'rechtliches',
     component: LegalComponent,
+  },
+  {
+    path: 'registrierung',
+    component: CompleteRegistrationComponent,
   },
   {
     path: 'profil',

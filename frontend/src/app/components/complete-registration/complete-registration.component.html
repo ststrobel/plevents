@@ -1,0 +1,25 @@
+<h1 class="mb-5">Bestätigung Ihres Nutzerprofils</h1>
+<p *ngIf="!noCode && !activated && !error && !loggedIn">
+  Wir aktivieren gerade Ihren Account ...
+</p>
+<div class="alert alert-success text-center" *ngIf="activated">
+  <b>Ihr Account wurde freigesschaltet!</b>
+  <br />
+  Bitte gehen Sie <a [routerLink]="['/login']">zur Login-Seite</a> und loggen
+  sich dort ein.
+</div>
+<div class="alert alert-warning text-center" *ngIf="noCode">
+  Sie haben die Seite ohne einen gültigen Code aufgerufen.
+  <br />
+  Sie können dieses Browserfenster schließen.
+</div>
+<div class="alert alert-warning text-center" *ngIf="error">
+  Es trat leider ein Fehler auf. Versuchen Sie es in ein paar Minuten nochmals.
+  <br />
+  Falls der Fehler bestehen bleibt, wenden Sie sich bitte an den Support.
+</div>
+<div class="alert alert-warning text-center" *ngIf="loggedIn">
+  Sie sind gerade angemeldet und können daher keinen neuen Account bestätigen.
+  <br />
+  Bitte melden Sie sich ab und rufen Sie danach diese URL nochmals auf.
+</div>

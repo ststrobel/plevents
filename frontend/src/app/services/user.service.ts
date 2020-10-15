@@ -18,6 +18,13 @@ export class UserService {
     );
   }
 
+  finishRegistration(code: string): Observable<any> {
+    return this.http.post(
+      `${environment.apiUrl}/profile/activate/${code}`,
+      null
+    );
+  }
+
   removeFromTenant(tenantId: string, userId: string): Observable<any> {
     return this.http.delete(
       `${environment.apiUrl}/secure/tenants/${tenantId}/users/${userId}`
@@ -79,5 +86,9 @@ export class UserService {
       oldPassword,
       newPassword,
     });
+  }
+
+  deleteProfile(): Observable<any> {
+    return this.http.delete(`${environment.apiUrl}/secure/profile`);
   }
 }

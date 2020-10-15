@@ -65,7 +65,7 @@ export class AuthenticationService {
     ) {
       this.router.navigate([this.appService.getCurrentTenant().path, 'login']);
     } else {
-      this.router.navigate(['login']);
+      this.router.navigate(['/login']);
     }
   }
 }
