@@ -13,6 +13,7 @@
           [ngClass]="{
             'is-invalid': submitted && loginForm.get('username').errors
           }"
+          required
         />
         <div
           *ngIf="submitted && loginForm.get('username').errors"
@@ -32,6 +33,7 @@
           [ngClass]="{
             'is-invalid': submitted && loginForm.get('password').errors
           }"
+          required
         />
         <div
           *ngIf="submitted && loginForm.get('password').errors"
@@ -60,8 +62,29 @@
           >Hier registrieren</a
         ></span
       >
+      <button
+        [disabled]="loading"
+        class="btn btn-secondary"
+        (click)="requestPasswordReset()"
+      >
+        Passwort vergessen
+      </button>
       <div *ngIf="error" class="alert alert-danger mt-3 mb-0">
         {{ error }}
+      </div>
+      <div
+        *ngIf="passwordResetStatus === 'success'"
+        class="alert alert-success mt-3 mb-0"
+      >
+        Falls Ihre Email-Adresse im System bekannt ist, schicken wir Ihnen eine
+        Email mit einem Link zum Passwort-Reset zu.
+      </div>
+      <div
+        *ngIf="passwordResetStatus === 'error'"
+        class="alert alert-warning mt-3 mb-0"
+      >
+        Beim Passwort-Reset trat ein Fehler auf. Bitte versuchen Sie es später
+        nochmals
       </div>
     </form>
   </div>

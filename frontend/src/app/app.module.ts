@@ -29,6 +29,7 @@ import {
 import { environment } from 'src/environments/environment';
 import { CategoryManagementComponent } from './components/category-management/category-management.component';
 import { CompleteRegistrationComponent } from './components/complete-registration/complete-registration.component';
+import { PasswordResetComponent } from './components/password-reset/password-reset.component';
 
 const cookieConfig: NgcCookieConsentConfig = {
   cookie: {
@@ -74,6 +75,7 @@ const cookieConfig: NgcCookieConsentConfig = {
     LegalComponent,
     CategoryManagementComponent,
     CompleteRegistrationComponent,
+    PasswordResetComponent,
   ],
   imports: [
     BrowserModule,

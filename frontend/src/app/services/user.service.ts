@@ -88,6 +88,18 @@ export class UserService {
     });
   }
 
+  initiatePasswordReset(email: string): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/forgotten-password`, {
+      email,
+    });
+  }
+
+  resetPassword(code: string, password: string): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/forgotten-password/${code}`, {
+      password,
+    });
+  }
+
   deleteProfile(): Observable<any> {
     return this.http.delete(`${environment.apiUrl}/secure/profile`);
   }

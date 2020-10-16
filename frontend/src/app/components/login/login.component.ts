@@ -1,13 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { first } from 'rxjs/operators';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { TenantService } from 'src/app/services/tenant.service';
 import { Tenant } from 'src/app/models/tenant';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AppService } from 'src/app/services/app.service';
 import { Subscription } from 'rxjs';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-login',
@@ -22,13 +22,15 @@ export class LoginComponent implements OnInit, OnDestroy {
   error = '';
   tenant: Tenant;
   userSubscription: Subscription;
+  passwordResetStatus = '';
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private authenticationService: AuthenticationService,
     private tenantService: TenantService,
-    private appService: AppService
+    private appService: AppService,
+    private userService: UserService
   ) {
     // redirect to home if already logged in
     if (this.appService.getCurrentUser()) {
@@ -104,6 +106,26 @@ export class LoginComponent implements OnInit, OnDestroy {
           this.error =
             'Nutzername oder Passwort ist falsch, oder Ihr Account ist noch nicht aktiviert.';
           this.loading = false;
+        }
+      );
+  }
+
+  requestPasswordReset(): void {
+    this.submitted = true;
+    // if a valid email is given, use that email to send a password reset mail to
+    if (this.loginForm.get('username').invalid) {
+      this.loginForm.get('username').markAsDirty();
+      return;
+    }
+    this.userService
+      .initiatePasswordReset(this.loginForm.get('username').value)
+      .subscribe(
+        () => {
+          this.passwordResetStatus = 'success';
+        },
+        error => {
+          console.error(error);
+          this.passwordResetStatus = 'error';
         }
       );
   }
