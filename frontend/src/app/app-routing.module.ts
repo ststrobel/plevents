@@ -17,6 +17,7 @@ import { LegalComponent } from './components/legal/legal.component';
 import { TenantGuard } from './helpers/tenant.guard';
 import { ROLE } from '../../../common/tenant-relation';
 import { CompleteRegistrationComponent } from './components/complete-registration/complete-registration.component';
+import { PasswordResetComponent } from './components/password-reset/password-reset.component';
 
 const routes: Routes = [
   {
@@ -27,6 +28,10 @@ const routes: Routes = [
     path: 'account-registrierung',
     component: TenantRegistrationComponent,
     canActivate: [AuthGuard],
+  },
+  {
+    path: 'passwort-reset',
+    component: PasswordResetComponent,
   },
   {
     path: 'nutzer-registrierung',

@@ -4,7 +4,7 @@ import { UserService } from '../services/user.service';
 import tenantCorrelationHandler from '../handlers/tenant-correlation-handler';
 import { TenantRelation } from '../models/tenant-relation';
 import { ROLE } from '../../../common/tenant-relation';
-import { Verification } from '../models/verification';
+import { Verification, VerificationType } from '../models/verification';
 
 export class UserController {
   public static register(app: express.Application): void {
@@ -162,7 +162,10 @@ export class UserController {
         const user = await User.findOneOrFail(verification.userId);
         user.active = true;
         await user.save();
-        verification.remove();
+        Verification.delete({
+          userId: user.id,
+          type: VerificationType.REGISTRATION,
+        });
         res.status(200).send({ message: 'User profile activated' });
       }
       res.status(400).send({ error: 'Code not found or invalid' });
