@@ -5,11 +5,8 @@
       <td style="text-align: center;">
         <table style="background-color: #fafafa;">
           <tr>
-            <td>
-              <img style="height: 100px" src="data:image/png;base64,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"/>
-           </td>
            <td style="font-size: 40px;">
-            &nbsp;&nbsp;&nbsp;Smart Guide
+            &nbsp;&nbsp;&nbsp;Plevents
           </td>
         </tr>
         </table>
@@ -31,20 +28,20 @@
     <tr>
       <td width="20"></td> 
       <td>
-        Sie wurden eingeladen, dem Museum {{tenant}} beizutreten. Bitte klicken Sie auf folgenden Link, um die Einladung anzunehmen:
+        Sie wurden eingeladen, dem Account {{tenant}} beizutreten. Bitte klicken Sie auf folgenden Link, um die Einladung anzunehmen:
       </td>
     </tr>
     <tr>
       <td width="20"></td> 
       <td>
-        <br><br><a href="{{link}}" style="padding: 10px; background-color: #009688; color: white;">{{tenant}} beitreten</a>
+        <br><br><a href="{{linkToProfile}}" style="padding: 10px; background-color: #009688; color: white;">{{tenant}} beitreten</a>
       </td>
     </tr>
     <tr>
       <td width="20"></td> 
       <td>
         <br><br>
-        Falls Darstellungsprobleme auftreten, kopieren Sie diesen Link in die Adress-Zeile Ihres Browsers:<br>{{link}}
+        Falls Darstellungsprobleme auftreten, kopieren Sie diesen Link in die Adress-Zeile Ihres Browsers:<br>{{linkToProfile}}
       </td>
     </tr>
   </table>

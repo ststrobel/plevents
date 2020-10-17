@@ -13,6 +13,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { TenantRelation } from 'src/app/models/tenant-relation';
 import { AppService } from 'src/app/services/app.service';
 import { ROLE } from '../../../../../common/tenant-relation';
+import { Invitation } from 'src/app/models/invitation';
 
 @Component({
   selector: 'app-tenant',
@@ -35,6 +36,7 @@ export class TenantComponent implements OnInit, OnDestroy {
     email: new FormControl('', [Validators.required, Validators.email]),
   });
   ROLE = ROLE;
+  invitations: Invitation[];
 
   constructor(
     private authService: AuthenticationService,
@@ -98,6 +100,15 @@ export class TenantComponent implements OnInit, OnDestroy {
             .subscribe((relations: TenantRelation[]) => {
               this.tenantUserRelations = relations;
             });
+          if (this.appService.hasRole(tenant.id, ROLE.OWNER)) {
+            this.tenantService
+              .getOpenInvitations(tenant.id)
+              .subscribe((invitations: Invitation[]) => {
+                this.invitations = invitations;
+              });
+          } else {
+            this.invitations = null;
+          }
         }
       }
     );
@@ -303,5 +314,22 @@ export class TenantComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         alert('Rolle zugewiesen');
       });
+  }
+
+  revokeInvitation(invitation: Invitation): void {
+    if (confirm('Möchten Sie die Einladung wirklich zurückziehen?')) {
+      this.tenantService
+        .revokeOpenInvitations(invitation.tenantId, invitation.id)
+        .subscribe(
+          () => {
+            alert('Die Einladung wurde zurückgezogen');
+            this.invitations = reject(this.invitations, invitation);
+          },
+          error => {
+            console.error(error);
+            alert('Es trat ein Fehler auf');
+          }
+        );
+    }
   }
 }

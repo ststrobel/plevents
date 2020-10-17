@@ -6,10 +6,15 @@ import { environment } from '../../environments/environment';
 import { map } from 'rxjs/operators';
 import { UserI } from '../../../../common/user';
 import { ROLE } from '../../../../common/tenant-relation';
+import { Invitation, InvitationAdapter } from '../models/invitation';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  constructor(private http: HttpClient, private userAdapter: UserAdapter) {}
+  constructor(
+    private http: HttpClient,
+    private userAdapter: UserAdapter,
+    private invitationAdapter: InvitationAdapter
+  ) {}
 
   register(user: UserI): Observable<User> {
     return this.http.post(`${environment.apiUrl}/profile`, user).pipe(
@@ -102,5 +107,25 @@ export class UserService {
 
   deleteProfile(): Observable<any> {
     return this.http.delete(`${environment.apiUrl}/secure/profile`);
+  }
+
+  getPendingInvitations(): Observable<Invitation[]> {
+    return this.http.get(`${environment.apiUrl}/secure/invitations`).pipe(
+      // Adapt the raw items
+      map((data: any[]) => data.map(item => this.invitationAdapter.adapt(item)))
+    );
+  }
+
+  declineInvitation(tenantId: string): Observable<any> {
+    return this.http.delete(
+      `${environment.apiUrl}/secure/invitations/${tenantId}`
+    );
+  }
+
+  acceptInvitation(invitationId: string): Observable<any> {
+    return this.http.post(
+      `${environment.apiUrl}/secure/invitations/${invitationId}`,
+      null
+    );
   }
 }

@@ -8,6 +8,9 @@ import { getConnection } from 'typeorm';
 import tenantCorrelationHandler from '../handlers/tenant-correlation-handler';
 import { TenantRelation } from '../models/tenant-relation';
 import { ROLE } from '../../../common/tenant-relation';
+import { Invitation } from '../models/invitation';
+import { EmailService, EMAIL_TEMPLATES } from '../services/email-service';
+import { uniqBy } from 'lodash';
 
 export class TenantController {
   public static register(app: express.Application): void {
@@ -154,19 +157,19 @@ export class TenantController {
               where: { tenantId: request.params.tenantId, user: existingUser },
             })) === 0)
         ) {
-          // if the user exists, simply add him to the tenant. if not, invite him by email:
-          if (existingUser) {
-            // attach user directly
-            const relation = new TenantRelation();
-            relation.user = existingUser;
-            relation.tenantId = request.params.tenantId;
-            relation.active = true;
-            relation.save();
-            response.status(200).send({ message: 'User added to account' });
-          } else {
-            // send invitation email
-            // TODO
-          }
+          // send invitation email
+          const tenant = await Tenant.findOneOrFail(request.params.tenantId);
+          const invitation = new Invitation();
+          invitation.email = request.body.email;
+          invitation.tenantId = request.params.tenantId;
+          await invitation.save();
+          const linkToProfile = `${process.env.DOMAIN}/profil`;
+          EmailService.get().send(
+            EMAIL_TEMPLATES.JOIN_TENANT,
+            request.body.email,
+            { tenant: tenant.name, linkToProfile }
+          );
+          response.status(200).send({ error: 'User invited' });
         } else {
           response
             .status(409)
@@ -187,6 +190,43 @@ export class TenantController {
           relations: ['user'],
         });
         response.status(200).send(tenantRelations);
+      }
+    );
+
+    /*
+     * retrieve all open invitations for users specific for a client
+     */
+    app.get(
+      '/secure/tenants/:tenantId/invitations',
+      tenantCorrelationHandler(),
+      async (req, res) => {
+        const invitations = await Invitation.find({
+          where: { tenantId: req.params.tenantId },
+        });
+        // now filter out all duplicate invitations for the same account
+        res.status(200).send(uniqBy(invitations, 'tenantId'));
+      }
+    );
+
+    /*
+     * revoke all open invitations for a user for a tenant
+     */
+    app.delete(
+      '/secure/tenants/:tenantId/invitations/:invitationId',
+      tenantCorrelationHandler(),
+      async (req, res) => {
+        const invitation = await Invitation.findOneOrFail(
+          req.params.invitationId
+        );
+        if (invitation.tenantId === req.params.tenantId) {
+          await Invitation.delete({
+            tenantId: invitation.tenantId,
+            email: invitation.email,
+          });
+          res.status(200).send({ message: 'Invitation revoked' });
+        } else {
+          res.status(400).send({ error: 'Invitation invalid for tenant' });
+        }
       }
     );
   }

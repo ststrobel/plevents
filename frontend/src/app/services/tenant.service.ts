@@ -10,6 +10,7 @@ import {
   TenantRelationAdapter,
 } from '../models/tenant-relation';
 import { AppService } from './app.service';
+import { Invitation, InvitationAdapter } from '../models/invitation';
 
 @Injectable({ providedIn: 'root' })
 export class TenantService {
@@ -19,7 +20,8 @@ export class TenantService {
     private http: HttpClient,
     private tenantAdapter: TenantAdapter,
     private tenantRelationAdapter: TenantRelationAdapter,
-    private appService: AppService
+    private appService: AppService,
+    private invitationAdapter: InvitationAdapter
   ) {}
 
   /**
@@ -126,6 +128,28 @@ export class TenantService {
           data.map(item => this.tenantRelationAdapter.adapt(item))
         )
       );
+  }
+
+  getOpenInvitations(tenantId: string): Observable<Invitation[]> {
+    return this.http
+      .get<Invitation[]>(
+        `${environment.apiUrl}/secure/tenants/${tenantId}/invitations`
+      )
+      .pipe(
+        // Adapt the raw items
+        map((data: any[]) =>
+          data.map(item => this.invitationAdapter.adapt(item))
+        )
+      );
+  }
+
+  revokeOpenInvitations(
+    tenantId: string,
+    invitationId: string
+  ): Observable<any> {
+    return this.http.delete(
+      `${environment.apiUrl}/secure/tenants/${tenantId}/invitations/${invitationId}`
+    );
   }
 
   addUser(tenantId: string, email: string): Observable<any> {

@@ -94,8 +94,8 @@
 <div class="row">
   <div class="col-12 col-md-8 col-lg-10">
     <p>
-      Die folgende Übersicht listet alle Accounts auf, denen Sie als
-      Administrator zugeordnet sind.
+      Die folgende Übersicht listet alle Accounts auf, denen Sie zugeordnet
+      sind.
     </p>
   </div>
   <div class="col-12 col-md-4 col-lg-2">
@@ -108,7 +108,13 @@
   </div>
 </div>
 
-<ul class="list-group" *ngIf="tenantRelations && tenantRelations.length > 0">
+<ul
+  class="list-group"
+  *ngIf="
+    (tenantRelations && tenantRelations.length > 0) ||
+    (invitations && invitations.length > 0)
+  "
+>
   <li
     class="list-group-item sg-hoverable-list-item"
     *ngFor="let tenantRelation of tenantRelations"
@@ -171,10 +177,35 @@
       >
     </span>
   </li>
+  <li
+    class="list-group-item sg-hoverable-list-item"
+    *ngFor="let invitation of invitations"
+  >
+    {{ invitation.tenant.name }}<br /><small
+      >/{{ invitation.tenant.path }}</small
+    >
+    <button
+      class="float-right btn btn-sm ml-2 btn-outline-danger"
+      (click)="decline(invitation)"
+    >
+      Einladung ablehnen
+    </button>
+    <button
+      class="float-right btn btn-sm ml-2 btn-outline-success"
+      (click)="join(invitation)"
+    >
+      Account beitreten
+    </button>
+  </li>
 </ul>
 <div
   class="alert alert-secondary"
-  *ngIf="tenantRelations && tenantRelations.length === 0"
+  *ngIf="
+    tenantRelations &&
+    tenantRelations.length === 0 &&
+    invitations &&
+    invitations.length === 0
+  "
 >
   Sie sind noch keinem Account zugeordnet. Möchten Sie einen
   <a [routerLink]="['/account-registrierung']">neuen Account erstellen</a>?

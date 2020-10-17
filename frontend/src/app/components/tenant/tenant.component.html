@@ -269,6 +269,25 @@
         </button>
       </div>
     </div>
+    <div *ngFor="let invitation of invitations" class="row emailEntry">
+      <div class="col-12 col-md-8">
+        <span class="badge badge-secondary">Einladung verschickt</span>
+        <br />
+        <small
+          ><a href="mailto:{{ invitation.email }}">{{
+            invitation.email
+          }}</a></small
+        >
+      </div>
+      <div class="col-12 col-md-4">
+        <button
+          class="float-right btn btn-sm btn-outline-danger"
+          (click)="revokeInvitation(invitation)"
+        >
+          Einladung zurückziehen
+        </button>
+      </div>
+    </div>
 
     <button
       *ngIf="!showInvitationForm"

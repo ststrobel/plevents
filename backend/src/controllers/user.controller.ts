@@ -5,6 +5,8 @@ import tenantCorrelationHandler from '../handlers/tenant-correlation-handler';
 import { TenantRelation } from '../models/tenant-relation';
 import { ROLE } from '../../../common/tenant-relation';
 import { Verification, VerificationType } from '../models/verification';
+import { Invitation } from '../models/invitation';
+import { uniqBy } from 'lodash';
 
 export class UserController {
   public static register(app: express.Application): void {
@@ -222,6 +224,56 @@ export class UserController {
       });
       await user.remove();
       res.status(200).send({ message: 'Profile deleted' });
+    });
+
+    /*
+     * retrieve the current pending invitations for the current user
+     */
+    app.get('/secure/invitations', async (req, res) => {
+      const invitations = await Invitation.find({
+        where: { email: UserService.currentUser(req) },
+        relations: ['tenant'],
+      });
+      // now filter out all duplicate invitations for the same account
+      res.status(200).send(uniqBy(invitations, 'tenantId'));
+    });
+
+    /*
+     * decline the current pending invitation(s) of the current user for a specific tenant
+     */
+    app.delete('/secure/invitations/:tenantId', async (req, res) => {
+      await Invitation.delete({
+        tenantId: req.params.tenantId,
+        email: UserService.currentUser(req),
+      });
+      res.status(200).send({ message: 'Invitation declined' });
+    });
+
+    /*
+     * accept the current pending invitation(s) of the current user for a specific tenant
+     */
+    app.post('/secure/invitations/:invitationId', async (req, res) => {
+      const invitation = await Invitation.findOneOrFail(
+        req.params.invitationId,
+        { relations: ['tenant'] }
+      );
+      if (invitation.email === UserService.currentUser(req)) {
+        const user = await User.findOne({
+          email: UserService.currentUser(req),
+        });
+        const newRelation = new TenantRelation();
+        newRelation.user = user;
+        newRelation.tenant = invitation.tenant;
+        newRelation.active = true;
+        await newRelation.save();
+        Invitation.delete({
+          email: invitation.email,
+          tenantId: invitation.tenantId,
+        });
+        res.status(200).send(newRelation);
+      } else {
+        res.status(400).send({ message: 'Invalid invitation' });
+      }
     });
   }
 }
