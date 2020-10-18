@@ -6,6 +6,7 @@ import { Tenant } from 'src/app/models/tenant';
 import { Router } from '@angular/router';
 import { TenantRelation } from 'src/app/models/tenant-relation';
 import { AppService } from 'src/app/services/app.service';
+import { ROLE } from '../../../../../common/tenant-relation';
 
 @Component({
   selector: 'app-tenant-registration',
@@ -59,23 +60,32 @@ export class TenantRegistrationComponent implements OnInit {
       this.registrationForm.markAllAsTouched();
       return;
     }
+    this.loading = true;
     // create the tenant. aftewards, forward the user to the registration for the personal login
     const name = this.registrationForm.get('name').value;
     const path = this.registrationForm.get('path').value;
     const tenantToCreate = new Tenant(name, path);
-    this.tenantService.create(tenantToCreate).subscribe((tenant: Tenant) => {
-      // the assignment was done on serverside already. go to the management view of the new tenant
-      const relation = new TenantRelation();
-      relation.user = this.appService.getCurrentUser();
-      relation.userId = this.appService.getCurrentUser().id;
-      relation.tenant = tenant;
-      relation.tenantId = tenant.id;
-      relation.active = true;
-      const relations = this.appService.getCurrentTenantRelations();
-      relations.push(relation);
-      this.appService.setCurrentTenantRelations(relations);
-      this.router.navigate([tenant.path, 'verwaltung']);
-    });
+    this.tenantService.create(tenantToCreate).subscribe(
+      (tenant: Tenant) => {
+        // the assignment was done on serverside already. go to the management view of the new tenant
+        const relation = new TenantRelation();
+        relation.user = this.appService.getCurrentUser();
+        relation.userId = this.appService.getCurrentUser().id;
+        relation.tenant = tenant;
+        relation.tenantId = tenant.id;
+        relation.active = true;
+        relation.role = ROLE.OWNER;
+        const relations = this.appService.getCurrentTenantRelations();
+        relations.push(relation);
+        this.appService.setCurrentTenantRelations(relations);
+        this.router.navigate([tenant.path, 'verwaltung']);
+      },
+      error => {
+        console.error(error);
+        alert('Es trat leider ein Fehler auf');
+        this.loading = false;
+      }
+    );
   }
 
   currentLengthOf(formControlName: string): number {

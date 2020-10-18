@@ -8,6 +8,7 @@ import {
   ManyToOne,
 } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import { Tenant } from './tenant';
 import { User } from './user';
 
 export enum VerificationType {
@@ -26,6 +27,14 @@ export class Verification extends BaseEntity {
   user: User;
   @Column()
   userId: string;
+  @ManyToOne(type => Tenant, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    nullable: true,
+  })
+  tenant: Tenant;
+  @Column({ nullable: true })
+  tenantId: string;
   @Column({
     type: 'enum',
     enum: VerificationType,

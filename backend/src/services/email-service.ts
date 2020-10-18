@@ -15,6 +15,7 @@ export class EmailService {
   private templateTitles: Map<string, string> = new Map<string, string>([
     [EMAIL_TEMPLATES.PASSWORD_RESET, 'Passwort Reset Anfrage'],
     [EMAIL_TEMPLATES.REGISTER, 'Registrierung abschließen'],
+    [EMAIL_TEMPLATES.JOIN_TENANT, 'Einladung erhalten'],
   ]);
 
   /**

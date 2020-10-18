@@ -1,0 +1,253 @@
+<h2>Profilverwaltung</h2>
+<p>
+  Verwalten Sie hier Ihren Namen, ändern Sie das Passwort oder behalten Sie den
+  Überblick über die mit Ihnen verbundenen Accounts.
+</p>
+
+<hr />
+
+<!-- two-column layout -->
+<div class="row">
+  <div class="col-12 col-lg-6 col-xl-5">
+    <div class="row">
+      <div class="col-12">
+        <h4>Name</h4>
+        <p>
+          Ihr Name wird in der Navigationsleiste angezeigt und ist auch in der
+          Verwaltung der Accounts für alle anderen Administratoren sichtbar. Ihr
+          Name wird allerdings nicht auf öffentlich zugänglichen Seiten
+          angezeigt.
+        </p>
+        <form [formGroup]="nameForm">
+          <div class="row">
+            <div class="col-12" [ngClass]="{ invalid: isInvalid('name') }">
+              <label for="name">Name *</label>
+              <br />
+              <input
+                class="form-control"
+                id="name"
+                type="text"
+                formControlName="name"
+              />
+            </div>
+            <div class="col-12 text-right mt-3">
+              <button
+                class="btn btn-outline-success"
+                (click)="updateName()"
+                [disabled]="operationOngoing"
+              >
+                Speichern
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="col-12 mt-5 mb-5">
+        <h4>Passwort</h4>
+        <p>
+          Ändern Sie hier, falls gewünscht, Ihr Passwort. Vergeben Sie dazu ein
+          neues Passwort und bestätigen Sie die Änderung durch Eingabe Ihres
+          bisherigen / aktuellen Passworts.
+        </p>
+        <form [formGroup]="passwordForm">
+          <div class="row">
+            <div
+              class="col-12 col-md-6"
+              [ngClass]="{ invalid: isInvalid('oldPassword') }"
+            >
+              <label for="oldPassword">Altes Passwort *</label>
+              <br />
+              <input
+                class="form-control"
+                id="oldPassword"
+                type="password"
+                formControlName="oldPassword"
+              />
+            </div>
+            <div
+              class="col-12 col-md-6"
+              [ngClass]="{ invalid: isInvalid('newPassword') }"
+            >
+              <label for="newPassword">Neues Passwort *</label>
+              <br />
+              <input
+                class="form-control"
+                id="newPassword"
+                type="password"
+                formControlName="newPassword"
+              />
+            </div>
+            <div class="col-12 text-right mt-3">
+              <button
+                class="btn btn-outline-success"
+                (click)="changePassword()"
+                [disabled]="operationOngoing"
+              >
+                Passwort ändern
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-lg-6 col-xl-5 offset-xl-2">
+    <div class="row">
+      <div class="col-12">
+        <h4>Accounts</h4>
+        <div class="row">
+          <div class="col-12">
+            <p class="float-left">
+              Die folgende Übersicht listet alle Accounts auf, denen Sie
+              zugeordnet sind.
+            </p>
+            <a
+              class="btn float-right btn-sm btn-outline-success"
+              [routerLink]="['/account-registrierung']"
+            >
+              Neuen Account anlegen
+            </a>
+          </div>
+        </div>
+
+        <ul
+          class="list-group mt-3"
+          *ngIf="
+            (tenantRelations && tenantRelations.length > 0) ||
+            (invitations && invitations.length > 0)
+          "
+        >
+          <li
+            class="list-group-item sg-hoverable-list-item"
+            *ngFor="let tenantRelation of tenantRelations"
+          >
+            <i
+              class="fas fa-power-off mr-2"
+              [ngClass]="{
+                'text-success': tenantRelation.tenant.active,
+                'text-secondary': !tenantRelation.tenant.active
+              }"
+              title="{{
+                tenantRelation.tenant.active
+                  ? 'Account ist aktiv'
+                  : 'Account ist inaktiv'
+              }}"
+            ></i>
+            <a
+              *ngIf="tenantRelation.active"
+              [routerLink]="[
+                '/' + tenantRelation.tenant.path,
+                tenantRelation.isAdmin() ? 'verwaltung' : 'dashboard'
+              ]"
+              >{{ tenantRelation.tenant.name }}<br /><small
+                >/{{ tenantRelation.tenant.path }}</small
+              ></a
+            >
+            <span *ngIf="!tenantRelation.active"
+              >{{ tenantRelation.tenant.name }}<br /><small
+                >/{{ tenantRelation.tenant.path }}</small
+              ></span
+            >
+            <button
+              class="float-right btn btn-sm ml-2 btn-outline-danger"
+              (click)="detach(tenantRelation)"
+            >
+              von Account trennen
+            </button>
+            <span
+              class="badge badge-warning mt-2 float-right"
+              *ngIf="!tenantRelation.active"
+            >
+              noch nicht zugelassen
+            </span>
+            <span
+              class="badge mt-2 float-right"
+              *ngIf="tenantRelation.active"
+              [ngClass]="{
+                'badge-success':
+                  tenantRelation.isAdmin() && !tenantRelation.isOwner(),
+                'badge-primary': tenantRelation.isOwner(),
+                'badge-secondary':
+                  !tenantRelation.isAdmin() && !tenantRelation.isOwner()
+              }"
+            >
+              <span *ngIf="tenantRelation.isOwner()"
+                ><i class="fas fa-crown"></i> Owner</span
+              >
+              <span
+                *ngIf="tenantRelation.isAdmin() && !tenantRelation.isOwner()"
+                >Admin</span
+              >
+              <span
+                *ngIf="!tenantRelation.isAdmin() && !tenantRelation.isOwner()"
+                >Leiter</span
+              >
+            </span>
+          </li>
+          <li
+            class="list-group-item sg-hoverable-list-item"
+            *ngFor="let invitation of invitations"
+          >
+            {{ invitation.tenant.name }}<br /><small
+              >/{{ invitation.tenant.path }}</small
+            >
+            <button
+              class="float-right btn btn-sm ml-2 btn-outline-danger"
+              (click)="decline(invitation)"
+            >
+              Einladung ablehnen
+            </button>
+            <button
+              class="float-right btn btn-sm ml-2 btn-outline-success"
+              (click)="join(invitation)"
+            >
+              Account beitreten
+            </button>
+          </li>
+        </ul>
+        <div
+          class="alert alert-secondary"
+          *ngIf="
+            tenantRelations &&
+            tenantRelations.length === 0 &&
+            invitations &&
+            invitations.length === 0
+          "
+        >
+          Sie sind noch keinem Account zugeordnet. Möchten Sie einen
+          <a [routerLink]="['/account-registrierung']"
+            >neuen Account erstellen</a
+          >?
+        </div>
+        <div class="alert alert-light" *ngIf="!tenantRelations">
+          Accounts werden geladen ...
+        </div>
+      </div>
+      <div class="col-12 mt-5">
+        <h4>Löschung</h4>
+        <div class="row">
+          <div class="col-12">
+            Falls Sie Ihr persönliches Profil nicht mehr benötigen, können Sie
+            hier jegliche personenbezogene Daten löschen. Hierzu gehören:
+            <ul>
+              <li>Ihr Name</li>
+              <li>Ihre Email-Adresse</li>
+              <li>alle Verbindungen zu plevents Accounts</li>
+            </ul>
+            Die Löschung erfolgt sofort und kann <b>nicht</b> rückgängig gemacht
+            werden!
+          </div>
+          <div class="col-12 text-right">
+            <button
+              class="btn btn-outline-danger"
+              (click)="deleteProfile()"
+              [disabled]="operationOngoing"
+            >
+              Mein Profil löschen
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

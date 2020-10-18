@@ -1,31 +1,36 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { User } from 'src/app/models/user';
 import { TenantService } from 'src/app/services/tenant.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { AuthenticationService } from 'src/app/services/authentication.service';
+import { ActivatedRoute } from '@angular/router';
 import { UserService } from 'src/app/services/user.service';
+import { AppService } from 'src/app/services/app.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-registration',
   templateUrl: './registration.component.html',
   styleUrls: ['./registration.component.scss'],
 })
-export class RegistrationComponent implements OnInit {
+export class RegistrationComponent implements OnInit, OnDestroy {
   registrationForm: FormGroup;
   error: string = null;
   loading: boolean = false;
   success: boolean = false;
+  userSubscription: Subscription;
+  isLoggedIn: boolean = false;
 
   constructor(
     private tenantService: TenantService,
     private route: ActivatedRoute,
-    private authenticationService: AuthenticationService,
-    private router: Router,
-    private userService: UserService
+    private userService: UserService,
+    private appService: AppService
   ) {}
 
   ngOnInit(): void {
+    this.userSubscription = this.appService.user.subscribe((user: User) => {
+      this.isLoggedIn = user !== null;
+    });
     if (this.route.snapshot.params.tenantPath) {
       this.tenantService.load(this.route.snapshot.params.tenantPath);
     }
@@ -34,6 +39,12 @@ export class RegistrationComponent implements OnInit {
       name: new FormControl('', Validators.required),
       password: new FormControl('', Validators.required),
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.userSubscription) {
+      this.userSubscription.unsubscribe();
+    }
   }
 
   isInvalid(formControlName: string): boolean {
@@ -48,16 +59,21 @@ export class RegistrationComponent implements OnInit {
       this.registrationForm.markAllAsTouched();
       return;
     }
+    if (this.isLoggedIn) {
+      return;
+    }
     const user = new User(this.registrationForm.get('email').value);
     user.name = this.registrationForm.get('name').value;
     user.password = this.registrationForm.get('password').value;
-    this.userService.register(user).subscribe(
-      () => {
-        this.success = true;
-      },
-      error => {
-        console.error(error);
-      }
-    );
+    this.userService
+      .register(user, this.route.snapshot.params.tenantPath)
+      .subscribe(
+        () => {
+          this.success = true;
+        },
+        error => {
+          console.error(error);
+        }
+      );
   }
 }

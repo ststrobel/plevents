@@ -47,6 +47,11 @@
   >
     <span aria-hidden="true">&times;</span>
   </button>
+  <p>
+    Legen Sie hier die Daten für ein neues Serienevent bis zum Ende dieses
+    Jahres fest. Die Terminserie wiederholt sich jede Woche ab dem angegebenen
+    Startdatum.
+  </p>
   <form [formGroup]="newEventSeriesForm" (ngSubmit)="addNewEventSeries()">
     <div class="row">
       <div
@@ -66,7 +71,7 @@
         class="col-6 col-md-4"
         [ngClass]="{ invalid: isInvalid(newEventSeriesForm.controls.fromDate) }"
       >
-        <label for="fromDate">frühester Termin</label>
+        <label for="fromDate">Starttermin</label>
         <br />
         <input
           class="form-control"
@@ -142,6 +147,10 @@
   >
     <span aria-hidden="true">&times;</span>
   </button>
+  <p>
+    Legen Sie hier die Daten für ein neues, einzelnes Event fest. Der Termin ist
+    einmalig und findet am angegebenen Tag zur angegebenen Uhrzeit statt.
+  </p>
   <form [formGroup]="newSingleEventForm" (ngSubmit)="addNewSingleEvent()">
     <div class="row">
       <div

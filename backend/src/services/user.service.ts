@@ -12,7 +12,7 @@ export class UserService {
     email: string,
     name: string,
     password: string
-  ): Promise<void> {
+  ): Promise<User> {
     try {
       // check first if user already exists
       const existingUser = await User.findOne({ email });
@@ -33,7 +33,9 @@ export class UserService {
           name: newUser.name,
           confirmationlink,
         });
+        return newUser;
       }
+      return null;
     } catch (e) {
       throw e;
     }

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { clone, reject } from 'lodash';
+import { Invitation } from 'src/app/models/invitation';
 import { Tenant } from 'src/app/models/tenant';
 import { TenantRelation } from 'src/app/models/tenant-relation';
 import { User } from 'src/app/models/user';
@@ -20,7 +21,7 @@ export class ProfileComponent implements OnInit {
   nameForm: FormGroup = new FormGroup({
     name: new FormControl('', Validators.required),
   });
-
+  invitations: Invitation[];
   passwordForm: FormGroup = new FormGroup({
     oldPassword: new FormControl('', Validators.required),
     newPassword: new FormControl('', Validators.required),
@@ -47,6 +48,11 @@ export class ProfileComponent implements OnInit {
       .getAll()
       .subscribe((tenantRelations: TenantRelation[]) => {
         this.tenantRelations = tenantRelations;
+      });
+    this.userService
+      .getPendingInvitations()
+      .subscribe((invitations: Invitation[]) => {
+        this.invitations = invitations;
       });
   }
 
@@ -165,6 +171,35 @@ export class ProfileComponent implements OnInit {
           console.error(error);
           alert('Es trat ein Fehler auf');
           this.operationOngoing = false;
+        }
+      );
+    }
+  }
+
+  join(invitation: Invitation): void {
+    this.userService.acceptInvitation(invitation.id).subscribe(
+      (tenantRelation: TenantRelation) => {
+        this.tenantRelations.push(tenantRelation);
+        this.invitations = reject(this.invitations, invitation);
+        alert('Accout beigetreten');
+      },
+      error => {
+        console.error(error);
+        alert('Es trat ein Fehler auf');
+      }
+    );
+  }
+
+  decline(invitation: Invitation): void {
+    if (confirm('Möchten Sie die Einladung wirklich ablehnen?')) {
+      this.userService.declineInvitation(invitation.tenantId).subscribe(
+        () => {
+          alert('Einladung abgelehnt');
+          this.invitations = reject(this.invitations, invitation);
+        },
+        error => {
+          console.error(error);
+          alert('Ein technischer Fehler ist aufgetreten');
         }
       );
     }

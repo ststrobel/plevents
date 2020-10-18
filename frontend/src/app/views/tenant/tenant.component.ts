@@ -1,16 +1,12 @@
 import { Component, OnInit, OnDestroy, SecurityContext } from '@angular/core';
 import { Tenant } from '../../models/tenant';
-import { User } from 'src/app/models/user';
 import { TenantService } from '../../services/tenant.service';
-import { AuthenticationService } from 'src/app/services/authentication.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { clone, reject, findIndex, find } from 'lodash';
-import { UserService } from 'src/app/services/user.service';
+import { clone, find } from 'lodash';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DomSanitizer } from '@angular/platform-browser';
-import { TenantRelation } from 'src/app/models/tenant-relation';
 import { AppService } from 'src/app/services/app.service';
 import { ROLE } from '../../../../../common/tenant-relation';
 
@@ -21,8 +17,6 @@ import { ROLE } from '../../../../../common/tenant-relation';
 })
 export class TenantComponent implements OnInit, OnDestroy {
   tenant: Tenant = null;
-  tenantUserRelations: TenantRelation[] = new Array<TenantRelation>();
-  tenantForm: FormGroup;
   logoValidationError: string = null;
   private tenantSubscription: Subscription;
   operationOngoing: boolean = false;
@@ -30,16 +24,20 @@ export class TenantComponent implements OnInit, OnDestroy {
     pathTaken: false,
   };
   color: string;
-  showInvitationForm: boolean = false;
-  inviteAdminForm: FormGroup = new FormGroup({
-    email: new FormControl('', [Validators.required, Validators.email]),
-  });
   ROLE = ROLE;
+  tenantForm: FormGroup = new FormGroup({
+    name: new FormControl('', Validators.required),
+    path: new FormControl('', Validators.required),
+  });
+  legalForm: FormGroup = new FormGroup({
+    consentTeaser1: new FormControl('', Validators.maxLength(1000)),
+    consentText1: new FormControl('', Validators.maxLength(10000)),
+    consentTeaser2: new FormControl('', Validators.maxLength(1000)),
+    consentText2: new FormControl('', Validators.maxLength(10000)),
+  });
 
   constructor(
-    private authService: AuthenticationService,
     private tenantService: TenantService,
-    private userService: UserService,
     private route: ActivatedRoute,
     private router: Router,
     private domSanitizer: DomSanitizer,
@@ -47,57 +45,15 @@ export class TenantComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // load the tenant information and redirect in case tenant path does not exist:
-    this.tenantService
-      .getByPath(this.route.snapshot.params.tenantPath)
-      .subscribe(
-        () => {},
-        (error: any) => {
-          console.log(error);
-          if (
-            error === 'Not Found' ||
-            (error instanceof HttpErrorResponse && error.status === 404)
-          ) {
-            this.router.navigate(['fehler', 'account-not-found']);
-          }
-        }
-      );
-    this.tenantForm = new FormGroup({
-      name: new FormControl('', Validators.required),
-      path: new FormControl('', Validators.required),
-      consentTeaser1: new FormControl('', Validators.maxLength(1000)),
-      consentText1: new FormControl('', Validators.maxLength(10000)),
-      consentTeaser2: new FormControl('', Validators.maxLength(1000)),
-      consentText2: new FormControl('', Validators.maxLength(10000)),
-    });
+    this.tenant = null;
     this.tenantSubscription = this.appService.tenant.subscribe(
       (tenant: Tenant) => {
-        if (tenant && tenant !== this.tenant) {
+        if (tenant && tenant.path === this.route.snapshot.params.tenantPath) {
           // load tenant details
           this.tenantService.get(tenant.id).subscribe((tenant: Tenant) => {
             this.tenant = tenant;
-            this.tenantForm.get('name').setValue(this.tenant.name);
-            this.tenantForm.get('path').setValue(this.tenant.path);
-            this.tenantForm
-              .get('consentTeaser1')
-              .setValue(this.tenant.consentTeaser1);
-            this.tenantForm
-              .get('consentText1')
-              .setValue(this.tenant.consentText1);
-            this.tenantForm
-              .get('consentTeaser2')
-              .setValue(this.tenant.consentTeaser2);
-            this.tenantForm
-              .get('consentText2')
-              .setValue(this.tenant.consentText2);
-            this.color = this.tenant.color;
+            this.setFormValues();
           });
-          // load users for this tenant
-          this.tenantService
-            .getUsers(tenant.id)
-            .subscribe((relations: TenantRelation[]) => {
-              this.tenantUserRelations = relations;
-            });
         }
       }
     );
@@ -117,13 +73,14 @@ export class TenantComponent implements OnInit, OnDestroy {
     );
   }
 
-  activate(user: User): void {
-    this.userService
-      .activate(this.tenant.id, user.id)
-      .subscribe((activatedUser: User) => {
-        const index = findIndex(this.tenantUserRelations, { userId: user.id });
-        this.tenantUserRelations[index].active = true;
-      });
+  setFormValues(): void {
+    this.tenantForm.get('name').setValue(this.tenant.name);
+    this.tenantForm.get('path').setValue(this.tenant.path);
+    this.legalForm.get('consentTeaser1').setValue(this.tenant.consentTeaser1);
+    this.legalForm.get('consentText1').setValue(this.tenant.consentText1);
+    this.legalForm.get('consentTeaser2').setValue(this.tenant.consentTeaser2);
+    this.legalForm.get('consentText2').setValue(this.tenant.consentText2);
+    this.color = this.tenant.color;
   }
 
   updateTenant(): void {
@@ -140,10 +97,6 @@ export class TenantComponent implements OnInit, OnDestroy {
     const updatedTenant = clone(this.tenant);
     updatedTenant.name = this.tenantForm.get('name').value;
     updatedTenant.path = this.tenantForm.get('path').value;
-    updatedTenant.consentTeaser1 = this.tenantForm.get('consentTeaser1').value;
-    updatedTenant.consentText1 = this.tenantForm.get('consentText1').value;
-    updatedTenant.consentTeaser2 = this.tenantForm.get('consentTeaser2').value;
-    updatedTenant.consentText2 = this.tenantForm.get('consentText2').value;
     updatedTenant.color = this.color;
     // update the logo from the current tenant object
     if (this.tenant.logo) {
@@ -174,6 +127,7 @@ export class TenantComponent implements OnInit, OnDestroy {
           this.router.navigate([tenant.path, 'verwaltung']);
         } else {
           this.tenant = tenant;
+          this.setFormValues();
         }
         alert('Erfolgreich gespeichert');
         this.operationOngoing = false;
@@ -186,28 +140,39 @@ export class TenantComponent implements OnInit, OnDestroy {
     );
   }
 
-  delete(user: User): void {
-    if (confirm('Wirklich diesen Nutzer entfernen?')) {
-      this.operationOngoing = true;
-      this.userService.removeFromTenant(this.tenant.id, user.id).subscribe(
-        () => {
-          this.tenantUserRelations = reject(this.tenantUserRelations, {
-            userId: user.id,
-          });
-          this.operationOngoing = false;
-          // if the user removed himself, jump to the profile:
-          if (user.id === this.appService.getCurrentUser().id) {
-            this.tenantService.getAll().subscribe();
-            this.router.navigate(['/profil']);
-          }
-        },
-        error => {
-          console.error(error);
-          alert('Beim Löschen trat leider ein Fehler auf!');
-          this.operationOngoing = false;
-        }
-      );
+  updateLegalTexts(): void {
+    if (this.legalForm.invalid) {
+      alert('Bitte alle Felder korrekt ausfüllen');
+      this.legalForm.markAllAsTouched();
+      return;
     }
+    this.operationOngoing = true;
+    const updatedTenant = clone(this.tenant);
+    updatedTenant.consentTeaser1 = this.tenantForm.get('consentTeaser1').value;
+    updatedTenant.consentText1 = this.tenantForm.get('consentText1').value;
+    updatedTenant.consentTeaser2 = this.tenantForm.get('consentTeaser2').value;
+    updatedTenant.consentText2 = this.tenantForm.get('consentText2').value;
+    this.tenantService.update(updatedTenant).subscribe(
+      (tenant: Tenant) => {
+        this.tenant = tenant;
+        this.setFormValues();
+        // update the tenant in the relations array
+        const relations = this.appService.getCurrentTenantRelations();
+        const relation = find(relations, { tenantId: tenant.id });
+        if (relation) {
+          relation.tenant = tenant;
+        }
+        this.appService.setCurrentTenantRelations(relations);
+        this.appService.setCurrentTenant(tenant);
+        alert('Erfolgreich gespeichert');
+        this.operationOngoing = false;
+      },
+      error => {
+        console.error(error);
+        alert('Beim Speichern trat leider ein Fehler auf!');
+        this.operationOngoing = false;
+      }
+    );
   }
 
   deleteTenant(): void {
@@ -258,7 +223,12 @@ export class TenantComponent implements OnInit, OnDestroy {
 
   currentLengthOf(formControlName: string): number {
     try {
-      return (this.tenantForm.get(formControlName).value as string).length;
+      if (this.tenantForm.get(formControlName)) {
+        return (this.tenantForm.get(formControlName).value as string).length;
+      }
+      if (this.legalForm.get(formControlName)) {
+        return (this.legalForm.get(formControlName).value as string).length;
+      }
     } catch (e) {
       return 0;
     }
@@ -269,39 +239,5 @@ export class TenantComponent implements OnInit, OnDestroy {
    */
   selectNewLogo(): void {
     document.getElementById('logo_file_input').click();
-  }
-
-  inviteNewAdmin(): void {
-    if (this.inviteAdminForm.invalid) {
-      this.inviteAdminForm.markAllAsTouched();
-      return;
-    }
-    this.tenantService
-      .addUser(this.tenant.id, this.inviteAdminForm.get('email').value)
-      .subscribe(
-        () => {
-          // reload the user list, just in case
-          this.tenantService
-            .getUsers(this.tenant.id)
-            .subscribe((relations: TenantRelation[]) => {
-              this.tenantUserRelations = relations;
-            });
-          alert('Nutzer wurde eingeladen');
-          this.inviteAdminForm.reset();
-        },
-        error => {
-          console.error(error);
-          alert('Es trat ein Fehler auf');
-        }
-      );
-  }
-
-  assignRole(relation: TenantRelation, role: ROLE): void {
-    relation.role = role;
-    this.userService
-      .setRole(relation.tenantId, relation.userId, role)
-      .subscribe(() => {
-        alert('Rolle zugewiesen');
-      });
   }
 }

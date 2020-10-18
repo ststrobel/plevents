@@ -5,6 +5,9 @@ import tenantCorrelationHandler from '../handlers/tenant-correlation-handler';
 import { TenantRelation } from '../models/tenant-relation';
 import { ROLE } from '../../../common/tenant-relation';
 import { Verification, VerificationType } from '../models/verification';
+import { Invitation } from '../models/invitation';
+import { uniqBy } from 'lodash';
+import { Tenant } from '../models/tenant';
 
 export class UserController {
   public static register(app: express.Application): void {
@@ -140,11 +143,26 @@ export class UserController {
     app.post('/profile', async (req, res) => {
       if ((await User.count({ where: { email: req.body.email } })) === 0) {
         // create the user
-        await UserService.createUserProfile(
+        const user = await UserService.createUserProfile(
           req.body.email,
           req.body.name,
           req.body.password
         );
+        // check if a tenantPath is in the request. if so, request the belonging to this tenant
+        if (user && req.body.tenantPath) {
+          const tenant = await Tenant.findOne({
+            where: { path: req.body.tenantPath },
+          });
+          if (tenant) {
+            // only do sth if the tenant exists. if not, ignore the parameter
+            const relation = new TenantRelation();
+            relation.tenantId = tenant.id;
+            relation.userId = user.id;
+            relation.active = false;
+            relation.role = ROLE.MEMBER;
+            relation.save();
+          }
+        }
       } else {
         // the user account already exists. do sth, like notify him by email
       }
@@ -222,6 +240,56 @@ export class UserController {
       });
       await user.remove();
       res.status(200).send({ message: 'Profile deleted' });
+    });
+
+    /*
+     * retrieve the current pending invitations for the current user
+     */
+    app.get('/secure/invitations', async (req, res) => {
+      const invitations = await Invitation.find({
+        where: { email: UserService.currentUser(req) },
+        relations: ['tenant'],
+      });
+      // now filter out all duplicate invitations for the same account
+      res.status(200).send(uniqBy(invitations, 'tenantId'));
+    });
+
+    /*
+     * decline the current pending invitation(s) of the current user for a specific tenant
+     */
+    app.delete('/secure/invitations/:tenantId', async (req, res) => {
+      await Invitation.delete({
+        tenantId: req.params.tenantId,
+        email: UserService.currentUser(req),
+      });
+      res.status(200).send({ message: 'Invitation declined' });
+    });
+
+    /*
+     * accept the current pending invitation(s) of the current user for a specific tenant
+     */
+    app.post('/secure/invitations/:invitationId', async (req, res) => {
+      const invitation = await Invitation.findOneOrFail(
+        req.params.invitationId,
+        { relations: ['tenant'] }
+      );
+      if (invitation.email === UserService.currentUser(req)) {
+        const user = await User.findOne({
+          email: UserService.currentUser(req),
+        });
+        const newRelation = new TenantRelation();
+        newRelation.user = user;
+        newRelation.tenant = invitation.tenant;
+        newRelation.active = true;
+        await newRelation.save();
+        Invitation.delete({
+          email: invitation.email,
+          tenantId: invitation.tenantId,
+        });
+        res.status(200).send(newRelation);
+      } else {
+        res.status(400).send({ message: 'Invalid invitation' });
+      }
     });
   }
 }
