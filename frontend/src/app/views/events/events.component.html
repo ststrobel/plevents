@@ -20,6 +20,7 @@
     (click)="selectCategory(category)"
   >
     <div class="category-card">
+      <i class="fas mr-2 {{ category.icon }}" *ngIf="category.icon"></i>
       {{ category.name }}
     </div>
   </div>

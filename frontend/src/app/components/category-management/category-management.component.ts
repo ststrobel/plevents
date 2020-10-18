@@ -1,6 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, TemplateRef } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { clone, reject } from 'lodash';
+import { clone, find, reject } from 'lodash';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Category } from 'src/app/models/category';
 import { Tenant } from 'src/app/models/tenant';
 import { AppService } from 'src/app/services/app.service';
@@ -21,10 +22,21 @@ export class CategoryManagementComponent implements OnInit {
   categoryForm: FormGroup = new FormGroup({
     newCategory: new FormControl('', Validators.required),
   });
+  modalRef: BsModalRef;
+  iconClassNames = [
+    'fa-volleyball-ball',
+    'fa-futbol',
+    'fa-basketball-ball',
+    'fa-music',
+    'fa-church',
+    'fa-users',
+  ];
+  categoryBeingEdited: Category;
 
   constructor(
     private categoryService: CategoryService,
-    public appService: AppService
+    public appService: AppService,
+    private modalService: BsModalService
   ) {}
 
   ngOnInit(): void {
@@ -136,5 +148,20 @@ export class CategoryManagementComponent implements OnInit {
       }
     }
     return true;
+  }
+
+  openIconSelection(
+    selectedCategory: Category,
+    iconSelectionModal: TemplateRef<any>
+  ): void {
+    if (this.categoriesBeingEdited.includes(selectedCategory.id)) {
+      this.categoryBeingEdited = selectedCategory;
+      this.modalRef = this.modalService.show(iconSelectionModal);
+    }
+  }
+
+  selectIcon(iconClassName: string): void {
+    this.categoryBeingEdited.icon = iconClassName;
+    this.modalRef.hide();
   }
 }

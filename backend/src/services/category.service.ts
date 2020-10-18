@@ -33,6 +33,7 @@ export class CategoryService {
   async updateCategory(category: CategoryI): Promise<Category> {
     let categoryToUpdate = await Category.findOne(category.id);
     categoryToUpdate.name = category.name;
+    categoryToUpdate.icon = category.icon;
     return await categoryToUpdate.save();
   }
 

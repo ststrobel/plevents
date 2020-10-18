@@ -20,4 +20,6 @@ export class Category extends BaseEntity implements CategoryI {
   tenantId: string;
   @Column()
   name: string;
+  @Column({ nullable: true })
+  icon: string = null;
 }

@@ -346,11 +346,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   categoryName(categoryId: string): string {
-    const category = find(this.categories, { id: categoryId });
-    if (category) {
-      return category.name;
+    if (this.categoryById(categoryId)) {
+      return this.categoryById(categoryId).name;
     }
     return null;
+  }
+
+  categoryById(categoryId: string): Category {
+    return find(this.categories, { id: categoryId });
   }
 
   editSeriesEvent(uniqueEvent: Event, template: TemplateRef<any>) {
