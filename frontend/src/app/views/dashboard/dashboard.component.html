@@ -271,9 +271,13 @@
             *ngIf="appService.hasRole(tenant.id, ROLE.ADMIN)"
           ></i>
           <br />
-          <span class="badge badge-cvjm">{{
-            categoryName(uniqueEvent.categoryId)
-          }}</span>
+          <span class="badge badge-cvjm">
+            <i
+              class="fas mr-1 {{ categoryById(uniqueEvent.categoryId).icon }}"
+              *ngIf="categoryById(uniqueEvent.categoryId).icon"
+            ></i
+            >{{ categoryName(uniqueEvent.categoryId) }}</span
+          >
         </th>
       </tr>
     </thead>
