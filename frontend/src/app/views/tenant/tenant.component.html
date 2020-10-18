@@ -1,0 +1,241 @@
+<h2>Verwaltung des Accounts</h2>
+<p>
+  Verwalten Sie hier den Namen und den Pfad Ihres Accounts. Zudem können Sie ein
+  Logo hinterlegen und Administratoren verwalten.
+</p>
+<div
+  class="alert alert-warning d-flex flex-row"
+  *ngIf="tenant && !tenant.active"
+>
+  <div style="width: 30px">
+    <i class="fas fa-exclamation-triangle"></i>
+  </div>
+  <div>
+    Dieser Account ist derzeit noch <b>nicht</b> freigeschaltet. Events sind
+    daher noch nicht öffentlich verfübar. Bitte kontaktieren Sie den Support für
+    Unterstützung:
+    <a href="mailto:stefan.strobel@s4-consulting.de"
+      >stefan.strobel@s4-consulting.de</a
+    >
+  </div>
+</div>
+
+<hr style="margin-bottom: -30px" />
+
+<!-- two-column layout -->
+<div class="row">
+  <div class="col-12 col-lg-6 col-xl-5 mt-5">
+    <div class="row">
+      <div class="col-12">
+        <h4>Allgemein</h4>
+        <form [formGroup]="tenantForm">
+          <div class="row">
+            <div
+              class="col-12 col-md-6"
+              [ngClass]="{ invalid: isInvalid('name') }"
+            >
+              <label for="name">Name *</label>
+              <br />
+              <input
+                class="form-control"
+                id="name"
+                type="text"
+                formControlName="name"
+              />
+            </div>
+            <div
+              class="col-12 col-md-6"
+              [ngClass]="{ invalid: isInvalid('path') }"
+            >
+              <label for="name">Pfad *</label>
+              <br />
+              <input
+                class="form-control"
+                id="path"
+                type="text"
+                formControlName="path"
+                (keyup)="checkPath()"
+                [ngClass]="{
+                  'is-invalid': pathCheck.pathTaken
+                }"
+              />
+              <div *ngIf="pathCheck.pathTaken" class="invalid-feedback">
+                Dieser Pfad ist bereits leider vergeben
+              </div>
+            </div>
+            <div
+              class="col-12 col-md-6 mb-0"
+              [ngClass]="{ invalid: logoValidationError !== null }"
+            >
+              <label (click)="selectNewLogo()">Logo für den Account</label>
+              <div class="form-group">
+                <div *ngIf="tenant !== null && tenant.logo !== null">
+                  <img
+                    class="plevents-tenant-logo plevents-tenant-logo-hover"
+                    [src]="tenant.logo"
+                    (click)="selectNewLogo()"
+                  />
+                  <br />
+                  <small
+                    ><i style="cursor: pointer" (click)="selectNewLogo()"
+                      >neues Logo auswählen</i
+                    ></small
+                  >
+                </div>
+                <div
+                  class="plevents-tenant-logo plevents-tenant-logo-hover"
+                  [hidden]="tenant !== null && tenant.logo !== null"
+                >
+                  <input
+                    type="file"
+                    id="logo_file_input"
+                    accept=".jpg,.jpeg,.png"
+                    (change)="setNewLogo($event)"
+                  />
+                  <label for="logo_file_input">Logo auswählen</label>
+                </div>
+                <div class="invalid-logo" *ngIf="logoValidationError !== null">
+                  {{ logoValidationError }}
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-6 mb-0">
+              <label>Darstellungsfarbe</label><br />
+              <b
+                class="clickable"
+                [style.color]="color"
+                [cpPosition]="'bottom'"
+                [cpPositionOffset]="'50%'"
+                [cpPositionRelativeToArrow]="true"
+                [(colorPicker)]="color"
+                >Legen Sie hier Ihre persönliche Anwendungsfarbe fest</b
+              >
+            </div>
+            <div class="col-12 text-right mb-0">
+              <button
+                class="btn btn-outline-success"
+                (click)="updateTenant()"
+                [disabled]="operationOngoing"
+              >
+                Speichern
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="col-12 mt-5">
+        <h4>Einwilligungserklärung</h4>
+        <p>
+          Sie können, zusätzlich zu den Plevents Datenschutzbedingungen, noch
+          weitere Datenschutz- bzw. Einwilligungserklärungen hinterlegen, die
+          die Teilnehmer durch aktives Setzen eines Häkchens akzeptieren müssen.
+        </p>
+        <form [formGroup]="legalForm">
+          <div class="row">
+            <div class="col-12">
+              <label for="consentTeaser1"
+                >Einwilligungserklärung 1 Teaser</label
+              >
+              <br />
+              <input
+                class="form-control"
+                id="consentTeaser1"
+                type="text"
+                formControlName="consentTeaser1"
+              />
+              <small
+                >{{ currentLengthOf('consentTeaser1') }} / 1.000 Zeichen</small
+              >
+              <br />
+              <label style="margin-top: 25px" for="consent"
+                >Einwilligungserklärung 1 Details</label
+              >
+              <br />
+              <quill-editor
+                formControlName="consentText1"
+                [style]="{ height: '250px' }"
+              ></quill-editor>
+              <small
+                >{{ currentLengthOf('consentText1') }} / 10.000 Zeichen</small
+              >
+            </div>
+            <div class="col-12">
+              <label for="consentTeaser2"
+                >Einwilligungserklärung 2 Teaser</label
+              >
+              <br />
+              <input
+                class="form-control"
+                id="consentTeaser2"
+                type="text"
+                formControlName="consentTeaser2"
+              />
+              <small
+                >{{ currentLengthOf('consentTeaser2') }} / 1.000 Zeichen</small
+              >
+              <br />
+              <label style="margin-top: 25px" for="consent"
+                >Einwilligungserklärung 2 Details</label
+              >
+              <br />
+              <quill-editor
+                formControlName="consentText2"
+                [style]="{ height: '250px' }"
+              ></quill-editor>
+              <small
+                >{{ currentLengthOf('consentText2') }} / 10.000 Zeichen</small
+              >
+            </div>
+            <div class="col-12 text-right mb-0">
+              <button
+                class="btn btn-outline-success"
+                (click)="updateTenant()"
+                [disabled]="operationOngoing"
+              >
+                Speichern
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-lg-6 col-xl-5 offset-xl-2">
+    <div class="row">
+      <div class="col-12 mt-5">
+        <category-management
+          *ngIf="tenant"
+          [tenant]="tenant"
+        ></category-management>
+      </div>
+      <div class="col-12 mt-5">
+        <user-management [tenant]="tenant" *ngIf="tenant"></user-management>
+      </div>
+      <div
+        class="col-12 mt-5"
+        *ngIf="tenant && appService.hasRole(tenant.id, ROLE.OWNER)"
+      >
+        <h4>Löschung</h4>
+        <p>
+          Falls Sie Ihren Account nicht mehr benötigen, können Sie hier jegliche
+          Daten löschen. Hierzu gehören:
+        </p>
+        <ul>
+          <li>alle Admin Accounts</li>
+          <li>alle Events</li>
+          <li>alle Teilnehmerdaten</li>
+        </ul>
+        Die Löschung erfolgt sofort und kann <b>nicht</b> rückgängig gemacht
+        werden!
+        <button
+          class="btn btn-block btn-sm mt-3"
+          id="delete-account-button"
+          (click)="deleteTenant()"
+          [disabled]="operationOngoing"
+        >
+          Account löschen
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

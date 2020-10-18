@@ -1,23 +1,24 @@
-import { LoginComponent } from './components/login/login.component';
-import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { LoginComponent } from './views/login/login.component';
+import { DashboardComponent } from './views/dashboard/dashboard.component';
 import { BasicAuthInterceptor } from './helpers/basic-auth.interceptor';
 import { ErrorInterceptor } from './helpers/error.interceptor';
 import { AuthGuard } from './helpers/auth.guard';
-import { EventsComponent } from './components/events/events.component';
+import { EventsComponent } from './views/events/events.component';
 import { Routes, RouterModule } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { TenantComponent } from './components/tenant/tenant.component';
-import { ErrorComponent } from './components/error/error.component';
-import { RegistrationComponent } from './components/registration/registration.component';
-import { TenantRegistrationComponent } from './components/tenant-registration/tenant-registration.component';
-import { ImprintComponent } from './components/imprint/imprint.component';
-import { ProfileComponent } from './components/profile/profile.component';
-import { LegalComponent } from './components/legal/legal.component';
+import { TenantComponent } from './views/tenant/tenant.component';
+import { ErrorComponent } from './views/error/error.component';
+import { RegistrationComponent } from './views/registration/registration.component';
+import { TenantRegistrationComponent } from './views/tenant-registration/tenant-registration.component';
+import { ImprintComponent } from './views/imprint/imprint.component';
+import { ProfileComponent } from './views/profile/profile.component';
+import { LegalComponent } from './views/legal/legal.component';
 import { TenantGuard } from './helpers/tenant.guard';
 import { ROLE } from '../../../common/tenant-relation';
-import { CompleteRegistrationComponent } from './components/complete-registration/complete-registration.component';
-import { PasswordResetComponent } from './components/password-reset/password-reset.component';
+import { CompleteRegistrationComponent } from './views/complete-registration/complete-registration.component';
+import { PasswordResetComponent } from './views/password-reset/password-reset.component';
+import { PasswordForgottenComponent } from './views/password-forgotten/password-forgotten.component';
 
 const routes: Routes = [
   {
@@ -28,6 +29,10 @@ const routes: Routes = [
     path: 'account-registrierung',
     component: TenantRegistrationComponent,
     canActivate: [AuthGuard],
+  },
+  {
+    path: 'passwort-vergessen',
+    component: PasswordForgottenComponent,
   },
   {
     path: 'passwort-reset',

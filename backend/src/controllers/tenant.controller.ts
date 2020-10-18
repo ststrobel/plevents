@@ -45,7 +45,7 @@ export class TenantController {
         Log.write(tenant.id, user.id, `Tenant ${tenant.id} erstellt`);
         res.status(200).send(tenant);
       } else {
-        res.status(404).send({ error: 'Tenant already exists' });
+        res.status(400).send({ error: 'Tenant already exists' });
       }
     });
 
@@ -169,7 +169,7 @@ export class TenantController {
             request.body.email,
             { tenant: tenant.name, linkToProfile }
           );
-          response.status(200).send({ error: 'User invited' });
+          response.status(200).send(invitation);
         } else {
           response
             .status(409)

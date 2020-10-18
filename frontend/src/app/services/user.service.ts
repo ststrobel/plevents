@@ -16,8 +16,12 @@ export class UserService {
     private invitationAdapter: InvitationAdapter
   ) {}
 
-  register(user: UserI): Observable<User> {
-    return this.http.post(`${environment.apiUrl}/profile`, user).pipe(
+  register(user: UserI, tenantPath?: string): Observable<User> {
+    const payload = Object.assign({}, user) as any;
+    if (tenantPath) {
+      payload.tenantPath = tenantPath;
+    }
+    return this.http.post(`${environment.apiUrl}/profile`, payload).pipe(
       // Adapt the raw item
       map(item => this.userAdapter.adapt(item))
     );

@@ -4,23 +4,22 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { LoginComponent } from './components/login/login.component';
-import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { EmailsComponent } from './components/emails/emails.component';
-import { EventsComponent } from './components/events/events.component';
-import { TenantComponent } from './components/tenant/tenant.component';
-import { RegistrationComponent } from './components/registration/registration.component';
-import { TenantRegistrationComponent } from './components/tenant-registration/tenant-registration.component';
-import { ErrorComponent } from './components/error/error.component';
+import { LoginComponent } from './views/login/login.component';
+import { DashboardComponent } from './views/dashboard/dashboard.component';
+import { EventsComponent } from './views/events/events.component';
+import { TenantComponent } from './views/tenant/tenant.component';
+import { RegistrationComponent } from './views/registration/registration.component';
+import { TenantRegistrationComponent } from './views/tenant-registration/tenant-registration.component';
+import { ErrorComponent } from './views/error/error.component';
 import { QuillModule } from 'ngx-quill';
-import { EventSelectComponent } from './components/event-select/event-select.component';
+import { EventSelectComponent } from './views/event-select/event-select.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
-import { ImprintComponent } from './components/imprint/imprint.component';
-import { ProfileComponent } from './components/profile/profile.component';
-import { LegalComponent } from './components/legal/legal.component';
+import { ImprintComponent } from './views/imprint/imprint.component';
+import { ProfileComponent } from './views/profile/profile.component';
+import { LegalComponent } from './views/legal/legal.component';
 import { ColorPickerModule } from 'ngx-color-picker';
 import {
   NgcCookieConsentModule,
@@ -28,8 +27,10 @@ import {
 } from 'ngx-cookieconsent';
 import { environment } from 'src/environments/environment';
 import { CategoryManagementComponent } from './components/category-management/category-management.component';
-import { CompleteRegistrationComponent } from './components/complete-registration/complete-registration.component';
-import { PasswordResetComponent } from './components/password-reset/password-reset.component';
+import { CompleteRegistrationComponent } from './views/complete-registration/complete-registration.component';
+import { PasswordResetComponent } from './views/password-reset/password-reset.component';
+import { UserManagementComponent } from './components/user-management/user-management.component';
+import { PasswordForgottenComponent } from './views/password-forgotten/password-forgotten.component';
 
 const cookieConfig: NgcCookieConsentConfig = {
   cookie: {
@@ -63,7 +64,6 @@ const cookieConfig: NgcCookieConsentConfig = {
     AppComponent,
     LoginComponent,
     DashboardComponent,
-    EmailsComponent,
     EventsComponent,
     TenantComponent,
     RegistrationComponent,
@@ -76,6 +76,8 @@ const cookieConfig: NgcCookieConsentConfig = {
     CategoryManagementComponent,
     CompleteRegistrationComponent,
     PasswordResetComponent,
+    UserManagementComponent,
+    PasswordForgottenComponent,
   ],
   imports: [
     BrowserModule,

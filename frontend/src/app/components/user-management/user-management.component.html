@@ -1,0 +1,157 @@
+<h4>Nutzerverwaltung</h4>
+<p>
+  Verwalten Sie die Mitglieder Ihres Accounts und vergeben Sie entsprechende
+  Rollen.
+</p>
+<ul class="list-group">
+  <li
+    class="list-group-item list-group-item-action"
+    *ngFor="let tenantUserRelation of tenantUserRelations"
+    [ngStyle]="{
+      'background-color':
+        tenantUserRelation.active === false ? 'whitesmoke' : ''
+    }"
+  >
+    <div class="row">
+      <div class="col-7">
+        {{ tenantUserRelation.user.name }}<br />
+        <small
+          ><a href="mailto:{{ tenantUserRelation.user.email }}">{{
+            tenantUserRelation.user.email
+          }}</a></small
+        >
+      </div>
+      <div class="col-5 text-right">
+        <button
+          *ngIf="!tenantUserRelation.active"
+          class="btn btn-sm btn-outline-success ml-2"
+          (click)="activate(tenantUserRelation.user)"
+        >
+          Zulassen
+        </button>
+        <div
+          class="dropdown d-inline-block"
+          *ngIf="
+            tenantUserRelation.active &&
+            tenantUserRelation.userId !== appService.getCurrentUser().id &&
+            appService.hasRole(tenantUserRelation.tenantId, ROLE.OWNER)
+          "
+        >
+          <button
+            class="btn btn-sm btn-secondary dropdown-toggle"
+            type="button"
+            data-toggle="dropdown"
+          >
+            <span *ngIf="tenantUserRelation.role === ROLE.OWNER"
+              ><i class="fas fa-crown"></i> Owner</span
+            >
+            <span *ngIf="tenantUserRelation.role === ROLE.ADMIN">Admin</span>
+            <span *ngIf="tenantUserRelation.role === ROLE.MEMBER">Leiter</span>
+          </button>
+          <div class="dropdown-menu">
+            <a
+              class="dropdown-item clickable"
+              (click)="assignRole(tenantUserRelation, ROLE.OWNER)"
+              ><i class="fas fa-crown"></i> Owner</a
+            >
+            <a
+              class="dropdown-item clickable"
+              (click)="assignRole(tenantUserRelation, ROLE.ADMIN)"
+              >Admin</a
+            >
+            <a
+              class="dropdown-item clickable"
+              (click)="assignRole(tenantUserRelation, ROLE.MEMBER)"
+              >Leiter</a
+            >
+          </div>
+        </div>
+        <span
+          class="badge"
+          *ngIf="
+            tenantUserRelation.userId === appService.getCurrentUser().id ||
+            (tenantUserRelation.active &&
+              !appService.hasRole(tenantUserRelation.tenantId, ROLE.OWNER))
+          "
+          [ngClass]="{
+            'badge-success':
+              tenantUserRelation.isAdmin() && !tenantUserRelation.isOwner(),
+            'badge-primary': tenantUserRelation.isOwner(),
+            'badge-secondary':
+              !tenantUserRelation.isAdmin() && !tenantUserRelation.isOwner()
+          }"
+        >
+          <span *ngIf="tenantUserRelation.isOwner()"
+            ><i class="fas fa-crown"></i> Owner</span
+          >
+          <span
+            *ngIf="
+              tenantUserRelation.isAdmin() && !tenantUserRelation.isOwner()
+            "
+            >Admin</span
+          >
+          <span
+            *ngIf="
+              !tenantUserRelation.isAdmin() && !tenantUserRelation.isOwner()
+            "
+            >Leiter</span
+          >
+        </span>
+        <i
+          class="fas fa-trash-alt clickable ml-4 text-danger"
+          *ngIf="
+            tenantUserRelation.role === ROLE.MEMBER ||
+            tenantUserRelation.active === false ||
+            appService.hasRole(tenantUserRelation.tenantId, ROLE.OWNER)
+          "
+          (click)="delete(tenantUserRelation.user)"
+        ></i>
+      </div>
+    </div>
+  </li>
+  <li
+    class="list-group-item list-group-item-action"
+    *ngFor="let invitation of invitations"
+  >
+    <div class="row">
+      <div class="col-7">
+        <span class="badge badge-secondary">Einladung verschickt</span>
+        <br />
+        <small
+          ><a href="mailto:{{ invitation.email }}">{{
+            invitation.email
+          }}</a></small
+        >
+      </div>
+      <div class="col-5">
+        <button
+          class="float-right btn btn-sm btn-outline-danger"
+          (click)="revokeInvitation(invitation)"
+        >
+          Einladung zurückziehen
+        </button>
+      </div>
+    </div>
+  </li>
+  <li class="list-group-item list-group-item-action">
+    <form [formGroup]="inviteAdminForm" (ngSubmit)="inviteNewAdmin()">
+      <div class="d-flex">
+        <input
+          class="form-control flex-grow-1"
+          id="inviteEmail"
+          type="email"
+          placeholder="Email-Adresse des neuen Nutzers"
+          formControlName="email"
+          [ngClass]="{
+            'is-invalid':
+              inviteAdminForm.controls.email.invalid &&
+              inviteAdminForm.controls.email.touched
+          }"
+        />
+        <button class="ml-3 btn btn-outline-success text-nowrap">
+          Nutzer einladen
+        </button>
+      </div>
+    </form>
+  </li>
+</ul>

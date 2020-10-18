@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, tap } from 'rxjs/operators';
 import { TenantAdapter, Tenant } from '../models/tenant';
-import { UserAdapter, User } from '../models/user';
 import { Observable, Subscription, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
@@ -50,12 +49,10 @@ export class TenantService {
     ) {
       return of(this.appService.getCurrentTenant());
     } else {
-      return this.http
-        .get<User>(`${environment.apiUrl}/tenants/${tenantPath}`)
-        .pipe(
-          // Adapt the raw item
-          map(item => this.tenantAdapter.adapt(item))
-        );
+      return this.http.get(`${environment.apiUrl}/tenants/${tenantPath}`).pipe(
+        // Adapt the raw item
+        map(item => this.tenantAdapter.adapt(item))
+      );
     }
   }
 
@@ -67,7 +64,7 @@ export class TenantService {
       return of(this.appService.getCurrentTenant());
     } else {
       return this.http
-        .get<User>(`${environment.apiUrl}/secure/tenants/${tenantId}`)
+        .get(`${environment.apiUrl}/secure/tenants/${tenantId}`)
         .pipe(
           // Adapt the raw item
           map(item => this.tenantAdapter.adapt(item))
@@ -92,7 +89,7 @@ export class TenantService {
 
   update(tenant: Tenant): Observable<Tenant> {
     return this.http
-      .put<User>(`${environment.apiUrl}/secure/tenants/${tenant.id}`, tenant)
+      .put(`${environment.apiUrl}/secure/tenants/${tenant.id}`, tenant)
       .pipe(
         // Adapt the raw item
         map(item => this.tenantAdapter.adapt(item)),
@@ -105,12 +102,10 @@ export class TenantService {
   }
 
   create(tenant: Tenant): Observable<Tenant> {
-    return this.http
-      .post<User>(`${environment.apiUrl}/secure/tenants`, tenant)
-      .pipe(
-        // Adapt the raw item
-        map(item => this.tenantAdapter.adapt(item))
-      );
+    return this.http.post(`${environment.apiUrl}/secure/tenants`, tenant).pipe(
+      // Adapt the raw item
+      map(item => this.tenantAdapter.adapt(item))
+    );
   }
 
   delete(tenantId: string): Observable<any> {
@@ -119,9 +114,7 @@ export class TenantService {
 
   getUsers(tenantId: string): Observable<TenantRelation[]> {
     return this.http
-      .get<TenantRelation[]>(
-        `${environment.apiUrl}/secure/tenants/${tenantId}/users`
-      )
+      .get(`${environment.apiUrl}/secure/tenants/${tenantId}/users`)
       .pipe(
         // Adapt the raw items
         map((data: any[]) =>
@@ -132,9 +125,7 @@ export class TenantService {
 
   getOpenInvitations(tenantId: string): Observable<Invitation[]> {
     return this.http
-      .get<Invitation[]>(
-        `${environment.apiUrl}/secure/tenants/${tenantId}/invitations`
-      )
+      .get(`${environment.apiUrl}/secure/tenants/${tenantId}/invitations`)
       .pipe(
         // Adapt the raw items
         map((data: any[]) =>
@@ -152,13 +143,15 @@ export class TenantService {
     );
   }
 
-  addUser(tenantId: string, email: string): Observable<any> {
-    return this.http.post(
-      `${environment.apiUrl}/secure/tenants/${tenantId}/users`,
-      {
+  addUser(tenantId: string, email: string): Observable<Invitation> {
+    return this.http
+      .post(`${environment.apiUrl}/secure/tenants/${tenantId}/users`, {
         email,
-      }
-    );
+      })
+      .pipe(
+        // Adapt the raw items
+        map(item => this.invitationAdapter.adapt(item))
+      );
   }
 
   /**

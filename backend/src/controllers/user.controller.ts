@@ -7,6 +7,7 @@ import { ROLE } from '../../../common/tenant-relation';
 import { Verification, VerificationType } from '../models/verification';
 import { Invitation } from '../models/invitation';
 import { uniqBy } from 'lodash';
+import { Tenant } from '../models/tenant';
 
 export class UserController {
   public static register(app: express.Application): void {
@@ -142,11 +143,26 @@ export class UserController {
     app.post('/profile', async (req, res) => {
       if ((await User.count({ where: { email: req.body.email } })) === 0) {
         // create the user
-        await UserService.createUserProfile(
+        const user = await UserService.createUserProfile(
           req.body.email,
           req.body.name,
           req.body.password
         );
+        // check if a tenantPath is in the request. if so, request the belonging to this tenant
+        if (user && req.body.tenantPath) {
+          const tenant = await Tenant.findOne({
+            where: { path: req.body.tenantPath },
+          });
+          if (tenant) {
+            // only do sth if the tenant exists. if not, ignore the parameter
+            const relation = new TenantRelation();
+            relation.tenantId = tenant.id;
+            relation.userId = user.id;
+            relation.active = false;
+            relation.role = ROLE.MEMBER;
+            relation.save();
+          }
+        }
       } else {
         // the user account already exists. do sth, like notify him by email
       }

@@ -59,6 +59,7 @@ export class AuthenticationService {
     // remove user from local storage to log user out
     localStorage.removeItem('user');
     this.appService.setCurrentUser(null);
+    this.appService.setCurrentTenantRelations(null);
     if (
       this.appService.getCurrentTenant() &&
       this.appService.getCurrentTenant().path

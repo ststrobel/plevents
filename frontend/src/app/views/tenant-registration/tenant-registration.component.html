@@ -78,7 +78,7 @@
           }"
           >Hiermit bestätige ich, dass ich die
           <a href="/rechtliches#agb" target="_blank">AGB</a> gelesen habe und
-          diesen zustimme.</label
+          diesen zustimme. *</label
         >
         <div *ngIf="isInvalid('agbCheck')" class="invalid-feedback">
           Bitte stimmen Sie den AGB zu.
@@ -104,7 +104,7 @@
           <a href="/rechtliches#datenschutz" target="_blank"
             >Datenschutzbestimmungen</a
           >
-          gelesen habe und diesen zustimme.</label
+          gelesen habe und diesen zustimme. *</label
         >
         <div *ngIf="isInvalid('dataPrivacyCheck')" class="invalid-feedback">
           Bitte stimmen Sie den Datenschutzbestimmungen zu.
@@ -112,10 +112,15 @@
       </div>
     </div>
   </div>
-  <button [disabled]="loading" class="btn btn-primary">
-    <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
-    Account erstellen
-  </button>
+  <div class="text-right">
+    <button [disabled]="loading" class="btn btn-success">
+      <span
+        *ngIf="loading"
+        class="spinner-border spinner-border-sm mr-1"
+      ></span>
+      Account erstellen
+    </button>
+  </div>
   <div *ngIf="error" class="alert alert-danger mt-3 mb-0">
     {{ error }}
   </div>

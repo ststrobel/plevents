@@ -1,12 +1,4 @@
-.emailEntry {
-  padding: 15px 5px;
-  &:nth-child(even) {
-    background: #eee;
-  }
-  &:nth-child(odd) {
-    background: #fff;
-  }
-}
+@import '~bootstrap/scss/bootstrap';
 
 h4 {
   text-align: left;
@@ -62,5 +54,16 @@ img.plevents-tenant-logo-hover:hover {
 }
 
 form div.row > div {
-  margin-top: 25px;
+  margin-bottom: 25px;
+}
+
+#delete-account-button {
+  &:not(:hover):not(:focus):not(:active) {
+    @extend .btn-outline-secondary;
+  }
+  &:hover,
+  &:focus,
+  &:active {
+    @extend .btn-outline-danger;
+  }
 }
