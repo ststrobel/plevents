@@ -271,7 +271,7 @@
             *ngIf="appService.hasRole(tenant.id, ROLE.ADMIN)"
           ></i>
           <br />
-          <span class="badge badge-cvjm">
+          <span class="badge badge-plevents">
             <i
               class="fas mr-1 {{ categoryById(uniqueEvent.categoryId).icon }}"
               *ngIf="categoryById(uniqueEvent.categoryId).icon"
@@ -347,6 +347,13 @@
     *ngFor="let uniqueEvent of uniqueEvents; let i = index"
   >
     <div class="card-header">
+      <span class="badge badge-plevents float-right">
+        <i
+          class="fas mr-1 {{ categoryById(uniqueEvent.categoryId).icon }}"
+          *ngIf="categoryById(uniqueEvent.categoryId).icon"
+        ></i
+        >{{ categoryName(uniqueEvent.categoryId) }}</span
+      >
       <b>{{ uniqueEvent.displayName() }}</b>
       <br />
       {{ uniqueEvent.displayTime() }}
