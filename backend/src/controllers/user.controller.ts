@@ -22,7 +22,7 @@ export class UserController {
         const user = (await User.findOne(req.params.userId)) as User;
         if (user) {
           // now check if the user tries to update himself - this is not allowed
-          if (user.email === UserService.currentUser(req)) {
+          if (user.email === UserService.username(req)) {
             res
               .status(409)
               .send({ error: 'It is not possible to update himself' });
@@ -59,7 +59,7 @@ export class UserController {
         const user = (await User.findOne(req.params.userId)) as User;
         if (user) {
           // now check if the user tries to update himself - this is not allowed
-          if (user.email === UserService.currentUser(req)) {
+          if (user.email === UserService.username(req)) {
             res
               .status(409)
               .send({ error: 'It is not possible to update yourself' });
@@ -96,7 +96,7 @@ export class UserController {
         const user = (await User.findOne(req.params.id)) as User;
         if (user) {
           // now check if the user tries to delete himself
-          if (user.email === UserService.currentUser(req)) {
+          if (user.email === UserService.username(req)) {
             // this is only allowed if he/she is NOT the last admin of the tenant
             const usersOfTenantCount = await TenantRelation.count({
               tenantId: req.params.tenantId,
@@ -194,7 +194,7 @@ export class UserController {
      */
     app.get('/secure/profile', async (req, res) => {
       const user = await User.findOneOrFail({
-        where: { email: UserService.currentUser(req) },
+        where: { email: UserService.username(req) },
       });
       res.status(200).send(user);
     });
@@ -204,7 +204,7 @@ export class UserController {
      */
     app.put('/secure/profile', async (req, res) => {
       const user = await User.findOneOrFail({
-        where: { email: UserService.currentUser(req) },
+        where: { email: UserService.username(req) },
       });
       // now update the eligible values with the values from the payload:
       user.name = req.body.name;
@@ -217,7 +217,7 @@ export class UserController {
      */
     app.put('/secure/profile/password', async (req, res) => {
       const user = await User.findOneOrFail({
-        where: { email: UserService.currentUser(req) },
+        where: { email: UserService.username(req) },
       });
       // check if the old password from the payload is correct
       if (
@@ -236,7 +236,7 @@ export class UserController {
      */
     app.delete('/secure/profile', async (req, res) => {
       const user = await User.findOneOrFail({
-        where: { email: UserService.currentUser(req) },
+        where: { email: UserService.username(req) },
       });
       await user.remove();
       res.status(200).send({ message: 'Profile deleted' });
@@ -247,7 +247,7 @@ export class UserController {
      */
     app.get('/secure/invitations', async (req, res) => {
       const invitations = await Invitation.find({
-        where: { email: UserService.currentUser(req) },
+        where: { email: UserService.username(req) },
         relations: ['tenant'],
       });
       // now filter out all duplicate invitations for the same account
@@ -260,7 +260,7 @@ export class UserController {
     app.delete('/secure/invitations/:tenantId', async (req, res) => {
       await Invitation.delete({
         tenantId: req.params.tenantId,
-        email: UserService.currentUser(req),
+        email: UserService.username(req),
       });
       res.status(200).send({ message: 'Invitation declined' });
     });
@@ -273,9 +273,9 @@ export class UserController {
         req.params.invitationId,
         { relations: ['tenant'] }
       );
-      if (invitation.email === UserService.currentUser(req)) {
+      if (invitation.email === UserService.username(req)) {
         const user = await User.findOne({
-          email: UserService.currentUser(req),
+          email: UserService.username(req),
         });
         const newRelation = new TenantRelation();
         newRelation.user = user;

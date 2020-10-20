@@ -4,6 +4,9 @@ h4 {
 
 .iconContainer {
   padding: 10px;
+  width: max-content;
+  display: inline-block;
+  width: 40px;
   &:hover {
     background-color: whitesmoke;
   }

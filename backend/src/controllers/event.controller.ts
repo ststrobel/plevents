@@ -87,7 +87,7 @@ export class EventController {
         await event.save();
         Log.write(
           event.tenantId,
-          UserService.currentUser(req),
+          UserService.username(req),
           `Event ${event.id} erstellt`
         );
         res.status(200).send(event);
@@ -124,7 +124,7 @@ export class EventController {
           if (participant.eventId === event.id) {
             Log.write(
               req.params.tenantId,
-              UserService.currentUser(req),
+              UserService.username(req),
               `Teilnehmer mit ID ${participant.id} von Event ${event.id} gelöscht`
             );
             participant.remove();
@@ -153,7 +153,7 @@ export class EventController {
         await eventToUpdate.save();
         Log.write(
           req.params.tenantId,
-          UserService.currentUser(req),
+          UserService.username(req),
           `Event ${eventToUpdate.id} aktualisiert`
         );
         res.status(200).send(eventToUpdate);
@@ -172,7 +172,7 @@ export class EventController {
             event.save();
             Log.write(
               req.params.tenantId,
-              UserService.currentUser(req),
+              UserService.username(req),
               `Event ${req.params.id} wurde auf ${
                 event.disabled ? 'disabled' : 'enabled'
               } gesetzt`
@@ -206,7 +206,7 @@ export class EventController {
               .execute();
             Log.write(
               req.params.tenantId,
-              UserService.currentUser(req),
+              UserService.username(req),
               `Event ${req.params.id} gelöscht`
             );
             res.status(200).send({ message: 'Event deleted' });

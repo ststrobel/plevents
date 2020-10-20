@@ -15,7 +15,7 @@ export class PdfController {
         try {
           Log.write(
             req.params.tenantId,
-            UserService.currentUser(req),
+            UserService.username(req),
             `Zugriff auf Teilnehmerliste zu Event ${req.params.eventId}`
           );
           const event = await Event.findOneOrFail(req.params.eventId);

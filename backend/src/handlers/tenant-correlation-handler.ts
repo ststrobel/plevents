@@ -10,7 +10,7 @@ export default (requiredRole?: string) => {
     const tenant = await Tenant.findOne(req.params.tenantId);
     if (tenant) {
       // check if the user is in the list of admins for this tenant
-      const user = await User.findOne({ email: UserService.currentUser(req) });
+      const user = await UserService.currentUser(req);
       const relation = await TenantRelation.findOne({
         tenantId: tenant.id,
         userId: user.id,

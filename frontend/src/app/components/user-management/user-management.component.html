@@ -142,11 +142,6 @@
           type="email"
           placeholder="Email-Adresse des neuen Nutzers"
           formControlName="email"
-          [ngClass]="{
-            'is-invalid':
-              inviteAdminForm.controls.email.invalid &&
-              inviteAdminForm.controls.email.touched
-          }"
         />
         <button class="ml-3 btn btn-outline-success text-nowrap">
           Nutzer einladen

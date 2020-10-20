@@ -7,10 +7,10 @@ import { TenantI } from '../../../common/tenant';
 import { getConnection } from 'typeorm';
 import tenantCorrelationHandler from '../handlers/tenant-correlation-handler';
 import { TenantRelation } from '../models/tenant-relation';
-import { ROLE } from '../../../common/tenant-relation';
 import { Invitation } from '../models/invitation';
 import { EmailService, EMAIL_TEMPLATES } from '../services/email-service';
 import { uniqBy } from 'lodash';
+import { TenantService } from '../services/tenant.service';
 
 export class TenantController {
   public static register(app: express.Application): void {
@@ -23,44 +23,31 @@ export class TenantController {
         path: tenantToCreate.path,
       });
       if (!tenant) {
-        tenant = new Tenant();
-        tenant.name = tenantToCreate.name;
-        tenant.path = tenantToCreate.path;
-        tenant.consentTeaser1 = req.body.consentTeaser1;
-        tenant.consentText1 = req.body.consentText1;
-        tenant.consentTeaser2 = req.body.consentTeaser2;
-        tenant.consentText2 = req.body.consentText2;
-        tenant.color = req.body.color;
-        await tenant.save();
-        // check if there is an auth header present. if so, it means that an existing user was creating a new organisation. therefore directly assign him as an active admin
-        const user = await User.findOneOrFail({
-          where: { email: UserService.currentUser(req) },
+        // an existing user was creating a new organisation. therefore directly assign him as an active admin
+        const owner = await User.findOneOrFail({
+          where: { email: UserService.username(req) },
         });
-        const relation = new TenantRelation();
-        relation.user = user;
-        relation.tenant = tenant;
-        relation.active = true;
-        relation.role = ROLE.OWNER;
-        relation.save();
-        Log.write(tenant.id, user.id, `Tenant ${tenant.id} erstellt`);
-        res.status(200).send(tenant);
+        res
+          .status(200)
+          .send(
+            await TenantService.get().createNewTenant(tenantToCreate, owner)
+          );
       } else {
         res.status(400).send({ error: 'Tenant already exists' });
       }
     });
 
     /*
-     * get all tenants for the currently logged-in user
+     * get all tenants including relations for the currently logged-in user
      */
     app.get('/secure/tenants', async (req, res) => {
-      const user = await User.findOneOrFail({
-        email: UserService.currentUser(req),
-      });
-      const tenantRelations = await TenantRelation.find({
-        where: { user },
-        relations: ['tenant'],
-      });
-      res.status(200).send(tenantRelations);
+      res
+        .status(200)
+        .send(
+          await TenantService.get().getRelationsByUser(
+            (await UserService.currentUser(req)).id
+          )
+        );
     });
 
     /*
@@ -123,7 +110,7 @@ export class TenantController {
       async (request, res) => {
         // first, check if the client is connected to the tenant he/she wants to delete:
         const currentUser = await User.findOne({
-          email: UserService.currentUser(request),
+          email: UserService.username(request),
         });
         getConnection()
           .createQueryBuilder()

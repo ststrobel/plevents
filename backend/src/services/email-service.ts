@@ -7,6 +7,7 @@ export enum EMAIL_TEMPLATES {
   REGISTER = 'register',
   PASSWORD_RESET = 'password-reset',
   JOIN_TENANT = 'join',
+  NEW_TENANT = 'new-tenant',
 }
 
 export class EmailService {
@@ -16,6 +17,7 @@ export class EmailService {
     [EMAIL_TEMPLATES.PASSWORD_RESET, 'Passwort Reset Anfrage'],
     [EMAIL_TEMPLATES.REGISTER, 'Registrierung abschließen'],
     [EMAIL_TEMPLATES.JOIN_TENANT, 'Einladung erhalten'],
+    [EMAIL_TEMPLATES.NEW_TENANT, 'Neuer Tenant'],
   ]);
 
   /**

@@ -24,14 +24,34 @@ export class CategoryManagementComponent implements OnInit {
   });
   modalRef: BsModalRef;
   iconClassNames = [
+    'fa-swimmer',
     'fa-volleyball-ball',
     'fa-futbol',
     'fa-basketball-ball',
+    'fa-biking',
+    'fa-skiing',
+    'fa-hiking',
+    'fa-table-tennis',
+    'fa-bowling-ball',
+    'fa-dice',
+    'fa-chess',
+    'fa-campground',
     'fa-music',
     'fa-church',
     'fa-users',
+    'fa-video',
+    'fa-camera-retro',
+    'fa-paint-brush',
+    'fa-tools',
+    'fa-car',
+    'fa-utensils',
+    'fa-dog',
+    'fa-cat',
+    'fa-horse-head',
+    'fa-hippo',
   ];
   categoryBeingEdited: Category;
+  newCategory: Category = new Category();
 
   constructor(
     private categoryService: CategoryService,
@@ -87,15 +107,15 @@ export class CategoryManagementComponent implements OnInit {
       );
     } else {
       // a new category shall be added
-      const newCategory = new Category();
-      newCategory.name = this.categoryForm.get('newCategory').value;
-      newCategory.tenantId = this.tenant.id;
-      if (!this.validationPassed(newCategory)) {
+      this.newCategory.name = this.categoryForm.get('newCategory').value;
+      this.newCategory.tenantId = this.tenant.id;
+      if (!this.validationPassed(this.newCategory)) {
         return;
       }
-      this.categoryService.createCategory(newCategory).subscribe(
+      this.categoryService.createCategory(this.newCategory).subscribe(
         (createdCategory: Category) => {
           this.categories.push(createdCategory);
+          this.newCategory = new Category();
           this.categoryForm.get('newCategory').reset();
           alert('Neue Kategorie erstellt');
         },
@@ -154,7 +174,10 @@ export class CategoryManagementComponent implements OnInit {
     selectedCategory: Category,
     iconSelectionModal: TemplateRef<any>
   ): void {
-    if (this.categoriesBeingEdited.includes(selectedCategory.id)) {
+    if (
+      selectedCategory === this.newCategory ||
+      this.categoriesBeingEdited.includes(selectedCategory.id)
+    ) {
       this.categoryBeingEdited = selectedCategory;
       this.modalRef = this.modalService.show(iconSelectionModal);
     }

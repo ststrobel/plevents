@@ -22,7 +22,7 @@
               (click)="openIconSelection(category, iconSelectionModal)"
             ></i>
             <i
-              class="fas mr-2 fa-icons clickable"
+              class="fas mr-2 fa-image clickable"
               [ngStyle]="{
                 'line-height': isBeingEdited(category.id) ? '31px' : '24px',
                 'color': isBeingEdited(category.id)
@@ -74,16 +74,18 @@
         *ngIf="appService.hasRole(tenant.id, ROLE.OWNER)"
       >
         <div class="d-flex">
+          <i
+            class="fas mr-2 clickable {{
+              newCategory.icon ? newCategory.icon : 'fa-icons'
+            }}"
+            style="line-height: 38px"
+            (click)="openIconSelection(newCategory, iconSelectionModal)"
+          ></i>
           <input
             class="form-control flex-grow-1"
             type="text"
             formControlName="newCategory"
             placeholder="Neue Kategorie anlegen"
-            [ngClass]="{
-              'is-invalid':
-                categoryForm.controls.newCategory.invalid &&
-                categoryForm.controls.newCategory.touched
-            }"
           />
           <button class="ml-3 btn btn-outline-success" (click)="save()">
             Hinzufügen
@@ -112,13 +114,13 @@
       aussagekräftiges Icon hinzuzufügen.
     </p>
     <!-- icon selection -->
-    <span
+    <div
       class="iconContainer clickable"
       *ngFor="let iconClassName of iconClassNames"
       (click)="selectIcon(iconClassName)"
     >
       <i class="fas {{ iconClassName }}"></i>
-    </span>
+    </div>
     <div class="alert alert-light p-2 mt-2" style="background-color: #f9f9f9">
       Kein passendes Icon dabei? Einfach eine Mail an
       <a href="mailto: stefan.strobel@s4-consulting.de"

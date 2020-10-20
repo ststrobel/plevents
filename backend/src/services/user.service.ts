@@ -76,7 +76,7 @@ export class UserService {
    * extract the email from the basic auth header
    * @param request
    */
-  public static currentUser(request: any): string {
+  public static username(request: any): string {
     try {
       const authHeader = request.get('Authorization');
       const base64Credentials = authHeader.split(' ')[1];
@@ -90,6 +90,22 @@ export class UserService {
   }
 
   /**
+   * extract the user object based on the basic auth header or null if not found / an error happens
+   * @param request
+   */
+  public static async currentUser(request: any): Promise<User> {
+    try {
+      return User.findOneOrFail({ where: { email: this.username(request) } });
+    } catch (e) {
+      console.error(
+        `Could not extract user based on username ${this.username(request)}`,
+        e
+      );
+      return null;
+    }
+  }
+
+  /**
    * get all tenants of the currently logged-in user that he is an active admin for
    * @param request
    */
@@ -97,7 +113,7 @@ export class UserService {
     try {
       // first get the current user, to then search for the corresponding tenant
       const user = await User.findOneOrFail({
-        email: UserService.currentUser(request),
+        email: UserService.username(request),
       });
       const tenantRelations = await TenantRelation.find({
         where: { userId: user.id, active: true },
