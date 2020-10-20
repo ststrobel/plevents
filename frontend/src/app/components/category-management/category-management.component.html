@@ -89,7 +89,10 @@
               placeholder="Neue Kategorie anlegen"
             />
             <div
-              *ngIf="categoryForm.get('newCategory').value.length >= 20"
+              *ngIf="
+                categoryForm.get('newCategory').value &&
+                categoryForm.get('newCategory').value.length >= 20
+              "
               class="text-warning mt-1"
               style="font-size: small"
             >

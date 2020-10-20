@@ -98,6 +98,7 @@ export class CategoryManagementComponent implements OnInit {
             this.categoriesBeingEdited.indexOf(category.id),
             1
           );
+          this.categoryForm.removeControl(category.id);
           alert('Kategorie aktualisiert');
         },
         error => {
