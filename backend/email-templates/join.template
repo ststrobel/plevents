@@ -41,7 +41,18 @@
       <td width="20"></td> 
       <td>
         <br><br>
-        Falls Darstellungsprobleme auftreten, kopieren Sie diesen Link in die Adress-Zeile Ihres Browsers:<br>{{linkToProfile}}
+        Falls Darstellungsprobleme auftreten, kopieren Sie diesen Link in die Adress-Zeile Ihres Browsers:
+        <br>
+        {{linkToProfile}}
+      </td>
+    </tr>
+    <tr>
+      <td width="20"></td> 
+      <td>
+        <br><br>
+        Viele Grüße vom
+        <br>
+        <i>Plevents Team</i>
       </td>
     </tr>
   </table>

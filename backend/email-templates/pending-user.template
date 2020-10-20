@@ -5,7 +5,7 @@
       <td style="text-align: center;">
         <table style="background-color: #fafafa;">
           <tr>
-           <td>
+           <td style="font-size: 40px;">
             &nbsp;&nbsp;&nbsp;Plevents
           </td>
         </tr>
@@ -21,31 +21,17 @@
     <tr>
       <td width="20"></td>     
       <td style="font-size: 24px; color: #009688;">
-        <b>Passwort Reset</b>
+        <b>{{name}} möchte {{tenant}} beitreten</b>
         <br><br>
       </td>
     </tr>
     <tr>
       <td width="20"></td> 
       <td>
-        Für Ihren Account wurde eine Passwort-Rücksetzung beantragt.<br><br>
-        Falls Sie diese Rücksetzung veranlasst haben, klicken Sie auf folgenden Link, um ein neues Passwort zu vergeben:
-      </td>
-    </tr>
-    <tr>
-      <td width="20"></td> 
-      <td>
-        <br><br>
-        <a href="{{resetlink}}" style="padding: 10px; background-color: #009688; color: white;">Passwort zurücksetzen</a>
-      </td>
-    </tr>
-    <tr>
-      <td width="20"></td> 
-      <td>
-        <br><br>
-        Falls Darstellungsprobleme auftreten, kopieren Sie diesen Link in die Adress-Zeile Ihres Browsers:
+        {{name}} hat gerade um Aufnahme in Ihren Account {{tenant}} gebeten. Gehen Sie zur <a href="{{linkToUserManagement}}">Nutzerverwaltung</a>, um dort den Nutzer zuzulassen oder abzulehnen.
         <br>
-        {{resetlink}}
+        <br>
+        Nur Sie als Owner können den neuen Nutzer zulassen.
       </td>
     </tr>
     <tr>

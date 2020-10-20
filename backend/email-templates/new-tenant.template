@@ -28,9 +28,19 @@
       <td width="20"></td> 
       <td>
         Soeben hat sich folgender neuer Tenant bei Plevents registriert:
-        <br/><br/>
-        <b>{{tenantName}}</b><br/>
+        <br><br>
+        <b>{{tenantName}}</b>
+        <br>
         <i>/{{tenantPath}}</i>
+      </td>
+    </tr>
+    <tr>
+      <td width="20"></td> 
+      <td>
+        <br><br>
+        Viele Grüße vom
+        <br>
+        <i>Plevents Team</i>
       </td>
     </tr>
   </table>

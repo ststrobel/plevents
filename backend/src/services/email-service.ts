@@ -8,6 +8,7 @@ export enum EMAIL_TEMPLATES {
   PASSWORD_RESET = 'password-reset',
   JOIN_TENANT = 'join',
   NEW_TENANT = 'new-tenant',
+  PENDING_USER_APPROVAL = 'pending-user',
 }
 
 export class EmailService {
@@ -18,6 +19,7 @@ export class EmailService {
     [EMAIL_TEMPLATES.REGISTER, 'Registrierung abschließen'],
     [EMAIL_TEMPLATES.JOIN_TENANT, 'Einladung erhalten'],
     [EMAIL_TEMPLATES.NEW_TENANT, 'Neuer Tenant'],
+    [EMAIL_TEMPLATES.PENDING_USER_APPROVAL, 'Neue Nutzeranfrage'],
   ]);
 
   /**

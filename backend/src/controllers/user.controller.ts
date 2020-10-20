@@ -6,8 +6,9 @@ import { TenantRelation } from '../models/tenant-relation';
 import { ROLE } from '../../../common/tenant-relation';
 import { Verification, VerificationType } from '../models/verification';
 import { Invitation } from '../models/invitation';
-import { uniqBy } from 'lodash';
+import { each, map, uniqBy } from 'lodash';
 import { Tenant } from '../models/tenant';
+import { EmailService, EMAIL_TEMPLATES } from '../services/email-service';
 
 export class UserController {
   public static register(app: express.Application): void {
@@ -160,7 +161,24 @@ export class UserController {
             relation.userId = user.id;
             relation.active = false;
             relation.role = ROLE.MEMBER;
-            relation.save();
+            relation.save().then(async () => {
+              // also notify all owners of the tenant so that they know a new user is awaiting their approval
+              const owners = map(
+                await TenantRelation.find({
+                  where: { tenantId: tenant.id, role: ROLE.OWNER },
+                  relations: ['user'],
+                }),
+                'user'
+              );
+              const linkToUserManagement = `${process.env.DOMAIN}/${tenant.path}/verwaltung`;
+              each(owners, owner => {
+                EmailService.get().send(
+                  EMAIL_TEMPLATES.PENDING_USER_APPROVAL,
+                  owner.email,
+                  { tenant: tenant.name, name: user.name, linkToUserManagement }
+                );
+              });
+            });
           }
         }
       } else {

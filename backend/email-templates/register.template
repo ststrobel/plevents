@@ -33,7 +33,8 @@
     <tr>
       <td width="20"></td> 
       <td>
-        <br><br><a href="{{confirmationlink}}" style="padding: 10px; background-color: #009688; color: white;">Registrierung abschließen</a>
+        <br><br>
+        <a href="{{confirmationlink}}" style="padding: 10px; background-color: #009688; color: white;">Registrierung abschließen</a>
       </td>
     </tr>
     <tr>
@@ -41,6 +42,15 @@
       <td>
         <br><br>
         Falls Darstellungsprobleme auftreten, kopieren Sie diesen Link in die Adress-Zeile Ihres Browsers:<br>{{confirmationlink}}
+      </td>
+    </tr>
+    <tr>
+      <td width="20"></td> 
+      <td>
+        <br><br>
+        Viele Grüße vom
+        <br>
+        <i>Plevents Team</i>
       </td>
     </tr>
   </table>
