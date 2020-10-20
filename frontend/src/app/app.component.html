@@ -5,9 +5,14 @@
     [routerLink]="[tenant.path, 'events']"
   >
     <img *ngIf="tenant.logo" [src]="tenant.logo" />
-    <div style="padding: 20px 40px; font-weight: bold" *ngIf="!tenant.logo">
-      Events
-    </div>
+    <img
+      *ngIf="!tenant.logo"
+      src="assets/logo.png"
+      style="margin-left: 30px; padding: 5px"
+    />
+  </a>
+  <a class="nav-link nav-logo" *ngIf="!tenant">
+    <img src="assets/logo.png" style="margin-left: 30px; padding: 5px" />
   </a>
   <div *ngIf="!isLoggedIn() || !tenant" style="flex: 100000000 1 auto"></div>
   <button
@@ -32,6 +37,9 @@
           class="nav-link"
           [routerLink]="[tenant.path, 'events']"
           routerLinkActive="active"
+          [routerLinkActiveOptions]="{
+            __change_detection_hack__: [tenant.path]
+          }"
           data-toggle="collapse"
           data-target="#navbarSupportedContent"
           >Events</a
@@ -42,6 +50,9 @@
           class="nav-link"
           [routerLink]="[tenant.path, 'dashboard']"
           routerLinkActive="active"
+          [routerLinkActiveOptions]="{
+            __change_detection_hack__: [tenant.path]
+          }"
           data-toggle="collapse"
           data-target="#navbarSupportedContent"
           >Event-Planung</a
@@ -52,6 +63,9 @@
           class="nav-link"
           [routerLink]="[tenant.path, 'verwaltung']"
           routerLinkActive="active"
+          [routerLinkActiveOptions]="{
+            __change_detection_hack__: [tenant.path]
+          }"
           data-toggle="collapse"
           data-target="#navbarSupportedContent"
           >Verwaltung</a

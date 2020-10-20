@@ -12,7 +12,7 @@ import { RegistrationComponent } from './views/registration/registration.compone
 import { TenantRegistrationComponent } from './views/tenant-registration/tenant-registration.component';
 import { ErrorComponent } from './views/error/error.component';
 import { QuillModule } from 'ngx-quill';
-import { EventSelectComponent } from './views/event-select/event-select.component';
+import { EventSelectComponent } from './components/event-select/event-select.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ModalModule } from 'ngx-bootstrap/modal';

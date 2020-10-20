@@ -16,10 +16,13 @@ $fa-font-path: '~src/../node_modules/@fortawesome/fontawesome-free/webfonts';
 @font-face {
   font-family: 'source-sans-pro';
   src: url('assets/source-sans-pro/SourceSansPro-Regular.otf');
+  //font-family: 'Work Sans';
+  //src: url('https://fonts.googleapis.com/css?family=Work+Sans:300,400,500');
 }
 
 * {
   font-family: source-sans-pro;
+  //font-family: 'Work Sans';
 }
 
 html,
@@ -28,8 +31,8 @@ body {
 }
 
 body {
-  --plevents-main-color: #ff004d;
-  --plevents-main-color-darkened: #d80041;
+  --plevents-main-color: #2f5597;
+  --plevents-main-color-darkened: #344f7d;
 }
 
 body app-root {

@@ -24,6 +24,24 @@ export class AppService {
     this.tenantRelations = this.tenantRelationsSubject.asObservable();
   }
 
+  /**
+   * sets the overall text color based on the tenant. if tenant is null, it defaults to the plevents standard color
+   * @param color
+   */
+  setColor(tenant: Tenant): void {
+    let color: string, colorDarkened: string;
+    if (tenant && tenant.color) {
+      color = tenant.color;
+      colorDarkened = tenant.colorDarkened;
+    } else {
+      color = ' #2f5597';
+      colorDarkened = '#344f7d';
+    }
+    document.querySelector(
+      'body'
+    ).style.cssText = `--plevents-main-color: ${color}; --plevents-main-color-darkened: ${colorDarkened};`;
+  }
+
   setCurrentTenant(tenant: Tenant): void {
     if (this.tenantSubject.value !== tenant) {
       this.tenantSubject.next(tenant);

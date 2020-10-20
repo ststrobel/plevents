@@ -49,18 +49,17 @@ export class TenantComponent implements OnInit, OnDestroy {
     this.tenantSubscription = this.appService.tenant.subscribe(
       (tenant: Tenant) => {
         if (tenant && tenant.path === this.route.snapshot.params.tenantPath) {
-          // load tenant details
-          this.tenantService.get(tenant.id).subscribe((tenant: Tenant) => {
-            this.tenant = tenant;
-            this.setFormValues();
-          });
+          this.appService.setColor(tenant);
+          this.tenant = tenant;
+          this.setFormValues();
         }
       }
     );
-    this.tenantService.load(this.route.snapshot.params.tenantPath);
+    this.tenantService.load(this.route.snapshot.params.tenantPath, true);
   }
 
   ngOnDestroy(): void {
+    this.appService.setColor(null);
     if (this.tenantSubscription) {
       this.tenantSubscription.unsubscribe();
     }

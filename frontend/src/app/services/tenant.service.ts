@@ -28,8 +28,9 @@ export class TenantService {
    * if the tenant is already loaded, it is not requested at the backend again.
    * @param tenantPath
    */
-  load(tenantPath: string) {
+  load(tenantPath: string, force: boolean = false) {
     if (
+      !force &&
       this.appService.getCurrentTenant() &&
       this.appService.getCurrentTenant().path === tenantPath
     ) {

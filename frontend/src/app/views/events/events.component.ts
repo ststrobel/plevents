@@ -70,6 +70,7 @@ export class EventsComponent implements OnInit, OnDestroy {
       (tenant: Tenant) => {
         if (tenant) {
           this.tenant = tenant;
+          this.appService.setColor(this.tenant);
           this.loadEvents();
           this.consentTeaser1 = tenant.consentTeaser1;
           this.consentText1 = tenant.consentText1;
@@ -103,6 +104,7 @@ export class EventsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.appService.setColor(null);
     if (this.tenantSubscription) {
       this.tenantSubscription.unsubscribe();
     }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AuthenticationService } from './services/authentication.service';
 import * as moment from 'moment';
 import { TenantService } from './services/tenant.service';
@@ -32,12 +32,6 @@ export class AppComponent implements OnInit {
     this.appService.tenant.subscribe((tenant: Tenant) => {
       if (tenant) {
         this.tenant = tenant;
-        // when a (potentially other) tenant is selected, check if a specific color is set. if so, modify the body variable to reflect the color (theme) change
-        if (tenant.color) {
-          document.querySelector(
-            'body'
-          ).style.cssText = `--plevents-main-color: ${tenant.color}; --plevents-main-color-darkened: ${tenant.colorDarkened};`;
-        }
       }
     });
     this.appService.user.subscribe((user: User) => {

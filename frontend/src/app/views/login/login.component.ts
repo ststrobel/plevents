@@ -61,6 +61,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.appService.tenant.subscribe((tenant: Tenant) => {
         if (tenant) {
           this.tenant = tenant;
+          this.appService.setColor(this.tenant);
           // get return url from route parameters or default to '/'
           this.returnUrl =
             this.route.snapshot.queryParams['returnUrl'] ||
@@ -75,6 +76,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.appService.setColor(null);
     if (this.userSubscription) {
       this.userSubscription.unsubscribe();
     }

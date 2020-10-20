@@ -81,12 +81,23 @@
             style="line-height: 38px"
             (click)="openIconSelection(newCategory, iconSelectionModal)"
           ></i>
-          <input
-            class="form-control flex-grow-1"
-            type="text"
-            formControlName="newCategory"
-            placeholder="Neue Kategorie anlegen"
-          />
+          <div class="flex-grow-1">
+            <input
+              class="form-control w-100"
+              type="text"
+              formControlName="newCategory"
+              placeholder="Neue Kategorie anlegen"
+            />
+            <div
+              *ngIf="categoryForm.get('newCategory').value.length >= 20"
+              class="text-warning mt-1"
+              style="font-size: small"
+            >
+              <i class="fas fa-exclamation-triangle mr-1"></i>
+              Der Name der Kategorie sollte für eine gute Darstellung am besten
+              unter 20 Zeichen lang sein
+            </div>
+          </div>
           <button class="ml-3 btn btn-outline-success" (click)="save()">
             Hinzufügen
           </button>

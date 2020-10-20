@@ -87,6 +87,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.appService.tenant.subscribe((tenant: Tenant) => {
       if (tenant && tenant != this.tenant) {
         this.tenant = tenant;
+        this.appService.setColor(this.tenant);
         this.loadAllEvents(tenant);
       }
     });
@@ -109,6 +110,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.appService.setColor(null);
     if (this.tenantSubscription) {
       this.tenantSubscription.unsubscribe();
     }

@@ -42,6 +42,7 @@ export class RegistrationComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.appService.setColor(null);
     if (this.userSubscription) {
       this.userSubscription.unsubscribe();
     }
