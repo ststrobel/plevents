@@ -3,6 +3,7 @@ import { EmailService, EMAIL_TEMPLATES } from './email-service';
 import { User } from '../models/user';
 import { TenantRelation } from '../models/tenant-relation';
 import { Tenant } from '../models/tenant';
+import { ROUTES } from '../../../common/frontend.routes';
 
 export class InvitationService {
   private static singleton: InvitationService = null;
@@ -23,7 +24,7 @@ export class InvitationService {
     invitation.tenantId = tenantId;
     invitation.email = email;
     await invitation.save();
-    const linkToProfile = `${process.env.DOMAIN}/profil?join=${invitation.tenantId}`;
+    const linkToProfile = `${process.env.DOMAIN}/${ROUTES.PROFILE}?join=${invitation.tenantId}`;
     EmailService.get().send(EMAIL_TEMPLATES.JOIN_TENANT, email, {
       tenant: tenant.name,
       linkToProfile,

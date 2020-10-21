@@ -7,6 +7,7 @@ import { Tenant } from 'src/app/models/tenant';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AppService } from 'src/app/services/app.service';
 import { Subscription } from 'rxjs';
+import { ROUTES } from '../../../../../common/frontend.routes';
 
 @Component({
   selector: 'app-login',
@@ -42,7 +43,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     // check if there is a logged-in user already. if so, forward directly to the profile
     this.userSubscription = this.appService.user.subscribe(user => {
       if (user) {
-        this.router.navigate(['/profil']);
+        this.router.navigate([`/${ROUTES.PROFILE}`]);
       }
     });
     if (this.tenantPath()) {

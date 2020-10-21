@@ -9,6 +9,7 @@ import { Invitation } from '../models/invitation';
 import { each, map, uniqBy } from 'lodash';
 import { Tenant } from '../models/tenant';
 import { EmailService, EMAIL_TEMPLATES } from '../services/email-service';
+import { ROUTES } from '../../../common/frontend.routes';
 
 export class UserController {
   public static register(app: express.Application): void {
@@ -170,7 +171,7 @@ export class UserController {
                 }),
                 'user'
               );
-              const linkToUserManagement = `${process.env.DOMAIN}/${tenant.path}/verwaltung`;
+              const linkToUserManagement = `${process.env.DOMAIN}/${tenant.path}/${ROUTES.TENANT_MANAGEMENT}`;
               each(owners, owner => {
                 EmailService.get().send(
                   EMAIL_TEMPLATES.PENDING_USER_APPROVAL,

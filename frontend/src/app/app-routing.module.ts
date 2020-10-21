@@ -19,27 +19,33 @@ import { ROLE } from '../../../common/tenant-relation';
 import { CompleteRegistrationComponent } from './views/complete-registration/complete-registration.component';
 import { PasswordResetComponent } from './views/password-reset/password-reset.component';
 import { PasswordForgottenComponent } from './views/password-forgotten/password-forgotten.component';
+import { ROUTES } from '../../../common/frontend.routes';
+import { IntroComponent } from './views/intro/intro.component';
 
 const routes: Routes = [
   {
-    path: 'login',
+    path: ROUTES.HOME,
+    component: IntroComponent,
+  },
+  {
+    path: ROUTES.LOGIN,
     component: LoginComponent,
   },
   {
-    path: 'account-registrierung',
+    path: ROUTES.REGISTER_ACCOUNT,
     component: TenantRegistrationComponent,
     canActivate: [AuthGuard],
   },
   {
-    path: 'passwort-vergessen',
+    path: ROUTES.PASSWORD_FORGOTTEN,
     component: PasswordForgottenComponent,
   },
   {
-    path: 'passwort-reset',
+    path: ROUTES.PASSWORD_RESET,
     component: PasswordResetComponent,
   },
   {
-    path: 'nutzer-registrierung',
+    path: ROUTES.REGISTER_USER,
     component: RegistrationComponent,
   },
   {
@@ -47,19 +53,19 @@ const routes: Routes = [
     component: ErrorComponent,
   },
   {
-    path: 'impressum',
+    path: ROUTES.IMPRINT,
     component: ImprintComponent,
   },
   {
-    path: 'rechtliches',
+    path: ROUTES.LEGAL,
     component: LegalComponent,
   },
   {
-    path: 'registrierung',
+    path: ROUTES.REGISTER_USER_FINISH,
     component: CompleteRegistrationComponent,
   },
   {
-    path: 'profil',
+    path: ROUTES.PROFILE,
     component: ProfileComponent,
     canActivate: [AuthGuard],
   },
@@ -67,37 +73,37 @@ const routes: Routes = [
     path: ':tenantPath',
     children: [
       {
-        path: 'login',
+        path: ROUTES.LOGIN,
         component: LoginComponent,
       },
       {
-        path: 'dashboard',
+        path: ROUTES.TENANT_PLANNER,
         component: DashboardComponent,
         canActivate: [AuthGuard, TenantGuard],
       },
       {
-        path: 'verwaltung',
+        path: ROUTES.TENANT_MANAGEMENT,
         component: TenantComponent,
         canActivate: [AuthGuard, TenantGuard],
         data: { role: ROLE.ADMIN },
       },
       {
-        path: 'events',
+        path: ROUTES.TENANT_EVENTS,
         component: EventsComponent,
       },
       {
-        path: 'nutzer-registrierung',
+        path: ROUTES.REGISTER_USER,
         component: RegistrationComponent,
       },
       {
         path: '**',
-        redirectTo: 'events',
+        redirectTo: ROUTES.TENANT_EVENTS,
       },
     ],
   },
   {
     path: '**',
-    redirectTo: 'login',
+    redirectTo: ROUTES.HOME,
   },
 ];
 

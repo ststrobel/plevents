@@ -6,6 +6,7 @@ import { TenantRelation } from '../models/tenant-relation';
 import { map } from 'lodash';
 import { Verification, VerificationType } from '../models/verification';
 import { EmailService, EMAIL_TEMPLATES } from './email-service';
+import { ROUTES } from '../../../common/frontend.routes';
 
 export class UserService {
   public static async createUserProfile(
@@ -28,7 +29,7 @@ export class UserService {
         verification.type = VerificationType.REGISTRATION;
         await verification.save();
         // now send out an email to make the user confirm his profile
-        const confirmationlink = `${process.env.DOMAIN}/registrierung?code=${verification.code}`;
+        const confirmationlink = `${process.env.DOMAIN}/${ROUTES.REGISTER_USER_FINISH}?code=${verification.code}`;
         EmailService.get().send(EMAIL_TEMPLATES.REGISTER, newUser.email, {
           name: newUser.name,
           confirmationlink,

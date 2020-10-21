@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AppService } from 'src/app/services/app.service';
 import { UserService } from 'src/app/services/user.service';
+import { ROUTES } from '../../../../../common/frontend.routes';
 
 @Component({
   selector: 'app-password-forgotten',
@@ -34,7 +35,7 @@ export class PasswordForgottenComponent implements OnInit {
     // check if there is a logged-in user already. if so, forward directly to the profile
     this.userSubscription = this.appService.user.subscribe(user => {
       if (user) {
-        this.router.navigate(['/profil']);
+        this.router.navigate([`/${ROUTES.PROFILE}`]);
       }
     });
   }

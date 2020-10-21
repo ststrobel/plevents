@@ -2,7 +2,7 @@
   <a
     class="nav-link nav-logo"
     *ngIf="tenant"
-    [routerLink]="[tenant.path, 'events']"
+    [routerLink]="[tenant.path, ROUTES.TENANT_EVENTS]"
   >
     <img *ngIf="tenant.logo" [src]="tenant.logo" />
     <img
@@ -11,10 +11,14 @@
       style="margin-left: 30px; padding: 5px"
     />
   </a>
-  <a class="nav-link nav-logo" *ngIf="!tenant">
+  <a
+    class="nav-link nav-logo"
+    *ngIf="!tenant"
+    [routerLink]="['/' + ROUTES.HOME]"
+  >
     <img src="assets/logo.png" style="margin-left: 30px; padding: 5px" />
   </a>
-  <div *ngIf="!isLoggedIn() || !tenant" style="flex: 100000000 1 auto"></div>
+  <!--<div *ngIf="!isLoggedIn() || !tenant" style="flex: 100000000 1 auto"></div>-->
   <button
     class="navbar-toggler"
     type="button"
@@ -32,10 +36,20 @@
       class="navbar-nav mr-auto"
       [ngClass]="{ 'mr-auto': isLoggedIn(), 'ml-auto': !isLoggedIn() }"
     >
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          [routerLink]="[ROUTES.HOME]"
+          routerLinkActive="active"
+          data-toggle="collapse"
+          data-target="#navbarSupportedContent"
+          >Home</a
+        >
+      </li>
       <li class="nav-item" *ngIf="tenant">
         <a
           class="nav-link"
-          [routerLink]="[tenant.path, 'events']"
+          [routerLink]="[tenant.path, ROUTES.TENANT_EVENTS]"
           routerLinkActive="active"
           [routerLinkActiveOptions]="{
             __change_detection_hack__: [tenant.path]
@@ -48,20 +62,20 @@
       <li class="nav-item" *ngIf="isMemberOfCurrentTenant()">
         <a
           class="nav-link"
-          [routerLink]="[tenant.path, 'dashboard']"
+          [routerLink]="[tenant.path, ROUTES.TENANT_PLANNER]"
           routerLinkActive="active"
           [routerLinkActiveOptions]="{
             __change_detection_hack__: [tenant.path]
           }"
           data-toggle="collapse"
           data-target="#navbarSupportedContent"
-          >Event-Planung</a
+          >Event-Planner</a
         >
       </li>
       <li class="nav-item" *ngIf="isAdminOfCurrentTenant()">
         <a
           class="nav-link"
-          [routerLink]="[tenant.path, 'verwaltung']"
+          [routerLink]="[tenant.path, ROUTES.TENANT_MANAGEMENT]"
           routerLinkActive="active"
           [routerLinkActiveOptions]="{
             __change_detection_hack__: [tenant.path]
@@ -74,7 +88,7 @@
       <li class="nav-item" *ngIf="isLoggedIn()">
         <a
           class="nav-link"
-          [routerLink]="['profil']"
+          [routerLink]="[ROUTES.PROFILE]"
           routerLinkActive="active"
           data-toggle="collapse"
           data-target="#navbarSupportedContent"
@@ -84,7 +98,7 @@
       <li class="nav-item" *ngIf="!isLoggedIn()">
         <a
           class="nav-link"
-          [routerLink]="tenant ? [tenant.path, 'login'] : ['login']"
+          [routerLink]="tenant ? [tenant.path, ROUTES.LOGIN] : [ROUTES.LOGIN]"
           routerLinkActive="active"
           data-toggle="collapse"
           data-target="#navbarSupportedContent"
@@ -93,9 +107,11 @@
       </li>
     </ul>
     <div *ngIf="isLoggedIn()">
-      angemeldet als:&nbsp;<u class="clickable" [routerLink]="['profil']">{{
-        username
-      }}</u>
+      angemeldet als:&nbsp;<u
+        class="clickable"
+        [routerLink]="[ROUTES.PROFILE]"
+        >{{ username }}</u
+      >
       <button
         id="logout-button"
         class="btn btn-outline-danger my-2 my-sm-0 ml-3"
@@ -116,7 +132,7 @@
 
 <footer>
   <div class="credits">
-    <a [routerLink]="['impressum']">Impressum</a>
+    <a [routerLink]="[ROUTES.IMPRINT]">Impressum</a>
   </div>
   <div class="credits">
     <small>zur Verfügung gestellt von</small>&nbsp;<br />
