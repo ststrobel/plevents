@@ -9,6 +9,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DomSanitizer } from '@angular/platform-browser';
 import { AppService } from 'src/app/services/app.service';
 import { ROLE } from '../../../../../common/tenant-relation';
+import { ROUTES } from '../../../../../common/frontend.routes';
 
 @Component({
   selector: 'app-tenant',
@@ -123,7 +124,7 @@ export class TenantComponent implements OnInit, OnDestroy {
         this.appService.setCurrentTenant(tenant);
         if (pathChanged) {
           // the path was changed, reload the page
-          this.router.navigate([tenant.path, 'verwaltung']);
+          this.router.navigate([tenant.path, ROUTES.TENANT_MANAGEMENT]);
         } else {
           this.tenant = tenant;
           this.setFormValues();
@@ -182,7 +183,7 @@ export class TenantComponent implements OnInit, OnDestroy {
         // go to profile view
         this.appService.setCurrentTenant(null);
         this.tenantService.getAll().subscribe();
-        this.router.navigate(['/profil']);
+        this.router.navigate([`/${ROUTES.PROFILE}`]);
       });
     }
   }

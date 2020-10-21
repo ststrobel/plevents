@@ -9,6 +9,7 @@ import { User } from 'src/app/models/user';
 import { AppService } from 'src/app/services/app.service';
 import { TenantService } from 'src/app/services/tenant.service';
 import { UserService } from 'src/app/services/user.service';
+import { ROUTES } from '../../../../../common/frontend.routes';
 import { ROLE } from '../../../../../common/tenant-relation';
 
 @Component({
@@ -90,7 +91,7 @@ export class UserManagementComponent implements OnInit {
           // if the user removed himself, jump to the profile:
           if (user.id === this.appService.getCurrentUser().id) {
             this.tenantService.getAll().subscribe();
-            this.router.navigate(['/profil']);
+            this.router.navigate([`/${ROUTES.PROFILE}`]);
           }
         },
         error => {

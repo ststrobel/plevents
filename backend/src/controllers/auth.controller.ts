@@ -5,6 +5,7 @@ import { Log } from '../models/log';
 import { User } from '../models/user';
 import { Verification, VerificationType } from '../models/verification';
 import { EmailService, EMAIL_TEMPLATES } from '../services/email-service';
+import { ROUTES } from '../../../common/frontend.routes';
 
 export class AuthController {
   public static register(app: express.Application): void {
@@ -39,7 +40,7 @@ export class AuthController {
           verification.type = VerificationType.PASSWORD_RESET;
           verification.userId = user.id;
           await verification.save();
-          const resetlink = `${process.env.DOMAIN}/passwort-reset?code=${verification.code}`;
+          const resetlink = `${process.env.DOMAIN}/${ROUTES.PASSWORD_RESET}passwort-reset?code=${verification.code}`;
           EmailService.get().send(EMAIL_TEMPLATES.PASSWORD_RESET, user.email, {
             name: user.name,
             resetlink,

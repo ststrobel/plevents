@@ -11,6 +11,7 @@ import { Invitation } from '../models/invitation';
 import { EmailService, EMAIL_TEMPLATES } from '../services/email-service';
 import { uniqBy } from 'lodash';
 import { TenantService } from '../services/tenant.service';
+import { ROUTES } from '../../../common/frontend.routes';
 
 export class TenantController {
   public static register(app: express.Application): void {
@@ -19,6 +20,8 @@ export class TenantController {
      */
     app.post('/secure/tenants', async (req, res) => {
       const tenantToCreate = <TenantI>req.body;
+      // sanity check - make sure the user did not try to take a reserved name
+      // TODO
       let tenant = await Tenant.findOne({
         path: tenantToCreate.path,
       });
@@ -150,7 +153,7 @@ export class TenantController {
           invitation.email = request.body.email;
           invitation.tenantId = request.params.tenantId;
           await invitation.save();
-          const linkToProfile = `${process.env.DOMAIN}/profil`;
+          const linkToProfile = `${process.env.DOMAIN}/${ROUTES.PROFILE}`;
           EmailService.get().send(
             EMAIL_TEMPLATES.JOIN_TENANT,
             request.body.email,

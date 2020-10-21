@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AppService } from 'src/app/services/app.service';
 import { UserService } from 'src/app/services/user.service';
+import { ROUTES } from '../../../../../common/frontend.routes';
 
 @Component({
   selector: 'app-password-reset',
@@ -31,7 +32,7 @@ export class PasswordResetComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.userSubscription = this.appService.user.subscribe(user => {
       if (user) {
-        this.router.navigate(['/profil']);
+        this.router.navigate([`/${ROUTES.PROFILE}`]);
       }
     });
     if (!this.route.snapshot.queryParams.code) {

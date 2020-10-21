@@ -5,6 +5,7 @@ import {
   RouterStateSnapshot,
   CanActivate,
 } from '@angular/router';
+import { ROUTES } from '../../../../common/frontend.routes';
 import { AppService } from '../services/app.service';
 import { AuthenticationService } from '../services/authentication.service';
 
@@ -26,7 +27,9 @@ export class AuthGuard implements CanActivate {
     }
     // not logged in so redirect to login page with the return url
     this.router.navigate(
-      route.params.tenantPath ? [route.params.tenantPath, 'login'] : ['/login'],
+      route.params.tenantPath
+        ? [route.params.tenantPath, ROUTES.LOGIN]
+        : [`/${ROUTES.LOGIN}`],
       {
         queryParams: { returnUrl: state.url },
       }

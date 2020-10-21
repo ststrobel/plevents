@@ -7,6 +7,7 @@ import { User } from './models/user';
 import { TenantRelation } from './models/tenant-relation';
 import { AppService } from './services/app.service';
 import { ROLE } from '../../../common/tenant-relation';
+import { ROUTES } from '../../../common/frontend.routes';
 
 @Component({
   selector: 'app-root',
@@ -19,6 +20,7 @@ export class AppComponent implements OnInit {
   tenant: Tenant = null;
   username: string = null;
   tenantRelations: TenantRelation[];
+  ROUTES = ROUTES;
 
   constructor(
     private authenticationService: AuthenticationService,

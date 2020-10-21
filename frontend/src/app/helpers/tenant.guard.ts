@@ -12,6 +12,7 @@ import { of } from 'rxjs';
 import { TenantService } from '../services/tenant.service';
 import { map } from 'rxjs/operators';
 import { ROLE } from '../../../../common/tenant-relation';
+import { ROUTES } from '../../../../common/frontend.routes';
 
 @Injectable({ providedIn: 'root' })
 export class TenantGuard implements CanActivate {
@@ -59,7 +60,7 @@ export class TenantGuard implements CanActivate {
       return true;
     }
     // not an internal member of the tenant - redirect user to the public events screen
-    this.router.navigate([route.params.tenantPath, 'events']);
+    this.router.navigate([route.params.tenantPath, ROUTES.TENANT_EVENTS]);
     return false;
   }
 }

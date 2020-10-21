@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { TenantRelation } from 'src/app/models/tenant-relation';
 import { AppService } from 'src/app/services/app.service';
 import { ROLE } from '../../../../../common/tenant-relation';
+import { ROUTES } from '../../../../../common/frontend.routes';
 
 @Component({
   selector: 'app-tenant-registration',
@@ -78,7 +79,7 @@ export class TenantRegistrationComponent implements OnInit {
         const relations = this.appService.getCurrentTenantRelations();
         relations.push(relation);
         this.appService.setCurrentTenantRelations(relations);
-        this.router.navigate([tenant.path, 'verwaltung']);
+        this.router.navigate([tenant.path, ROUTES.TENANT_MANAGEMENT]);
       },
       error => {
         console.error(error);

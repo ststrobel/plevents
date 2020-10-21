@@ -8,6 +8,7 @@ import { environment } from 'src/environments/environment';
 import { User } from '../models/user';
 import { TenantService } from './tenant.service';
 import { AppService } from './app.service';
+import { ROUTES } from '../../../../common/frontend.routes';
 
 @Injectable({ providedIn: 'root' })
 export class AuthenticationService {
@@ -64,9 +65,12 @@ export class AuthenticationService {
       this.appService.getCurrentTenant() &&
       this.appService.getCurrentTenant().path
     ) {
-      this.router.navigate([this.appService.getCurrentTenant().path, 'login']);
+      this.router.navigate([
+        this.appService.getCurrentTenant().path,
+        ROUTES.LOGIN,
+      ]);
     } else {
-      this.router.navigate(['/login']);
+      this.router.navigate([`/${ROUTES.LOGIN}`]);
     }
   }
 }
