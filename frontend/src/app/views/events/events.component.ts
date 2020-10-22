@@ -131,7 +131,6 @@ export class EventsComponent implements OnInit, OnDestroy {
       this.eventsInTimeframe = filter(events, { disabled: false });
       /////////////////////////////////////////
       this.categories = results[1] as Category[];
-      console.log(this.categories);
       // only consider categories that have at least one event present
       this.categories = filter(this.categories, (category: Category) => {
         return (

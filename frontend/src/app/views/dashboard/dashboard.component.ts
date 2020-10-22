@@ -144,7 +144,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
           .clone()
           .endOf('week')
           .subtract(3, 'weeks');
-        for (let kw = today.week() - 3; kw <= 52; kw++) {
+        for (
+          let kw = today.week() - 3;
+          kw <= moment().date(31).month(11).isoWeek();
+          kw++
+        ) {
           const week = new Week(kw);
           const weekStart = startOfWeekThreeWeeksAgo
             .clone()
@@ -180,7 +184,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   createNewEventSeriesForm(): void {
     this.newEventSeriesForm = new FormGroup({
       name: new FormControl('', Validators.required),
-      categoryId: new FormControl(''),
+      categoryId: new FormControl(null),
       fromDate: new FormControl('', Validators.required),
       time: new FormControl('', Validators.required),
       maxSeats: new FormControl('', Validators.required),
@@ -190,7 +194,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   createNewSingleEventForm(): void {
     this.newSingleEventForm = new FormGroup({
       name: new FormControl('', Validators.required),
-      categoryId: new FormControl(''),
+      categoryId: new FormControl(null),
       date: new FormControl('', Validators.required),
       time: new FormControl('', Validators.required),
       maxSeats: new FormControl('', Validators.required),
@@ -210,8 +214,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     m.minutes(parseInt(time.split(':')[1]));
     const currentWeek = m.week();
     // add the event for all following calendar weeks until the end of the year:
+    console.log(moment().date(31).month(12));
     const observables = [];
-    for (let cw = currentWeek; cw <= 52; cw++) {
+    for (
+      let cw = currentWeek;
+      cw <= moment().date(31).month(11).isoWeek();
+      cw++
+    ) {
       const event = new Event();
       event.singleOccurence = false;
       event.name = this.newEventSeriesForm.get('name').value;
