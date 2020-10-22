@@ -10,7 +10,7 @@ import {
   Validators,
   AbstractControl,
 } from '@angular/forms';
-import { forkJoin, Observable, of, Subscription } from 'rxjs';
+import { forkJoin, Observable, Subscription } from 'rxjs';
 import { TenantService } from 'src/app/services/tenant.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Tenant } from 'src/app/models/tenant';
@@ -47,7 +47,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     date: new FormControl(null),
     weekDay: new FormControl(''),
     time: new FormControl('', Validators.required),
-    maxSeats: new FormControl('', Validators.required),
+    maxSeats: new FormControl('', [Validators.required, Validators.min(1)]),
     categoryId: new FormControl(null),
     registrationOpenFrom: new FormControl(null),
   });
@@ -187,7 +187,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       categoryId: new FormControl(null),
       fromDate: new FormControl('', Validators.required),
       time: new FormControl('', Validators.required),
-      maxSeats: new FormControl('', Validators.required),
+      maxSeats: new FormControl('', [Validators.required, Validators.min(1)]),
     });
   }
 
@@ -197,7 +197,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       categoryId: new FormControl(null),
       date: new FormControl('', Validators.required),
       time: new FormControl('', Validators.required),
-      maxSeats: new FormControl('', Validators.required),
+      maxSeats: new FormControl('', [Validators.required, Validators.min(1)]),
       registrationOpenFrom: new FormControl(null),
     });
   }

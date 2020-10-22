@@ -120,6 +120,7 @@
           id="maxSeats"
           type="number"
           formControlName="maxSeats"
+          min="1"
         />
       </div>
       <div class="col-12 col-md-4">
@@ -219,6 +220,7 @@
           id="maxSeats"
           type="number"
           formControlName="maxSeats"
+          min="1"
         />
       </div>
       <div
@@ -347,16 +349,24 @@
     *ngFor="let uniqueEvent of uniqueEvents; let i = index"
   >
     <div class="card-header">
-      <span class="badge badge-plevents float-right">
+      <i
+        class="fas fa-edit clickable mr-1 float-right"
+        *ngIf="appService.hasRole(tenant.id, ROLE.ADMIN)"
+        (click)="editSeriesEvent(uniqueEvent, editSeriesEventModal)"
+      ></i>
+      <b>{{ uniqueEvent.displayName() }}</b>
+      <br />
+      {{ uniqueEvent.displayTime() }}
+      <span
+        class="badge badge-plevents float-right"
+        *ngIf="uniqueEvent.categoryId"
+      >
         <i
           class="fas mr-1 {{ categoryById(uniqueEvent.categoryId).icon }}"
           *ngIf="categoryById(uniqueEvent.categoryId).icon"
         ></i
         >{{ categoryName(uniqueEvent.categoryId) }}</span
       >
-      <b>{{ uniqueEvent.displayName() }}</b>
-      <br />
-      {{ uniqueEvent.displayTime() }}
     </div>
     <div class="card-body">
       <button
