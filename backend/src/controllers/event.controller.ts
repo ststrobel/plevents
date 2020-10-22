@@ -24,8 +24,9 @@ export class EventController {
     }
     if (req.query.end) {
       query = query.andWhere(`date <= '${req.query.end}'`);
-      query = query.orWhere(`registrationOpenFrom <= now()`);
     }
+    query = query.orWhere(`registrationOpenFrom <= now()`);
+    query = query.andWhere(`tenantId = '${req.params.tenantId}'`);
     const allEvents = await query.getMany();
 
     // then, retrieve the participants per event
