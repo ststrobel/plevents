@@ -1,21 +1,36 @@
-<h1>Willkommen bei plevents</h1>
+<h1>Willkommen bei <span class="highlighted">plevents</span></h1>
+
+<a class="jump-to" (click)="scrollToElement('about')"
+  >Über <span class="highlighted">plevents</span></a
+>
+<a class="jump-to" (click)="scrollToElement('benefits')">Vorteile</a>
+<a class="jump-to" (click)="scrollToElement('howitworks')">Funktionsweise</a>
+<a class="jump-to" (click)="scrollToElement('demo')">Demo</a>
+<a class="jump-to" (click)="scrollToElement('price')">Preis</a>
+<a class="jump-to" (click)="scrollToElement('contract')">Vertragslaufzeit</a>
+<a class="jump-to" (click)="scrollToElement('faq')">Häufige Fragen</a>
+
+<h2 id="about">Über <span class="highlighted">plevents</span></h2>
 <p>
-  Mit plevents lassen sich Teilnehmer bei Veranstaltungen kinderleicht
-  verwalten. plevents stellt hierfür eine Plattform bereit, über die Sie Events
-  veröffentlichen, zu denen sich dann Teilnehmer anmelden können.
+  Mit <span class="highlighted">plevents</span> lassen sich Teilnehmer bei
+  Veranstaltungen kinderleicht verwalten.
+  <span class="highlighted">plevents</span> stellt hierfür eine Plattform
+  bereit, über die Sie Events veröffentlichen, zu denen sich dann Teilnehmer
+  anmelden können.
 </p>
 <p>
   Aufgrund der aktuellen Corona-Lage müssen dabei bestimmte Regelungen
-  eingehalten werden. plevents unterstützt hier. Teilnehmer müssen bei der
-  Anmeldung ihren Namen sowie Adress- und Kontaktdaten hinterlegen. Diese Daten
-  werden sicher gespeichert und DSGVO-konform nach 4 Wochen automatisch
-  gelöscht. Nur die für die Verantstaltung verantwortlichen Personen haben
-  Zugriff auf die Daten.
+  eingehalten werden. <span class="highlighted">plevents</span> unterstützt Sie
+  hier. Teilnehmer müssen bei der Anmeldung ihren Namen sowie Adress- und
+  Kontaktdaten hinterlegen. Diese Daten werden sicher gespeichert und
+  DSGVO-konform nach 4 Wochen automatisch gelöscht. Nur die für die
+  Verantstaltung verantwortlichen Personen haben Zugriff auf die Daten.
 </p>
 <p>
   <b
-    >Damit findet plevents eine gute Balance zwischen lästiger Datenerfassung
-    auf der einen und Sorge um Datenschutz auf der anderen Seite.</b
+    >Damit findet <span class="highlighted">plevents</span> eine gute Balance
+    zwischen lästiger Datenerfassung auf der einen und Sorge um Datenschutz auf
+    der anderen Seite.</b
   >
 </p>
 <a [routerLink]="['/' + ROUTES.REGISTER_USER]" class="btn btn-success">
@@ -23,11 +38,12 @@
   Jetzt kostenlos registrieren und alle Funktionen testen
 </a>
 <hr />
-<h2>Vorteile</h2>
+<h2 id="benefits">Vorteile</h2>
 <p>
-  plevents wurde speziell entwickelt, um Anmelde- und Registrierprozesse für
-  Events abzubilden. Der Fokus lag hier auf sich wiederholenden, regelmäßig
-  stattfindenen Events wie z.B. ein wöchentlicher Volleyball-Kurs. plevents
+  <span class="highlighted">plevents</span> wurde speziell entwickelt, um
+  Anmelde- und Registrierprozesse für Events abzubilden. Der Fokus liegt dabei
+  auf sich wiederholenden, regelmäßig stattfindenen Events wie z.B. ein
+  wöchentlicher Volleyball-Kurs. <span class="highlighted">plevents</span>
   eignet sich aber auch hervorragend für die Verwaltung von kleinen und großen
   Einzelevents:
 </p>
@@ -47,10 +63,10 @@
               persönliche Daten zu schützen.
             </p>
             <p>
-              Ein Grundsatz von plevents daher: Sichere Datenspeicherung und
-              garantierte -löschung nach DSGVO-Standard. Eine Weitergabe oder
-              sonstige Verarbeitung der personenbezogenen Daten findet
-              <b>nicht</b> statt.
+              Ein Grundsatz von <span class="highlighted">plevents</span> daher:
+              Sichere Datenspeicherung und garantierte Datenlöschung nach
+              DSGVO-Standard. Eine Weitergabe oder sonstige Verarbeitung der
+              personenbezogenen Daten findet <b>nicht</b> statt.
             </p>
           </div>
         </div>
@@ -63,11 +79,13 @@
           <div class="col-9">
             <h6>Einfachheit</h6>
             <p>
-              Die Prozesse von plevents verfolgen ein Ziel: Einfachheit. Daher
-              ist es sehr einfach, ein Einzelevent oder eine Eventserie
-              anzulegen. Und genauso einfach ist es, sich als Teilnehmer zu
-              einem Event anzumelden. plevents.de aufrufen, Event wählen,
-              Teilnehmerdaten eintragen, fertig.
+              Die Prozesse von
+              <span class="highlighted">plevents</span> verfolgen ein Ziel:
+              Einfachheit. Daher ist es sehr einfach, ein Einzelevent oder eine
+              Eventserie anzulegen. Und genauso einfach ist es, sich als
+              Teilnehmer zu einem Event anzumelden.
+              <span class="highlighted">plevents</span>.de aufrufen, Event
+              wählen, Teilnehmerdaten eintragen, fertig!
             </p>
           </div>
         </div>
@@ -80,16 +98,22 @@
           <div class="col-9">
             <h6>Preis</h6>
             <p>
-              plevents biete viel - und das zu einem sehr niedrigen Preis. Die
-              Monatsgebühr liegt bei lediglich 15€ zzgl. gesetzlicher
-              Mehrwertsteuer. Somit kostet plevents gerade einmal
+              <span class="highlighted">plevents</span> bietet viel - und das zu
+              einem sehr niedrigen Preis. Die Monatsgebühr liegt bei lediglich
+              15€ zzgl. gesetzlicher Mehrwertsteuer. Somit kostet
+              <span class="highlighted">plevents</span> gerade einmal
               <b>50ct pro Tag</b>.
             </p>
             <p>
-              <b>Und das beste:</b> Für Vereine und kirchliche Organisationen
-              wird die gesamte Jahresgebühr als Spende rücküberwiesen. Somit ist
-              nur die Mehrwertsteuer zu entrichten. Dies sind zum aktuellen
-              Zeitpunkt genau 28,80€ - <b>pro Jahr</b>!
+              <b>Und das Beste:</b> Für Vereine und kirchliche Organisationen
+              können die Kosten für
+              <span class="highlighted">plevents</span> (nach Prüfung) nochmals
+              deutlich sinken. Informieren Sie sich vollkommen unverbindlich,
+              eine Mail an
+              <a href="mailto:stefan.strobel@s4-consulting.de"
+                >stefan.strobel@s4-consulting.de</a
+              >
+              genügt.
             </p>
           </div>
         </div>
@@ -102,10 +126,10 @@
           <div class="col-9">
             <h6>Anwendungsmöglichkeiten</h6>
             <p>
-              Mit plevents kann man vielerlei Arten von events verwalten. Dies
-              fängt bei einer wöchentlichen Veranstaltung im Verein an, geht
-              über einmalige Events wie Konzerte bis hin zur Erfassung von
-              Restaurant-Besuchern.
+              Mit <span class="highlighted">plevents</span> kann man vielerlei
+              Arten von Events verwalten. Dies fängt bei einer wöchentlichen
+              Veranstaltung im Verein an, geht über einmalige Events wie
+              Konzerte bis hin zur Erfassung von Restaurant-Besuchern.
             </p>
           </div>
         </div>
@@ -118,16 +142,18 @@
           <div class="col-9">
             <h6>Anpassbarkeit</h6>
             <p>
-              Bei plevents bekommt jede Organisation einen Account. Ein Account
-              bezeichnet in diesem Fall eine Organisation, einen Verein oder ein
-              Unternehmen. Alle Events eines Accounts sind über eine eindeutige
-              URL aufrufbar. Und Sie können die URL selbst wählen!
+              Bei <span class="highlighted">plevents</span> bekommt jede
+              Organisation einen Account. Ein Account bezeichnet in diesem Fall
+              eine Organisation, einen Verein oder ein Unternehmen. Alle Events
+              eines Accounts sind über eine eindeutige URL aufrufbar. Und Sie
+              können die URL selbst wählen!
             </p>
             <p>
               Sollten Sie also Events für den Tennis Club Musterhausen verwalten
-              wollen, können Sie die URL
-              https://plevents.de/tennis-club-musterhausen festlegen -
-              vorausgesetzt, Ihnen ist noch niemand zuvorgekommen.
+              wollen, können Sie die URL https://<span class="highlighted"
+                >plevents</span
+              >.de/tennis-club-musterhausen festlegen - vorausgesetzt, Ihnen ist
+              noch niemand zuvorgekommen.
             </p>
             <p>
               Neben einer schön lesbaren URL können Sie außerdem Ihr Logo
@@ -146,7 +172,8 @@
             <h6>Vielfalt</h6>
             <p>
               Sie sind in mehreren Vereinen aktiv und möchten dort jeweils
-              Termine verwalten? Kein Problem. Bei plevents können Sie mit Ihrem
+              Termine verwalten? Kein Problem. Bei
+              <span class="highlighted">plevents</span> können Sie mit Ihrem
               persönlichen Nutzerprofil mehrere Accounts verwalten.
             </p>
             <p>
@@ -187,13 +214,13 @@
 </div>
 
 <hr />
-<h2>Funktionsweise</h2>
+<h2 id="howitworks">Funktionsweise</h2>
 <p>
-  Die Verwendung von plevents ist denkbar einfach. Das Erstellen eines Events
-  oder auch eines Serienevents bis Jahresende dauert in der Regel 2 Minuten. Die
-  Anmeldung als Teilnehmer ist nach Auswahl der passenden Veranstaltung und
-  Eingabe der persönlichen Daten ebenfalls innerhalb von wenigen Momenten
-  erledigt:
+  Die Verwendung von <span class="highlighted">plevents</span> ist denkbar
+  einfach. Das Erstellen eines Events oder auch eines Serienevents bis
+  Jahresende dauert in der Regel 2 Minuten. Die Anmeldung als Teilnehmer ist
+  nach Auswahl der passenden Veranstaltung und Eingabe der persönlichen Daten
+  ebenfalls innerhalb von wenigen Momenten erledigt:
 </p>
 <div class="row">
   <div class="col-12 col-lg-8 offset-lg-2">
@@ -201,26 +228,27 @@
       <li>
         <div class="row">
           <div class="col-3 text-center align-items-center d-flex bold">
-            <h3 class="flex-grow-1">Schritt 1</h3>
+            <h4 class="flex-grow-1">Schritt 1</h4>
           </div>
           <div class="col-9">
             <p>
-              In der Verwaltung von plevents legen Sie ein neues Event an.
-              Entweder als Einzelveranstaltung oder als Serienevent.
+              In der Verwaltung von
+              <span class="highlighted">plevents</span> legen Sie ein neues
+              Event an. Entweder als Einzelveranstaltung oder als Serienevent.
               Serienevents finden wöchentlich zur gleichen Uhrzeit statt.
             </p>
             <p>
               Sie legen für das Event ein (Start-)Datum, eine Uhrzeit, die
               maximale Teilnehmerzahl und einen aussagekräftigen Namen fest.
             </p>
-            <p><b>Das wars!</b> Das Event ist sofort freigeschaltet</p>
+            <p><b>Das wars!</b> Das Event ist sofort freigeschaltet.</p>
           </div>
         </div>
       </li>
       <li>
         <div class="row">
           <div class="col-3 text-center align-items-center d-flex bold">
-            <h3 class="flex-grow-1">Schritt 2</h3>
+            <h4 class="flex-grow-1">Schritt 2</h4>
           </div>
           <div class="col-9">
             <p>
@@ -228,9 +256,10 @@
               Ihnen gesetzte maximale Teilnehmerzahl berücksichtigt.
             </p>
             <p>
-              Bei Serienevents zeigt plevents nur die Veranstaltungen in der
-              aktuellen und nächsten Woche. Das dient der Übersichtlichkeit und
-              der Aktualität der Daten.
+              Bei Serienevents zeigt
+              <span class="highlighted">plevents</span> nur die Veranstaltungen
+              in der aktuellen und nächsten Woche. Das dient der
+              Übersichtlichkeit und der Aktualität der Daten.
             </p>
           </div>
         </div>
@@ -238,7 +267,7 @@
       <li>
         <div class="row">
           <div class="col-3 text-center align-items-center d-flex bold">
-            <h3 class="flex-grow-1">Schritt 3</h3>
+            <h4 class="flex-grow-1">Schritt 3</h4>
           </div>
           <div class="col-9">
             <p>
@@ -257,13 +286,14 @@
       <li>
         <div class="row">
           <div class="col-3 text-center align-items-center d-flex bold">
-            <h3 class="flex-grow-1">Schritt 4</h3>
+            <h4 class="flex-grow-1">Schritt 4</h4>
           </div>
           <div class="col-9">
             <p>Hier müssen Sie nichts weiter tun.</p>
             <p>
-              plevents wird automatisch 4 Wochen nach der Veranstaltung alle
-              Teilnehmerdaten automatisch löschen. DSGVO-konform - aber einfach.
+              <span class="highlighted">plevents</span> wird automatisch 4
+              Wochen nach der Veranstaltung alle Teilnehmerdaten automatisch
+              löschen. DSGVO-konform - aber einfach.
             </p>
           </div>
         </div>
@@ -273,17 +303,36 @@
 </div>
 
 <hr />
-<h2>Preis</h2>
+<h2 id="demo">Demo</h2>
 <p>
-  Es gibt natürlich bereits Programme am Markt, welche sich um das Thema
-  Event-Management und Teilnehmerverwaltung kümmern. plevents eignet sich
-  besonders für die Anwendungsfälle, in denen keine komplizierte Buchung mit
-  Bezahlvorgängen involviert ist.
+  Sie können sich gerne das Frontend für Teilnehmer anschauen. Unter
+  <a href="https://plevents.de/demo" target="_blank"
+    >https://plevents.de/demo</a
+  >
+  sehen Sie einige Test-Events. Dort können Sie erleben, wie einfach die
+  Registrierung als Teilnehmer zu einer Veranstaltung ist.
 </p>
 <p>
-  Die Grundessenz von plevents ist Einfachheit. Das hört auch beim Preis nicht
-  auf. Ein Produkt - ein Preis. Profitieren Sie von eher sehr niedrigen Gebühr
-  ohne versteckte Folgekosten oder Vertragsfalle.
+  Auf den folgenden Screenshots können Sie zudem die Verwaltungsansicht
+  kennenlernen. Hier planen Sie Events, verwalten Teilnehmerlisten und können
+  Ihren Account verwalten. Dies inkludiert die Definition von Kategorien für
+  eine bessere Organisation sowie die Nominierung von weiteren Nutzern als
+  Administratoren oder Veranstaltungsleiter.
+</p>
+
+<hr />
+<h2 id="price">Preis</h2>
+<p>
+  Es gibt natürlich bereits Programme am Markt, welche sich um das Thema
+  Event-Management und Teilnehmerverwaltung kümmern.
+  <span class="highlighted">plevents</span> eignet sich besonders für die
+  Anwendungsfälle, in denen keine komplizierte Buchung mit Bezahlvorgängen
+  involviert ist.
+</p>
+<p>
+  Die Grundessenz von <span class="highlighted">plevents</span> ist Einfachheit.
+  Das hört auch beim Preis nicht auf. Ein Produkt - ein Preis. Profitieren Sie
+  von eher sehr niedrigen Gebühr ohne versteckte Folgekosten oder Vertragsfalle.
 </p>
 <div class="row">
   <div
@@ -310,15 +359,17 @@
   >
     <div class="card highlight-card mb-3">
       <div class="card-header text-center">
-        <h2>Für Vereine & Kirchen: 2,40€ / Monat</h2>
+        <h2>Für Vereine & Kirchen</h2>
       </div>
       <div class="card-body">
-        <h5 class="card-title">plevents spendet die komplette Gebühr</h5>
+        <h5 class="card-title">Preis auf Anfrage</h5>
         <p class="card-text">
-          Für kirchliche Organisationen und Vereine gibt es ein Spezialangebot -
-          plevents gibt es kostenfrei! Es fallen lediglich die gesetzliche
-          Mehrwertsteuer als Kosten für Sie an, der gesamte Netto-Betrag wird
-          von plevents sofort nach Erhalt wieder an Sie zurücküberwiesen.
+          Für kirchliche Organisationen und Vereine kann es unter Umständen eine
+          reduzierte Jahresgebür geben. Informieren Sie sich unverbindlich per
+          Email bei
+          <a href="mailto:stefan.strobel@s4-consulting.de"
+            >stefan.strobel@s4-consulting.de</a
+          >
         </p>
         <a [routerLink]="['/' + ROUTES.REGISTER_USER]" class="btn btn-success"
           >Jetzt kostenlos testen</a
@@ -329,7 +380,25 @@
 </div>
 
 <hr />
-<h2>Häufige Fragen</h2>
+<h2 id="contract">Vertragslaufzeit</h2>
+<p>
+  Sollten Sie sich entscheiden,
+  <span class="highlighted">plevents</span> einzusetzen, müssen Sie Ihren
+  Account aktivieren. Dies geschieht durch Kontaktaufnahme mit mir und einer
+  Banküberweisung. Dabei legen Sie auch fest, für wie lange Sie
+  <span class="highlighted">plevents</span> nutzen möchten. Die
+  Mindestvertragslaufzeit beträgt einen Monat.
+</p>
+<p>
+  Wenn Sie wider Erwarten nicht zufrieden sein sollten, können Sie den Vertrag
+  jederzeit beenden oder auslaufen lassen. Ein Vertrag verlängert sich
+  automatisch um einen weiteren Monat, wenn Sie nicht bis 2 Tage vor Monatsende
+  schriftlich kündigen.
+</p>
+<p>Pro angebrochenen Kalenderonat wird die monatliche Nutzungsgebür fällig.</p>
+
+<hr />
+<h2 id="faq">Häufige Fragen</h2>
 <div class="accordion">
   <div class="card">
     <div class="card-header">
@@ -340,17 +409,17 @@
           data-toggle="collapse"
           data-target="#faq1"
         >
-          Für wen ist plevents gedacht?
+          Für wen ist <span class="highlighted">plevents</span> gedacht?
         </button>
       </h2>
     </div>
     <div id="faq1" class="collapse multi-collapse">
       <div class="card-body">
-        plevents ist die ideale Registrier-Plattform für Vereine, Organisationen
-        und Unternehmen für Veranstaltungen, zu denen sich die Teilnehmer im
-        Vorfeld anmelden sollen oder bei denen die Teilnehmer aufgrund der
-        aktuellen Corona-Verordnung ihre Adress- und Kontaktdaten hinterlegen
-        müssen.
+        <span class="highlighted">plevents</span> ist die ideale
+        Registrier-Plattform für Vereine, Organisationen und Unternehmen für
+        Veranstaltungen, zu denen sich die Teilnehmer im Vorfeld anmelden sollen
+        oder bei denen die Teilnehmer aufgrund der aktuellen Corona-Verordnung
+        ihre Adress- und Kontaktdaten hinterlegen müssen.
       </div>
     </div>
   </div>
@@ -369,7 +438,8 @@
     </div>
     <div id="faq2" class="collapse multi-collapse">
       <div class="card-body">
-        Zum aktuellen Zeitpunkt nein. plevents ist für eine einfache und
+        Zum aktuellen Zeitpunkt nein.
+        <span class="highlighted">plevents</span> ist für eine einfache und
         schnelle Anmeldung zu Veranstaltungen konzipiert. Die Einbindung einer
         Bezahlfunktion würde zu viel Komplexität in den Registrierungsprozess
         bringen.
@@ -391,11 +461,12 @@
     </div>
     <div id="faq3" class="collapse multi-collapse">
       <div class="card-body">
-        Wenn Sie plevents für Ihre Organisation einsetzen möchten, registrieren
-        Sie sich mit Ihrer Email-Adresse sowie Ihrem Namen. Zusätzlich können
-        Sie ein Logo Ihrer Organisation hinterlegen sowie die Farbwahl setzen.
-        plevents speichert zudem alle relevanten Informationen zu Events, diese
-        bestehen u.a. aus:
+        Wenn Sie <span class="highlighted">plevents</span> für Ihre Organisation
+        einsetzen möchten, registrieren Sie sich mit Ihrer Email-Adresse sowie
+        Ihrem Namen. Zusätzlich können Sie ein Logo Ihrer Organisation
+        hinterlegen sowie die Farbwahl setzen.
+        <span class="highlighted">plevents</span> speichert zudem alle
+        relevanten Informationen zu Events, diese bestehen u.a. aus:
         <ul>
           <li>Veranstaltungsname</li>
           <li>Datum / Wochentag</li>
@@ -426,16 +497,17 @@
           data-toggle="collapse"
           data-target="#faq4"
         >
-          Was kostet plevents?
+          Was kostet <span class="highlighted">plevents</span>?
         </button>
       </h2>
     </div>
     <div id="faq4" class="collapse multi-collapse">
       <div class="card-body">
-        plevents kostet pro Monat 15€ netto zzgl. gesetzlicher Mehrwertsteuer.
-        Für Vereine und kirchliche Organisationen ist plevents fast kostenlos,
-        hier fällt lediglich die Mehrwertsteuer an. Der gesamte Nettobetrag wird
-        als Spende sofort nach Erhalt zurücküberwiesen.
+        <span class="highlighted">plevents</span> kostet pro Monat 15€ netto
+        zzgl. gesetzlicher Mehrwertsteuer. Für Vereine und kirchliche
+        Organisationen ist <span class="highlighted">plevents</span> fast
+        kostenlos, hier fällt lediglich die Mehrwertsteuer an. Der gesamte
+        Nettobetrag wird als Spende sofort nach Erhalt zurücküberwiesen.
       </div>
     </div>
   </div>
@@ -448,7 +520,7 @@
           data-toggle="collapse"
           data-target="#faq5"
         >
-          Kann ich plevents testen?
+          Kann ich <span class="highlighted">plevents</span> testen?
         </button>
       </h2>
     </div>
@@ -456,8 +528,39 @@
       <div class="card-body">
         Ja, Sie können sich jederzeit ein kostenloses Nutzerprofil erstellen und
         einen Test-Account einrichten. Somit lernen Sie alle Funktionen von
-        plevents kennen und können dann entscheiden, ob Sie es weiterhin
-        einsetzen möchten.
+        <span class="highlighted">plevents</span> kennen und können dann
+        entscheiden, ob Sie es weiterhin einsetzen möchten.
+        <br />
+        <a [routerLink]="['/' + ROUTES.REGISTER_USER]" class="btn btn-success">
+          <i class="fas fa-chevron-right" style="color: inherit"></i>
+          Jetzt kostenlos registrieren und alle Funktionen testen
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <h2 class="mb-0">
+        <button
+          class="btn btn-link btn-block text-left collapsed"
+          type="button"
+          data-toggle="collapse"
+          data-target="#faq6"
+        >
+          Wie sind Vertragslaufzeit und Kündigung geregelt?
+        </button>
+      </h2>
+    </div>
+    <div id="faq6" class="collapse multi-collapse">
+      <div class="card-body">
+        <span class="highlighted">plevents</span> ist nicht nur günstig, sondern
+        auch fair. Daher gilt:
+        <ul>
+          <li>
+            <b>monatliche Vertragslaufzeit</b> - kein langfristiges Risiko
+          </li>
+          <li><b>jederzeit kündbar</b> - bis 2 Tage zum Monatsende</li>
+        </ul>
         <br />
         <a [routerLink]="['/' + ROUTES.REGISTER_USER]" class="btn btn-success">
           <i class="fas fa-chevron-right" style="color: inherit"></i>
