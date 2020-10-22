@@ -10,6 +10,10 @@ ul.no-bullets {
     &:nth-child(even) {
       background-color: whitesmoke;
     }
+    div.row > div:first-child {
+      padding-left: 0px;
+      padding-right: 0px;
+    }
   }
 }
 
@@ -29,8 +33,10 @@ ul.no-bullets {
 a.jump-to {
   cursor: pointer;
   display: inline-block;
-  padding: 20px;
+  padding: 5px;
   margin: 5px;
+  text-align: center;
+  width: 150px;
   border: 1px solid var(--plevents-main-color);
   color: var(--plevents-main-color);
   text-decoration: underline;
