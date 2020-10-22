@@ -472,12 +472,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   deleteParticipant(participant: Participant): void {
-    this.eventService
-      .deleteParticipant(this.tenant.id, this.selectedEvent.id, participant.id)
-      .subscribe(() => {
-        alert('Teilnehmer von Aktivität entfernt');
-        this.participants = reject(this.participants, { id: participant.id });
-        this.selectedEvent.takenSeats -= 1;
-      });
+    if (
+      confirm('Möchten Sie diesen Teilnehmer wirklich von der Liste entfernen?')
+    ) {
+      this.eventService
+        .deleteParticipant(
+          this.tenant.id,
+          this.selectedEvent.id,
+          participant.id
+        )
+        .subscribe(() => {
+          alert('Teilnehmer von Aktivität entfernt');
+          this.participants = reject(this.participants, { id: participant.id });
+          this.selectedEvent.takenSeats -= 1;
+        });
+    }
   }
 }
