@@ -8,6 +8,7 @@ import { TenantRelation } from './models/tenant-relation';
 import { AppService } from './services/app.service';
 import { ROLE } from '../../../common/tenant-relation';
 import { ROUTES } from '../../../common/frontend.routes';
+import { NgcCookieConsentService } from 'ngx-cookieconsent';
 
 @Component({
   selector: 'app-root',
@@ -25,7 +26,8 @@ export class AppComponent implements OnInit {
   constructor(
     private authenticationService: AuthenticationService,
     private tenantService: TenantService,
-    private appService: AppService
+    private appService: AppService,
+    private ccService: NgcCookieConsentService
   ) {
     moment.locale('de');
   }
