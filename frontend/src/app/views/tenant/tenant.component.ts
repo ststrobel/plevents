@@ -1,12 +1,10 @@
-import { Component, OnInit, OnDestroy, SecurityContext } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Tenant } from '../../models/tenant';
 import { TenantService } from '../../services/tenant.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { clone, find } from 'lodash';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { HttpErrorResponse } from '@angular/common/http';
-import { DomSanitizer } from '@angular/platform-browser';
 import { AppService } from 'src/app/services/app.service';
 import { ROLE } from '../../../../../common/tenant-relation';
 import { ROUTES } from '../../../../../common/frontend.routes';
@@ -41,7 +39,6 @@ export class TenantComponent implements OnInit, OnDestroy {
     private tenantService: TenantService,
     private route: ActivatedRoute,
     private router: Router,
-    private domSanitizer: DomSanitizer,
     public appService: AppService
   ) {}
 
@@ -98,19 +95,6 @@ export class TenantComponent implements OnInit, OnDestroy {
     updatedTenant.name = this.tenantForm.get('name').value;
     updatedTenant.path = this.tenantForm.get('path').value;
     updatedTenant.color = this.color;
-    // update the logo from the current tenant object
-    if (this.tenant.logo) {
-      if (typeof this.tenant.logo === 'object') {
-        // it's a SafeResourceUrl oject - convert it to string first
-        updatedTenant.logo = this.domSanitizer.sanitize(
-          SecurityContext.RESOURCE_URL,
-          this.tenant.logo
-        );
-      } else {
-        // it's a string already (we assume) - no need to do anything
-        updatedTenant.logo = this.tenant.logo;
-      }
-    }
     const pathChanged = updatedTenant.path !== this.tenant.path;
     this.tenantService.update(updatedTenant).subscribe(
       (tenant: Tenant) => {
@@ -148,10 +132,10 @@ export class TenantComponent implements OnInit, OnDestroy {
     }
     this.operationOngoing = true;
     const updatedTenant = clone(this.tenant);
-    updatedTenant.consentTeaser1 = this.tenantForm.get('consentTeaser1').value;
-    updatedTenant.consentText1 = this.tenantForm.get('consentText1').value;
-    updatedTenant.consentTeaser2 = this.tenantForm.get('consentTeaser2').value;
-    updatedTenant.consentText2 = this.tenantForm.get('consentText2').value;
+    updatedTenant.consentTeaser1 = this.legalForm.get('consentTeaser1').value;
+    updatedTenant.consentText1 = this.legalForm.get('consentText1').value;
+    updatedTenant.consentTeaser2 = this.legalForm.get('consentTeaser2').value;
+    updatedTenant.consentText2 = this.legalForm.get('consentText2').value;
     this.tenantService.update(updatedTenant).subscribe(
       (tenant: Tenant) => {
         this.tenant = tenant;

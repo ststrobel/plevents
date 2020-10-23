@@ -76,10 +76,14 @@ export class EventService {
     );
   }
 
-  setDisabled(id: string, disabled: boolean): Observable<Event> {
+  setDisabled(
+    tenantId: string,
+    id: string,
+    disabled: boolean
+  ): Observable<Event> {
     return this.http
       .put(
-        `${environment.apiUrl}/secure/events/${id}/disabled/${disabled}`,
+        `${environment.apiUrl}/secure/tenants/${tenantId}/events/${id}/disabled/${disabled}`,
         null
       )
       .pipe(

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, SecurityContext } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, tap } from 'rxjs/operators';
 import { TenantAdapter, Tenant } from '../models/tenant';
@@ -10,6 +10,8 @@ import {
 } from '../models/tenant-relation';
 import { AppService } from './app.service';
 import { Invitation, InvitationAdapter } from '../models/invitation';
+import { clone } from 'lodash';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Injectable({ providedIn: 'root' })
 export class TenantService {
@@ -20,7 +22,8 @@ export class TenantService {
     private tenantAdapter: TenantAdapter,
     private tenantRelationAdapter: TenantRelationAdapter,
     private appService: AppService,
-    private invitationAdapter: InvitationAdapter
+    private invitationAdapter: InvitationAdapter,
+    private domSanitizer: DomSanitizer
   ) {}
 
   /**
@@ -89,8 +92,22 @@ export class TenantService {
   }
 
   update(tenant: Tenant): Observable<Tenant> {
+    const tenantToUpdate = clone(tenant);
+    // update the logo from the current tenant object
+    if (tenantToUpdate.logo) {
+      if (typeof tenantToUpdate.logo === 'object') {
+        // it's a SafeResourceUrl oject - convert it to string first
+        tenantToUpdate.logo = this.domSanitizer.sanitize(
+          SecurityContext.RESOURCE_URL,
+          tenantToUpdate.logo
+        );
+      }
+    }
     return this.http
-      .put(`${environment.apiUrl}/secure/tenants/${tenant.id}`, tenant)
+      .put(
+        `${environment.apiUrl}/secure/tenants/${tenantToUpdate.id}`,
+        tenantToUpdate
+      )
       .pipe(
         // Adapt the raw item
         map(item => this.tenantAdapter.adapt(item)),

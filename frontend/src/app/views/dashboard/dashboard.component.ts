@@ -226,7 +226,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     m.minutes(parseInt(time.split(':')[1]));
     const currentWeek = m.week();
     // add the event for all following calendar weeks until the end of the year:
-    console.log(moment().date(31).month(12));
     const observables = [];
     for (
       let cw = currentWeek;
@@ -250,6 +249,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.loadAllEvents(this.appService.getCurrentTenant());
         this.operationOngoing = false;
         this.newEventSeriesFormShown = false;
+        this.newEventSeriesForm.reset();
       },
       error => {
         console.error(error);
@@ -289,6 +289,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.loadAllEvents(this.appService.getCurrentTenant());
         this.operationOngoing = false;
         this.newSingleEventFormShown = false;
+        this.newSingleEventForm.reset();
       },
       error => {
         console.error(error);
@@ -305,7 +306,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   toggleDisabled(event: Event): void {
     event.disabled = !event.disabled;
     // update it on server side, too
-    this.eventService.setDisabled(event.id, event.disabled).subscribe();
+    this.eventService
+      .setDisabled(this.tenant.id, event.id, event.disabled)
+      .subscribe();
   }
 
   deleteEventSeries(uniqueEventSeriesIndex: number): void {

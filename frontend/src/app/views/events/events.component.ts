@@ -191,7 +191,7 @@ export class EventsComponent implements OnInit, OnDestroy {
     });
     for (
       let isoWeek = moment().isoWeek();
-      isoWeek <= moment(maxDate).isoWeek();
+      isoWeek <= moment(maxDate).isoWeek() || isoWeek <= moment().isoWeek() + 1;
       isoWeek++
     ) {
       const week = new Week(isoWeek);

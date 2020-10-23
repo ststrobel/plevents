@@ -20,12 +20,12 @@ export class EventController {
       .where(`tenantId = '${req.params.tenantId}'`);
     // construct the where clause
     if (req.query.start) {
-      query = query.andWhere(`date >= '${req.query.start}'`);
+      query = query.andWhere(`DATE(date) >= '${req.query.start}'`);
     }
     if (req.query.end) {
-      query = query.andWhere(`date <= '${req.query.end}'`);
+      query = query.andWhere(`DATE(date) <= '${req.query.end}'`);
     }
-    query = query.orWhere(`registrationOpenFrom <= now()`);
+    query = query.orWhere(`DATE(registrationOpenFrom) <= now()`);
     query = query.andWhere(`tenantId = '${req.params.tenantId}'`);
     const allEvents = await query.getMany();
 
