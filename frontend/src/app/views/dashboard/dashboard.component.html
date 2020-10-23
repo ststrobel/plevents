@@ -667,6 +667,133 @@
       Noch keine Teilnehmer zu dieser Aktivität.
     </div>
     <small *ngIf="!participants">Teilnehmer werden geladen...</small>
+    <div class="alert alert-success mt-3 mb-1" *ngIf="addParticipantSuccess">
+      {{ addParticipantSuccess }}
+    </div>
+    <div *ngIf="eventNotinPast()">
+      <form
+        [formGroup]="addParticipantForm"
+        *ngIf="showAddParticipantForm"
+        (ngSubmit)="addParticipant()"
+      >
+        <div class="row">
+          <div
+            class="col-6 col-md-4"
+            [ngClass]="{ invalid: isInvalid('firstname') }"
+          >
+            <label for="firstname">Vorname</label>
+            <br />
+            <input
+              class="form-control"
+              id="firstname"
+              type="text"
+              placeholder="Vorname des Teilnehmers"
+              formControlName="firstname"
+            />
+          </div>
+          <div
+            class="col-6 col-md-4"
+            [ngClass]="{ invalid: isInvalid('lastname') }"
+          >
+            <label for="lastname">Nachname</label>
+            <br />
+            <input
+              class="form-control"
+              id="lastname"
+              type="text"
+              placeholder="Nachname des Teilnehmers"
+              formControlName="lastname"
+            />
+          </div>
+          <div
+            class="col-6 col-md-4"
+            [ngClass]="{ invalid: isInvalid('email') }"
+          >
+            <label for="email">Email</label>
+            <br />
+            <input
+              class="form-control"
+              id="email"
+              type="email"
+              placeholder="Kontakt-Email Adresse"
+              formControlName="email"
+            />
+          </div>
+          <div
+            class="col-6 col-md-4"
+            [ngClass]="{ invalid: isInvalid('phone') }"
+          >
+            <label for="phone">Telefonnummer</label>
+            <br />
+            <input
+              class="form-control"
+              id="phone"
+              type="phone"
+              placeholder="Telefonnr für Rückfragen"
+              formControlName="phone"
+            />
+          </div>
+          <div
+            class="col-6 col-md-4"
+            [ngClass]="{ invalid: isInvalid('street') }"
+          >
+            <label for="street">Adresse</label>
+            <br />
+            <input
+              class="form-control"
+              id="street"
+              type="text"
+              placeholder="Straße & Hausnummer"
+              formControlName="street"
+            />
+          </div>
+          <div class="col-6 col-md-4" [ngClass]="{ invalid: isInvalid('zip') }">
+            <label for="zip">PLZ</label>
+            <br />
+            <input
+              class="form-control"
+              id="zip"
+              type="text"
+              placeholder="Postleitzahl"
+              formControlName="zip"
+            />
+          </div>
+          <div
+            class="col-6 col-md-4"
+            [ngClass]="{ invalid: isInvalid('city') }"
+          >
+            <label for="city">Ort</label>
+            <br />
+            <input
+              class="form-control"
+              id="city"
+              type="text"
+              placeholder="Wohnort"
+              formControlName="city"
+            />
+          </div>
+          <div class="col-6 col-md-4 offset-md-4">
+            <button
+              class="btn btn-block btn-success"
+              type="submit"
+              style="margin-top: 32px"
+            >
+              Zum Event hinzufügen
+            </button>
+          </div>
+        </div>
+      </form>
+      <div class="text-right">
+        <button
+          type="button"
+          *ngIf="!showAddParticipantForm"
+          class="btn btn-sm btn-outline-success"
+          (click)="showAddParticipantForm = true"
+        >
+          Neuen Teilnehmer erfassen
+        </button>
+      </div>
+    </div>
   </div>
   <div class="modal-footer">
     <button

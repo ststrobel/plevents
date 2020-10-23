@@ -21,6 +21,7 @@ import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { Participant } from 'src/app/models/participant';
 import { AppService } from 'src/app/services/app.service';
 import { ROLE } from '../../../../../common/tenant-relation';
+import { User } from 'src/app/models/user';
 
 @Component({
   selector: 'app-dashboard',
@@ -55,6 +56,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
   participants: Participant[] = null;
   ROLE = ROLE;
   today = new Date();
+  addParticipantForm: FormGroup = new FormGroup({
+    firstname: new FormControl('', Validators.required),
+    lastname: new FormControl('', Validators.required),
+    email: new FormControl('', [Validators.required, Validators.email]),
+    phone: new FormControl('', Validators.required),
+    street: new FormControl('', Validators.required),
+    zip: new FormControl('', Validators.required),
+    city: new FormControl('', Validators.required),
+  });
+  showAddParticipantForm: boolean = false;
+  addParticipantSuccess: string = null;
 
   constructor(
     private eventService: EventService,
@@ -472,6 +484,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   showEventParticipants(event: Event, template: TemplateRef<any>): void {
     this.selectedEvent = event;
     this.participants = null;
+    this.showAddParticipantForm = false;
+    this.addParticipantSuccess = null;
+    this.addParticipantForm.reset();
     this.eventService
       .getParticipants(this.tenant.id, event.id)
       .subscribe(participants => {
@@ -496,5 +511,33 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.selectedEvent.takenSeats -= 1;
         });
     }
+  }
+
+  addParticipant(): void {
+    if (this.addParticipantForm.invalid) {
+      this.addParticipantForm.markAllAsTouched();
+      return;
+    }
+    const participant = new Participant();
+    participant.firstname = this.addParticipantForm.get('firstname').value;
+    participant.lastname = this.addParticipantForm.get('lastname').value;
+    participant.email = this.addParticipantForm.get('email').value;
+    participant.phone = this.addParticipantForm.get('phone').value;
+    participant.street = this.addParticipantForm.get('street').value;
+    participant.zip = this.addParticipantForm.get('zip').value;
+    participant.city = this.addParticipantForm.get('city').value;
+    participant.eventId = this.selectedEvent.id;
+    this.eventService
+      .addParticipant(participant)
+      .subscribe((createdParticipant: Participant) => {
+        this.addParticipantForm.reset();
+        this.addParticipantSuccess =
+          'Teilnehmer ' +
+          participant.firstname +
+          ' ' +
+          participant.lastname +
+          ' zur Veranstaltung hinzugefügt';
+        this.participants.push(createdParticipant);
+      });
   }
 }
