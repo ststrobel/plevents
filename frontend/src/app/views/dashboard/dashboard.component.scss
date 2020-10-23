@@ -23,7 +23,7 @@
 }
 
 .greyedOut {
-  background-color: $plevents-grey-light;
+  background-color: whitesmoke;
   color: $plevents-grey-dark;
   border: 1px solid white;
   height: 25px;
@@ -36,7 +36,7 @@
   color: darkgreen;
   font-weight: bold;
   &.empty {
-    background-color: #90ee905c;
+    background-color: #8cbf8c5c;
     color: #006400bd;
     &.has-passed {
       background: repeating-linear-gradient(
@@ -110,7 +110,16 @@
 
 table {
   thead {
-    background-color: lightgray;
+    background-color: #e6e6de;
+    tr th {
+      border-left: 1px solid white;
+      div.row {
+        margin: 0px;
+        > div {
+          padding: 2px;
+        }
+      }
+    }
   }
   tbody {
     tr {

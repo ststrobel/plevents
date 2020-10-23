@@ -263,23 +263,50 @@
           style="min-width: 140px; width: 300px; text-align: center"
           *ngFor="let uniqueEvent of uniqueEvents"
         >
-          {{ uniqueEvent.displayName() }}
-          <br />
+          <h4>{{ uniqueEvent.displayName() }}</h4>
           {{ uniqueEvent.displayTime() }}
-          &nbsp;<i
-            class="fas fa-edit"
-            style="cursor: pointer"
-            (click)="editSeriesEvent(uniqueEvent, editSeriesEventModal)"
-            *ngIf="appService.hasRole(tenant.id, ROLE.ADMIN)"
-          ></i>
-          <br />
-          <span class="badge badge-plevents" *ngIf="uniqueEvent.categoryId">
+          <span
+            class="badge badge-plevents ml-2"
+            *ngIf="uniqueEvent.categoryId"
+          >
             <i
               class="fas mr-1 {{ categoryById(uniqueEvent.categoryId).icon }}"
               *ngIf="categoryById(uniqueEvent.categoryId).icon"
             ></i
             >{{ categoryName(uniqueEvent.categoryId) }}</span
           >
+        </th>
+      </tr>
+      <tr *ngIf="appService.hasRole(tenant.id, ROLE.ADMIN)">
+        <th></th>
+        <th *ngFor="let uniqueEvent of uniqueEvents; let i = index" class="p-2">
+          <div class="row">
+            <div
+              class="col-md-12"
+              [ngClass]="{
+                'col-6': appService.hasRole(tenant.id, ROLE.OWNER),
+                'col-xl-6': appService.hasRole(tenant.id, ROLE.OWNER)
+              }"
+            >
+              <button
+                class="btn btn-sm btn-block btn-outline-success"
+                (click)="editSeriesEvent(uniqueEvent, editSeriesEventModal)"
+                [disabled]="operationOngoing"
+              >
+                <i class="fas mr-1 fa-edit"></i>Ändern
+              </button>
+            </div>
+            <div class="col-6 col-md-12 col-xl-6">
+              <button
+                *ngIf="appService.hasRole(tenant.id, ROLE.OWNER)"
+                class="btn btn-sm btn-block btn-outline-danger"
+                (click)="deleteEventSeries(i)"
+                [disabled]="operationOngoing"
+              >
+                <i class="fas mr-1 fa-trash-alt"></i>Löschen
+              </button>
+            </div>
+          </div>
         </th>
       </tr>
     </thead>
@@ -326,18 +353,6 @@
           </div>
         </td>
       </tr>
-      <tr *ngIf="appService.hasRole(tenant.id, ROLE.OWNER)">
-        <td></td>
-        <td *ngFor="let uniqueEvent of uniqueEvents; let i = index">
-          <button
-            class="btn btn-sm btn-block btn-outline-danger my-2 my-sm-0"
-            (click)="deleteEventSeries(i)"
-            [disabled]="operationOngoing"
-          >
-            Löschen
-          </button>
-        </td>
-      </tr>
     </tbody>
   </table>
 </div>
@@ -349,13 +364,7 @@
     *ngFor="let uniqueEvent of uniqueEvents; let i = index"
   >
     <div class="card-header">
-      <i
-        class="fas fa-edit clickable mr-1 float-right"
-        *ngIf="appService.hasRole(tenant.id, ROLE.ADMIN)"
-        (click)="editSeriesEvent(uniqueEvent, editSeriesEventModal)"
-      ></i>
-      <b>{{ uniqueEvent.displayName() }}</b>
-      <br />
+      <h4>{{ uniqueEvent.displayName() }}</h4>
       {{ uniqueEvent.displayTime() }}
       <span
         class="badge badge-plevents float-right"
@@ -444,14 +453,33 @@
           </tbody>
         </table>
       </div>
-      <button
-        class="btn btn-sm btn-block btn-outline-danger my-2"
-        (click)="deleteEventSeries(i)"
-        [disabled]="operationOngoing"
-        *ngIf="appService.hasRole(tenant.id, ROLE.OWNER)"
-      >
-        Eventserie löschen
-      </button>
+      <div class="row mt-2">
+        <div
+          class="col-md-12"
+          [ngClass]="{
+            'col-6': appService.hasRole(tenant.id, ROLE.OWNER),
+            'col-xl-6': appService.hasRole(tenant.id, ROLE.OWNER)
+          }"
+        >
+          <button
+            class="btn btn-sm btn-block btn-outline-success"
+            (click)="editSeriesEvent(uniqueEvent, editSeriesEventModal)"
+            [disabled]="operationOngoing"
+          >
+            <i class="fas mr-1 fa-edit"></i>Ändern
+          </button>
+        </div>
+        <div class="col-6 col-md-12 col-xl-6">
+          <button
+            *ngIf="appService.hasRole(tenant.id, ROLE.OWNER)"
+            class="btn btn-sm btn-block btn-outline-danger"
+            (click)="deleteEventSeries(i)"
+            [disabled]="operationOngoing"
+          >
+            <i class="fas mr-1 fa-trash-alt"></i>Löschen
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
