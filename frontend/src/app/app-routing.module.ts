@@ -21,6 +21,7 @@ import { PasswordResetComponent } from './views/password-reset/password-reset.co
 import { PasswordForgottenComponent } from './views/password-forgotten/password-forgotten.component';
 import { ROUTES } from '../../../common/frontend.routes';
 import { IntroComponent } from './views/intro/intro.component';
+import { MyAccountsComponent } from './views/my-accounts/my-accounts.component';
 
 const routes: Routes = [
   {
@@ -32,7 +33,7 @@ const routes: Routes = [
     component: LoginComponent,
   },
   {
-    path: ROUTES.REGISTER_ACCOUNT,
+    path: ROUTES.REGISTER_TENANT,
     component: TenantRegistrationComponent,
     canActivate: [AuthGuard],
   },
@@ -63,6 +64,11 @@ const routes: Routes = [
   {
     path: ROUTES.REGISTER_USER_FINISH,
     component: CompleteRegistrationComponent,
+  },
+  {
+    path: ROUTES.MY_TENANTS,
+    component: MyAccountsComponent,
+    canActivate: [AuthGuard],
   },
   {
     path: ROUTES.PROFILE,

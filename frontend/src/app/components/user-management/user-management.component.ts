@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { reject, findIndex } from 'lodash';
+import { reject, findIndex, find } from 'lodash';
 import { Invitation } from 'src/app/models/invitation';
 import { Tenant } from 'src/app/models/tenant';
 import { TenantRelation } from 'src/app/models/tenant-relation';
@@ -26,6 +26,8 @@ export class UserManagementComponent implements OnInit {
   @Input()
   tenant: Tenant;
   invitations: Invitation[];
+  invitedUser: string = null;
+  userExists: string = null;
 
   constructor(
     private userService: UserService,
@@ -62,16 +64,34 @@ export class UserManagementComponent implements OnInit {
   }
 
   inviteNewAdmin(): void {
+    this.invitedUser = null;
+    this.userExists = null;
     if (this.inviteAdminForm.invalid) {
       this.inviteAdminForm.markAllAsTouched();
+      return;
+    }
+    // check if an active admin already exists with the entered email address
+    const email = this.inviteAdminForm.get('email').value.toLowerCase();
+    const existingMember = find(
+      this.tenantUserRelations,
+      (relation: TenantRelation) => {
+        return relation.user.email.toLowerCase() === email;
+      }
+    );
+    if (existingMember) {
+      this.userExists =
+        'Ein Nutzer mit Email Adresse ' + email + ' existiert bereits';
       return;
     }
     this.tenantService
       .addUser(this.tenant.id, this.inviteAdminForm.get('email').value)
       .subscribe(
         (invitation: Invitation) => {
-          this.invitations.push(invitation);
-          alert('Nutzer wurde eingeladen');
+          // only add the invitation to the list if there is no invitation with this email yet
+          if (!find(this.invitations, { email: invitation.email })) {
+            this.invitations.push(invitation);
+          }
+          this.invitedUser = invitation.email + ' wurde eingeladen';
           this.inviteAdminForm.reset();
         },
         error => {

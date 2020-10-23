@@ -1,7 +1,7 @@
-<h2>Verwaltung des Accounts</h2>
+<h2>Verwaltung der Organisation</h2>
 <p>
-  Verwalten Sie hier den Namen und den Pfad Ihres Accounts. Zudem können Sie ein
-  Logo hinterlegen und Administratoren verwalten.
+  Verwalten Sie hier den Namen und den Pfad Ihrer Organisation. Zudem können Sie
+  ein Logo hinterlegen und Administratoren verwalten.
 </p>
 <div
   class="alert alert-warning d-flex flex-row"
@@ -11,7 +11,7 @@
     <i class="fas fa-exclamation-triangle"></i>
   </div>
   <div>
-    Dieser Account ist derzeit noch <b>nicht</b> freigeschaltet. Events sind
+    Diese Organisation ist derzeit noch <b>nicht</b> freigeschaltet. Events sind
     daher noch nicht öffentlich verfübar. Bitte kontaktieren Sie den Support für
     Unterstützung:
     <a href="mailto:stefan.strobel@s4-consulting.de"
@@ -67,7 +67,7 @@
               class="col-12 col-md-6 mb-0"
               [ngClass]="{ invalid: logoValidationError !== null }"
             >
-              <label (click)="selectNewLogo()">Logo für den Account</label>
+              <label (click)="selectNewLogo()">Logo für die Organisation</label>
               <div class="form-group">
                 <div *ngIf="tenant !== null && tenant.logo !== null">
                   <img
@@ -127,7 +127,7 @@
       <div class="col-12 mt-5">
         <h4>Einwilligungserklärung</h4>
         <p>
-          Sie können, zusätzlich zu den Plevents Datenschutzbedingungen, noch
+          Sie können, zusätzlich zu den plevents Datenschutzbedingungen, noch
           weitere Datenschutz- bzw. Einwilligungserklärungen hinterlegen, die
           die Teilnehmer durch aktives Setzen eines Häkchens akzeptieren müssen.
         </p>
@@ -218,11 +218,11 @@
       >
         <h4>Löschung</h4>
         <p>
-          Falls Sie Ihren Account nicht mehr benötigen, können Sie hier jegliche
-          Daten löschen. Hierzu gehören:
+          Falls Sie Ihre Organisation nicht mehr benötigen, können Sie hier
+          jegliche Daten löschen. Hierzu gehören:
         </p>
         <ul>
-          <li>alle Admin Accounts</li>
+          <li>alle Nutzerzuordnungen</li>
           <li>alle Events</li>
           <li>alle Teilnehmerdaten</li>
         </ul>
@@ -234,7 +234,7 @@
           (click)="deleteTenant()"
           [disabled]="operationOngoing"
         >
-          Account löschen
+          Organisation löschen
         </button>
       </div>
     </div>

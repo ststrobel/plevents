@@ -160,10 +160,10 @@ export class TenantComponent implements OnInit, OnDestroy {
   }
 
   deleteTenant(): void {
-    if (confirm('Wirklich den gesamten Account löschen?')) {
+    if (confirm('Wirklich die gesamte Organisation löschen?')) {
       this.operationOngoing = true;
       this.tenantService.delete(this.tenant.id).subscribe(() => {
-        alert('Account gelöscht!');
+        alert('Organisation gelöscht!');
         // go to profile view
         this.appService.setCurrentTenant(null);
         this.tenantService.getAll().subscribe();

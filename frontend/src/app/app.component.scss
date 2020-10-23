@@ -4,8 +4,12 @@ nav.navbar {
   background-color: $plevents-grey-light !important;
   * {
     color: $plevents-grey-dark;
-    &:is(a):hover {
-      color: var(--plevents-main-color);
+    &:is(a) {
+      margin-left: 0.5rem;
+      margin-right: 0.5rem;
+      &:hover {
+        color: var(--plevents-main-color);
+      }
     }
   }
   .nav-logo {

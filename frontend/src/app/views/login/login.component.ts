@@ -66,12 +66,12 @@ export class LoginComponent implements OnInit, OnDestroy {
           // get return url from route parameters or default to '/'
           this.returnUrl =
             this.route.snapshot.queryParams['returnUrl'] ||
-            this.tenant.path + '/dashboard';
+            this.tenant.path + '/' + ROUTES.TENANT_PLANNER;
         }
       });
       this.tenantService.load(this.tenantPath());
     } else {
-      this.returnUrl = 'profil';
+      this.returnUrl = ROUTES.MY_TENANTS;
     }
     this.loginForm;
   }
@@ -103,8 +103,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           this.router.navigate(this.returnUrl.split('/'));
         },
         error => {
-          this.error =
-            'Nutzername oder Passwort ist falsch, oder Ihr Account ist noch nicht aktiviert.';
+          this.error = 'Nutzername oder Passwort ist falsch';
           this.loading = false;
         }
       );

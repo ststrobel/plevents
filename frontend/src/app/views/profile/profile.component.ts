@@ -1,13 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { clone, reject } from 'lodash';
-import { Invitation } from 'src/app/models/invitation';
-import { Tenant } from 'src/app/models/tenant';
-import { TenantRelation } from 'src/app/models/tenant-relation';
+import { clone } from 'lodash';
 import { User } from 'src/app/models/user';
-import { AppService } from 'src/app/services/app.service';
 import { AuthenticationService } from 'src/app/services/authentication.service';
-import { TenantService } from 'src/app/services/tenant.service';
 import { UserService } from 'src/app/services/user.service';
 
 @Component({
@@ -16,12 +11,10 @@ import { UserService } from 'src/app/services/user.service';
   styleUrls: ['./profile.component.scss'],
 })
 export class ProfileComponent implements OnInit {
-  tenantRelations: TenantRelation[] = null;
   user: User = null;
   nameForm: FormGroup = new FormGroup({
     name: new FormControl('', Validators.required),
   });
-  invitations: Invitation[];
   passwordForm: FormGroup = new FormGroup({
     oldPassword: new FormControl('', Validators.required),
     newPassword: new FormControl('', Validators.required),
@@ -31,9 +24,7 @@ export class ProfileComponent implements OnInit {
 
   constructor(
     private userService: UserService,
-    private authService: AuthenticationService,
-    private tenantService: TenantService,
-    private appService: AppService
+    private authService: AuthenticationService
   ) {}
 
   ngOnInit(): void {
@@ -44,16 +35,6 @@ export class ProfileComponent implements OnInit {
       this.nameForm.get('name').setValue(this.user.name);
       this.operationOngoing = false;
     });
-    this.tenantService
-      .getAll()
-      .subscribe((tenantRelations: TenantRelation[]) => {
-        this.tenantRelations = tenantRelations;
-      });
-    this.userService
-      .getPendingInvitations()
-      .subscribe((invitations: Invitation[]) => {
-        this.invitations = invitations;
-      });
   }
 
   isInvalid(formControlName: string): boolean {
@@ -123,38 +104,6 @@ export class ProfileComponent implements OnInit {
       );
   }
 
-  detach(tenantRelation: TenantRelation): void {
-    if (confirm('Möchten Sie sich wirklich von diesem Account trennen?')) {
-      this.userService
-        .removeFromTenant(tenantRelation.tenantId, tenantRelation.userId)
-        .subscribe(
-          () => {
-            alert(
-              'Sie haben sich vom Account "' +
-                tenantRelation.tenant.name +
-                '" getrennt'
-            );
-            if (
-              this.appService.getCurrentTenant() &&
-              this.appService.getCurrentTenant().id === tenantRelation.tenantId
-            ) {
-              this.appService.setCurrentTenant(null);
-            }
-            this.tenantRelations = reject(this.tenantRelations, tenantRelation);
-          },
-          error => {
-            if (error === 'Conflict') {
-              alert(
-                'Sie sind der einzige Administrator für diesen Account und können sich daher nicht von ihm trennen'
-              );
-            } else {
-              alert('Es trat ein Fehler auf');
-            }
-          }
-        );
-    }
-  }
-
   deleteProfile(): void {
     if (
       confirm(
@@ -171,35 +120,6 @@ export class ProfileComponent implements OnInit {
           console.error(error);
           alert('Es trat ein Fehler auf');
           this.operationOngoing = false;
-        }
-      );
-    }
-  }
-
-  join(invitation: Invitation): void {
-    this.userService.acceptInvitation(invitation.id).subscribe(
-      (tenantRelation: TenantRelation) => {
-        this.tenantRelations.push(tenantRelation);
-        this.invitations = reject(this.invitations, invitation);
-        alert('Accout beigetreten');
-      },
-      error => {
-        console.error(error);
-        alert('Es trat ein Fehler auf');
-      }
-    );
-  }
-
-  decline(invitation: Invitation): void {
-    if (confirm('Möchten Sie die Einladung wirklich ablehnen?')) {
-      this.userService.declineInvitation(invitation.tenantId).subscribe(
-        () => {
-          alert('Einladung abgelehnt');
-          this.invitations = reject(this.invitations, invitation);
-        },
-        error => {
-          console.error(error);
-          alert('Ein technischer Fehler ist aufgetreten');
         }
       );
     }

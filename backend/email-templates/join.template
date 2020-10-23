@@ -34,7 +34,7 @@
     <tr>
       <td width="20"></td> 
       <td>
-        <br><br><a href="{{linkToProfile}}" style="padding: 10px; background-color: #2f5597; color: white;">{{tenant}} beitreten</a>
+        <br><br><a href="{{link}}" style="padding: 10px; background-color: #2f5597; color: white;">{{tenant}} beitreten</a>
       </td>
     </tr>
     <tr>
@@ -43,7 +43,7 @@
         <br><br>
         Falls Darstellungsprobleme auftreten, kopieren Sie diesen Link in die Adress-Zeile Ihres Browsers:
         <br>
-        {{linkToProfile}}
+        {{link}}
       </td>
     </tr>
     <tr>
@@ -52,7 +52,7 @@
         <br><br>
         Viele Gr&uuml;&szlig;e vom
         <br>
-        <i>Plevents Team</i>
+        <i>plevents Team</i>
       </td>
     </tr>
   </table>

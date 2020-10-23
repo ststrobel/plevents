@@ -21,14 +21,14 @@
     <tr>
       <td width="20"></td>     
       <td style="font-size: 24px; color: #2f5597;">
-        <b>Neuer Tenant bei Plevents</b>
+        <b>Neuer Tenant bei plevents</b>
         <br><br>
       </td>
     </tr>
     <tr>
       <td width="20"></td> 
       <td>
-        Soeben hat sich folgender neuer Tenant bei Plevents registriert:
+        Soeben hat sich folgender neuer Tenant bei plevents registriert:
         <br><br>
         <b>{{tenantName}}</b>
         <br>
@@ -41,7 +41,7 @@
         <br><br>
         Viele Gr&uuml;&szlig;e vom
         <br>
-        <i>Plevents Team</i>
+        <i>plevents Team</i>
       </td>
     </tr>
   </table>

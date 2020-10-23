@@ -153,11 +153,11 @@ export class TenantController {
           invitation.email = request.body.email;
           invitation.tenantId = request.params.tenantId;
           await invitation.save();
-          const linkToProfile = `${process.env.DOMAIN}/${ROUTES.PROFILE}`;
+          const link = `${process.env.DOMAIN}/${ROUTES.MY_TENANTS}`;
           EmailService.get().send(
             EMAIL_TEMPLATES.JOIN_TENANT,
             request.body.email,
-            { tenant: tenant.name, linkToProfile }
+            { tenant: tenant.name, link }
           );
           response.status(200).send(invitation);
         } else {

@@ -1,4 +1,4 @@
-<h1>Jetzt Account anlegen</h1>
+<h1>Jetzt Organisation anlegen</h1>
 <p>
   Legen Sie sich in wenigen Minuten Ihre eigene kostenlose Terminbuchungs-Seite
   an, mit DSGVO-konformer Datensparsamkeit und automatischer -löschung.
@@ -7,17 +7,18 @@
 <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
   <div class="row">
     <div class="col-12 col-md-6">
-      Der Name Ihres Accounts wird auf der Website angezeigt. Bspw.: "CVJM
+      Der Name Ihrer Organisation wird auf der Website angezeigt. Bspw.: "CVJM
       Gärtringen"<br />
       <small>Sie können diesen Wert später noch ändern.</small>
     </div>
     <div class="col-12 col-md-6">
       <div class="form-group">
-        <label for="name">Name des Accounts *</label>
+        <label for="name">Name der Organisation *</label>
         <input
           id="name"
           type="text"
           formControlName="name"
+          placeholder="z.B. Musterorganisation e.V."
           class="form-control"
           [ngClass]="{
             'is-invalid': isInvalid('name')
@@ -37,27 +38,42 @@
     <div class="col-12 col-md-6">
       <div class="form-group">
         <label for="path">Pfad *</label>
-        <input
-          id="path"
-          type="text"
-          formControlName="path"
-          class="form-control"
-          (keyup)="checkPath()"
-          [ngClass]="{
-            'is-invalid': pathCheck.pathTaken || isInvalid('path'),
-            'is-valid':
-              !pathCheck.pathTaken && registrationForm.get('path').valid
-          }"
-        />
-        <div *ngIf="pathCheck.pathTaken" class="invalid-feedback">
-          Dieser Pfad ist bereits leider vergeben
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text">https://plevents.de/</span>
+          </div>
+          <input
+            id="path"
+            type="text"
+            formControlName="path"
+            placeholder="z.B. meine-organisation"
+            class="form-control"
+            (keyup)="checkPath()"
+            [ngClass]="{
+              'is-invalid': pathCheck.pathTaken || isInvalid('path'),
+              'is-valid':
+                !pathCheck.pathTaken && registrationForm.get('path').valid
+            }"
+          />
         </div>
-        <div class="valid-feedback">
-          <i class="fas fa-check"></i> Pfad ist noch frei und kann benutzt
-          werden!
-        </div>
-        <div *ngIf="isInvalid('path')" class="invalid-feedback">
-          Bitte einen gültigen Pfad angeben
+        <div>
+          <div
+            [ngClass]="{
+              'is-invalid': pathCheck.pathTaken || isInvalid('path'),
+              'is-valid':
+                !pathCheck.pathTaken && registrationForm.get('path').valid
+            }"
+          ></div>
+          <div *ngIf="pathCheck.pathTaken" class="invalid-feedback">
+            Dieser Pfad ist bereits leider vergeben
+          </div>
+          <div class="valid-feedback">
+            <i class="fas fa-check"></i> Pfad ist noch frei und kann benutzt
+            werden!
+          </div>
+          <div *ngIf="isInvalid('path')" class="invalid-feedback">
+            Bitte einen gültigen Pfad angeben
+          </div>
         </div>
       </div>
     </div>
@@ -118,7 +134,7 @@
         *ngIf="loading"
         class="spinner-border spinner-border-sm mr-1"
       ></span>
-      Account erstellen
+      Organisation erstellen
     </button>
   </div>
   <div *ngIf="error" class="alert alert-danger mt-3 mb-0">

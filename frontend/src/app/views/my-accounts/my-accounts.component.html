@@ -1,0 +1,142 @@
+<h2>Meine Organisationen</h2>
+
+<div class="row">
+  <div class="col-12">
+    <p>
+      Behalten Sie den Überblick über die mit Ihnen verbundenen Organisation.
+    </p>
+    <p class="float-left">
+      Die folgende Übersicht listet alle Organisationen auf, denen Sie
+      zugeordnet sind.
+    </p>
+  </div>
+  <div class="col-12 col-lg-6">
+    <div class="row">
+      <div class="col-12">
+        <div class="row">
+          <div class="col-12">
+            <a
+              class="btn float-right btn-sm btn-outline-success mb-2"
+              [routerLink]="['/account-registrierung']"
+            >
+              Neue Organisation anlegen
+            </a>
+          </div>
+        </div>
+
+        <ul
+          class="list-group mt-3"
+          *ngIf="
+            (tenantRelations && tenantRelations.length > 0) ||
+            (invitations && invitations.length > 0)
+          "
+        >
+          <li
+            class="list-group-item sg-hoverable-list-item"
+            *ngFor="let tenantRelation of tenantRelations"
+          >
+            <i
+              class="fas fa-power-off mr-2"
+              [ngClass]="{
+                'text-success': tenantRelation.tenant.active,
+                'text-secondary': !tenantRelation.tenant.active
+              }"
+              title="{{
+                tenantRelation.tenant.active
+                  ? 'Organisation ist aktiv'
+                  : 'Organisation ist inaktiv'
+              }}"
+            ></i>
+            <a
+              *ngIf="tenantRelation.active"
+              [routerLink]="[
+                '/' + tenantRelation.tenant.path,
+                tenantRelation.isAdmin() ? 'verwaltung' : 'dashboard'
+              ]"
+              >{{ tenantRelation.tenant.name }}<br /><small
+                >/{{ tenantRelation.tenant.path }}</small
+              ></a
+            >
+            <span *ngIf="!tenantRelation.active"
+              >{{ tenantRelation.tenant.name }}<br /><small
+                >/{{ tenantRelation.tenant.path }}</small
+              ></span
+            >
+            <button
+              class="float-right btn btn-sm ml-2 btn-outline-danger"
+              (click)="detach(tenantRelation)"
+            >
+              von Organisation trennen
+            </button>
+            <span
+              class="badge badge-warning mt-2 float-right"
+              *ngIf="!tenantRelation.active"
+            >
+              noch nicht zugelassen
+            </span>
+            <span
+              class="badge mt-2 float-right"
+              *ngIf="tenantRelation.active"
+              [ngClass]="{
+                'badge-success':
+                  tenantRelation.isAdmin() && !tenantRelation.isOwner(),
+                'badge-primary': tenantRelation.isOwner(),
+                'badge-secondary':
+                  !tenantRelation.isAdmin() && !tenantRelation.isOwner()
+              }"
+            >
+              <span *ngIf="tenantRelation.isOwner()"
+                ><i class="fas fa-crown"></i> Owner</span
+              >
+              <span
+                *ngIf="tenantRelation.isAdmin() && !tenantRelation.isOwner()"
+                >Admin</span
+              >
+              <span
+                *ngIf="!tenantRelation.isAdmin() && !tenantRelation.isOwner()"
+                >Leiter</span
+              >
+            </span>
+          </li>
+          <li
+            class="list-group-item sg-hoverable-list-item"
+            *ngFor="let invitation of invitations"
+          >
+            {{ invitation.tenant.name }}<br /><small
+              >/{{ invitation.tenant.path }}</small
+            >
+            <button
+              class="float-right btn btn-sm ml-2 btn-outline-danger"
+              (click)="decline(invitation)"
+            >
+              Einladung ablehnen
+            </button>
+            <button
+              class="float-right btn btn-sm ml-2 btn-outline-success"
+              (click)="join(invitation)"
+            >
+              Organisation beitreten
+            </button>
+          </li>
+        </ul>
+        <div
+          class="alert alert-secondary"
+          *ngIf="
+            tenantRelations &&
+            tenantRelations.length === 0 &&
+            invitations &&
+            invitations.length === 0
+          "
+        >
+          Sie sind noch keiner Organisation zugeordnet. Möchten Sie einen
+          <a [routerLink]="['/account-registrierung']"
+            >neue Organisation erstellen</a
+          >?
+        </div>
+        <div class="alert alert-light" *ngIf="!tenantRelations">
+          Organisationen werden geladen ...
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

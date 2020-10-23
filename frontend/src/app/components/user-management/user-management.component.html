@@ -1,7 +1,7 @@
 <h4>Nutzerverwaltung</h4>
 <p>
-  Verwalten Sie die Mitglieder Ihres Accounts und vergeben Sie entsprechende
-  Rollen.
+  Verwalten Sie die Mitglieder Ihres Organisationen und vergeben Sie
+  entsprechende Rollen.
 </p>
 <ul class="list-group">
   <li
@@ -149,5 +149,11 @@
         </button>
       </div>
     </form>
+    <div class="alert alert-success mt-2" *ngIf="invitedUser">
+      {{ invitedUser }}
+    </div>
+    <div class="alert alert-warning mt-2" *ngIf="userExists">
+      {{ userExists }}
+    </div>
   </li>
 </ul>
