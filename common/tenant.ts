@@ -9,4 +9,5 @@ export interface TenantI {
   consentTeaser2: string;
   consentText2: string;
   color: string;
+  subscriptionUntil: Date;
 }

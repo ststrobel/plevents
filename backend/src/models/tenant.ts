@@ -25,4 +25,6 @@ export class Tenant extends BaseEntity implements TenantI {
   consentTeaser2: string;
   @Column({ type: 'mediumtext', nullable: true })
   consentText2: string;
+  @Column({ nullable: true })
+  subscriptionUntil: Date;
 }

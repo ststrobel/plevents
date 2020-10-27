@@ -2,6 +2,7 @@ import { TenantI } from '../../../../common/tenant';
 import { Injectable } from '@angular/core';
 import { Adapter } from '../helpers/adapter';
 import { DomSanitizer } from '@angular/platform-browser';
+import * as moment from 'moment';
 
 export class Tenant implements TenantI {
   id?: string;
@@ -14,6 +15,7 @@ export class Tenant implements TenantI {
   consentTeaser2: string;
   consentText2: string;
   color: string;
+  subscriptionUntil: Date;
   get colorDarkened(): string {
     return shadeColor(this.color, -15);
   }
@@ -44,6 +46,9 @@ export class TenantAdapter implements Adapter<Tenant> {
       ) as string;
     } else {
       t.logo = null;
+    }
+    if (item.subscriptionUntil) {
+      t.subscriptionUntil = moment(item.subscriptionUntil).toDate();
     }
     return t;
   }

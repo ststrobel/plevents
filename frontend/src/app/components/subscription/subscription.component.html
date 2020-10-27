@@ -1,0 +1,20 @@
+<div class="alert alert-success" *ngIf="tenant.active">
+  <div style="width: 30px">
+    <i class="fas fa-check"></i>
+  </div>
+  <div>Die Organisation hat ein aktives Abo</div>
+</div>
+<div class="alert alert-danger" *ngIf="!tenant.subscriptionUntil">
+  <div style="width: 30px">
+    <i class="fas fa-exclamation-triangle"></i>
+  </div>
+  <div>
+    Diese Organisation ist gerade nicht freigeschaltet und kann daher nicht
+    genutzt werden. Bitte eine Lizenz kaufen:<br />
+    <a
+      href="https://checkoutshopper-test.adyen.com/checkoutshopper/payByLink.shtml?d=PLEA9360934A8AAFA0"
+      target="_blank"
+      >Jetzt Lizenz kaufen</a
+    >
+  </div>
+</div>
