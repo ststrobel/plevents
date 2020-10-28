@@ -70,11 +70,15 @@ export class PaymentService {
         adyenBody.notificationItems[0].NotificationRequestItem.success ===
         'true'
       ) {
-        // payment was successful, set the active flag on the tenant
+        // payment was successful
+        subscription.paid = new Date();
+        subscription.save();
+        //set the active flag on the tenant
         subscription.tenant.active = true;
         // calculate the date until when the subscription is valid
         const until = moment().add(subscription.months, 'months').endOf('day');
         subscription.tenant.subscriptionUntil = until.toDate();
+        subscription.tenant.save();
       } else {
         // do nothing for now
       }

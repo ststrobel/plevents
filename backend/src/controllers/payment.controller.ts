@@ -50,7 +50,7 @@ export class PaymentController {
         ) {
           // request is authorized, continue with the business logic to active a tenant
           PaymentService.get().handleCallback(request.body);
-          response.sendStatus(202);
+          response.status(202).send('[accepted]');
         } else {
           response.sendStatus(401);
         }
