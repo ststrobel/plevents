@@ -7,9 +7,10 @@ import {
   CreateDateColumn,
 } from 'typeorm';
 import { Tenant } from './tenant';
+import { SubscriptionI } from '../../../common/subscription';
 
 @Entity()
-export class Subscription extends BaseEntity {
+export class Subscription extends BaseEntity implements SubscriptionI {
   @PrimaryGeneratedColumn('uuid')
   id: string;
   @ManyToOne(type => Tenant)

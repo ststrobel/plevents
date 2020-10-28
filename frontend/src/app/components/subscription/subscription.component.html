@@ -1,20 +1,31 @@
-<div class="alert alert-success" *ngIf="tenant.active">
+<h4>Lizenz</h4>
+<div class="alert alert-success d-flex" *ngIf="tenant.active">
   <div style="width: 30px">
     <i class="fas fa-check"></i>
   </div>
   <div>Die Organisation hat ein aktives Abo</div>
 </div>
-<div class="alert alert-danger" *ngIf="!tenant.subscriptionUntil">
+<div class="alert alert-danger d-flex" *ngIf="!tenant.subscriptionUntil">
   <div style="width: 30px">
     <i class="fas fa-exclamation-triangle"></i>
   </div>
   <div>
     Diese Organisation ist gerade nicht freigeschaltet und kann daher nicht
     genutzt werden. Bitte eine Lizenz kaufen:<br />
-    <a
-      href="https://checkoutshopper-test.adyen.com/checkoutshopper/payByLink.shtml?d=PLEA9360934A8AAFA0"
-      target="_blank"
-      >Jetzt Lizenz kaufen</a
+    <button
+      class="btn btn-sm btn-success"
+      (click)="initializeNewSubscription()"
     >
+      Jetzt Lizenz kaufen
+    </button>
+  </div>
+</div>
+<div>
+  <div *ngFor="let subscription of subscriptions">
+    {{ subscription.id }}
+    <br />
+    für {{ subscription.months }} zu je {{ subscription.pricePerMonth }}€
+    <br />
+    bezahlt: {{ subscription.paid === null ? 'nein' : 'ja' }}
   </div>
 </div>

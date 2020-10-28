@@ -1,6 +1,7 @@
 import * as express from 'express';
 import { ROLE } from '../../../common/tenant-relation';
 import tenantCorrelationHandler from '../handlers/tenant-correlation-handler';
+import { Subscription } from '../models/subscription';
 import { PaymentService } from '../services/payment.service';
 const dotenv = require('dotenv');
 dotenv.config();
@@ -8,8 +9,20 @@ dotenv.config();
 export class PaymentController {
   public static register(app: express.Application): void {
     // this will initialize a payment request
+    app.get(
+      '/secure/tenants/:tenantId/subscriptions',
+      tenantCorrelationHandler(ROLE.OWNER),
+      async (request, response) => {
+        const subscriptions = await Subscription.find({
+          where: { tenantId: request.params.tenantId },
+        });
+        response.status(200).send(subscriptions);
+      }
+    );
+
+    // this will initialize a payment request
     app.post(
-      '/secure/payment/tenants/:tenantId',
+      '/secure/tenants/:tenantId/subscriptions',
       tenantCorrelationHandler(ROLE.OWNER),
       async (request, response) => {
         const paymentLink = await PaymentService.get().initiate(

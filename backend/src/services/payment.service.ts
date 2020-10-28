@@ -18,7 +18,7 @@ export class PaymentService {
     return PaymentService.singleton;
   }
 
-  async initiate(tenantId: string, months: number): Promise<void> {
+  async initiate(tenantId: string, months: number): Promise<string> {
     // do some sanity check
     if (months < 1) {
       throw new Error('invalid number of months specified (' + months + ')');
@@ -31,27 +31,29 @@ export class PaymentService {
     // now let's reach out to adyen to generate a unique payment URL to be sent to the user
     const axiosConfig = {
       headers: {
-        'Content-Type': 'application/json;charset=UTF-8',
-        'x-API-key': `${process.env.ADYEN_API_KEY}`,
+        'Content-Type': 'application/json',
+        'X-API-Key': `${process.env.ADYEN_API_KEY}`,
       },
     };
-    const response = await axios.post(
-      `${process.env.ADYEN_PAYMENT_URL}`,
-      {
-        reference: `${newSubscription.id}`,
-        amount: {
-          value: newSubscription.months * newSubscription.pricePerMonth * 100,
-          currency: 'EUR',
+    const response = await axios
+      .post(
+        `${process.env.ADYEN_PAYMENT_URL}`,
+        {
+          reference: `${newSubscription.id}`,
+          amount: {
+            value: newSubscription.months * newSubscription.pricePerMonth * 100,
+            currency: 'EUR',
+          },
+          shopperReference: `${newSubscription.tenantId}`,
+          description: `plevents Lizenz für ${newSubscription.months} Monate`,
+          countryCode: 'DE',
+          merchantAccount: `${process.env.ADYEN_MERCHANT_CODE}`,
+          shopperLocale: 'de-DE',
         },
-        shopperReference: `${newSubscription.tenantId}`,
-        description: `plevents Lizenz für ${newSubscription.months} Monate`,
-        countryCode: 'DE',
-        merchantAccount: 'YOUR_MERCHANT_ACCOUNT',
-        shopperLocale: 'de-DE',
-      },
-      axiosConfig
-    );
-    return response;
+        axiosConfig
+      )
+      .then(res => res.data);
+    return response.url;
   }
 
   async handleCallback(adyenBody: any): Promise<void> {
