@@ -8,4 +8,5 @@ export interface SubscriptionI {
   pricePerMonth?: number;
   paid: Date;
   paymentLink?: string;
+  createdAt?: Date;
 }

@@ -25,6 +25,7 @@ export class PaymentService {
     if (months < 1) {
       throw new Error('invalid number of months specified (' + months + ')');
     }
+    dotenv.config();
     const newSubscription = new Subscription();
     newSubscription.tenantId = tenantId;
     newSubscription.months = months;

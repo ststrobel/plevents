@@ -74,11 +74,12 @@
       class="list-group-item list-group-item-action"
       *ngFor="let subscription of subscriptions"
     >
-      Lizenz für {{ subscription.months }}
+      {{ subscription.createdAt | date: 'dd.MM.yyyy' }} - Lizenz für
+      {{ subscription.months }}
       {{ subscription.months === 1 ? 'Monat' : 'Monate' }} zu je
       {{ subscription.pricePerMonth }}€
       <div *ngIf="subscription.paid">
-        bezahlt: {{ subscription.paid === null ? 'nein' : 'ja' }}
+        bezahlt am {{ subscription.paid | date: 'dd.MM.yyyy' }}
       </div>
       <div *ngIf="!subscription.paid">
         Bezahlung noch ausstehend -

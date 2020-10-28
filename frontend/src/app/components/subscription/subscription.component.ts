@@ -4,6 +4,7 @@ import { SubscriptionService } from 'src/app/services/subscription.service';
 import { Subscription } from 'src/app/models/subscription';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import * as moment from 'moment';
+import { sortBy } from 'lodash';
 
 @Component({
   selector: 'subscription',
@@ -24,6 +25,8 @@ export class SubscriptionComponent implements OnInit {
     this.subscriptionService.getSubscriptions(this.tenant.id).subscribe(
       (subscriptions: Subscription[]) => {
         this.subscriptions = subscriptions;
+        // sort the subscriptions by creation date
+        this.subscriptions = sortBy(this.subscriptions, ['createdAt']);
       },
       error => {
         console.error(error);
