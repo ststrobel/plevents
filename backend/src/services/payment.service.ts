@@ -1,5 +1,7 @@
 import moment from 'moment';
+import { ROUTES } from '../../../common/frontend.routes';
 import { Subscription } from '../models/subscription';
+import { Tenant } from '../models/tenant';
 
 const dotenv = require('dotenv');
 dotenv.config();
@@ -35,6 +37,8 @@ export class PaymentService {
         'X-API-Key': `${process.env.ADYEN_API_KEY}`,
       },
     };
+    const tenant = await Tenant.findOneOrFail(tenantId);
+    const returnUrl = `${process.env.DOMAIN}/${tenant.path}/${ROUTES.TENANT_MANAGEMENT}`;
     const response = await axios
       .post(
         `${process.env.ADYEN_PAYMENT_URL}`,
@@ -49,6 +53,7 @@ export class PaymentService {
           countryCode: 'DE',
           merchantAccount: `${process.env.ADYEN_MERCHANT_CODE}`,
           shopperLocale: 'de-DE',
+          returnUrl,
         },
         axiosConfig
       )
