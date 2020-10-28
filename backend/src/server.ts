@@ -47,6 +47,7 @@ createConnection()
         );
         const cronService = new CronService();
         cronService.removeParticipantsData();
+        cronService.checkTenantLicenses();
       }
     );
   })

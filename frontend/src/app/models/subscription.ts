@@ -10,6 +10,7 @@ export class Subscription implements SubscriptionI {
   months: number;
   pricePerMonth?: number;
   paid: Date = null;
+  paymentLink?: string;
 
   constructor(item?: any) {
     if (item) {
@@ -19,6 +20,7 @@ export class Subscription implements SubscriptionI {
       this.months = item.months;
       this.paid = item.paid;
       this.pricePerMonth = item.pricePerMonth;
+      this.paymentLink = item.paymentLink;
     }
   }
 }

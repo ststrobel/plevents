@@ -39,17 +39,22 @@ export class PaymentService {
     };
     const tenant = await Tenant.findOneOrFail(tenantId);
     const returnUrl = `${process.env.DOMAIN}/${tenant.path}/${ROUTES.TENANT_MANAGEMENT}`;
+    const netPrice = newSubscription.months * newSubscription.pricePerMonth;
+    const vat = (netPrice * parseFloat(process.env.VAT)).toFixed(2);
+    const brutPrice = netPrice + parseFloat(vat);
     const response = await axios
       .post(
         `${process.env.ADYEN_PAYMENT_URL}`,
         {
           reference: `${newSubscription.id}`,
           amount: {
-            value: newSubscription.months * newSubscription.pricePerMonth * 100,
+            value: parseInt((brutPrice * 100).toFixed(0)),
             currency: 'EUR',
           },
           shopperReference: `${newSubscription.tenantId}`,
-          description: `plevents Lizenz für ${newSubscription.months} Monate`,
+          description: `plevents Lizenz für ${newSubscription.months} ${
+            newSubscription.months === 1 ? 'Monat' : 'Monate'
+          } (inkl. ${vat}€ MWSt.)`,
           countryCode: 'DE',
           merchantAccount: `${process.env.ADYEN_MERCHANT_CODE}`,
           shopperLocale: 'de-DE',
@@ -58,12 +63,13 @@ export class PaymentService {
         axiosConfig
       )
       .then(res => res.data);
+    newSubscription.paymentLink = response.url;
+    newSubscription.save();
     return response.url;
   }
 
   async handleCallback(adyenBody: any): Promise<void> {
     try {
-      console.log('received adyen callback:', JSON.stringify(adyenBody));
       // see https://docs.adyen.com/development-resources/webhooks/understand-notifications
       const reference =
         adyenBody.notificationItems[0].NotificationRequestItem
@@ -81,8 +87,18 @@ export class PaymentService {
         //set the active flag on the tenant
         subscription.tenant.active = true;
         // calculate the date until when the subscription is valid
-        const until = moment().add(subscription.months, 'months').endOf('day');
-        subscription.tenant.subscriptionUntil = until.toDate();
+        if (subscription.tenant.subscriptionUntil) {
+          const until = moment(subscription.tenant.subscriptionUntil)
+            .add(subscription.months, 'months')
+            .endOf('day');
+          subscription.tenant.subscriptionUntil = until.toDate();
+        } else {
+          // it is a new license, just set the months from now onwards:
+          const until = moment()
+            .add(subscription.months, 'months')
+            .endOf('day');
+          subscription.tenant.subscriptionUntil = until.toDate();
+        }
         subscription.tenant.save();
       } else {
         // do nothing for now

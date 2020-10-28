@@ -3,7 +3,13 @@
   <div style="width: 30px">
     <i class="fas fa-check"></i>
   </div>
-  <div>Die Organisation hat ein aktives Abo</div>
+  <div>
+    Die Organisation hat eine gültige Lizenz<span
+      *ngIf="tenant.subscriptionUntil"
+    >
+      bis zum <b>{{ tenant.subscriptionUntil | date: 'dd.MM.yyyy' }}</b></span
+    >
+  </div>
 </div>
 <div class="alert alert-danger d-flex" *ngIf="!tenant.subscriptionUntil">
   <div style="width: 30px">
@@ -11,21 +17,75 @@
   </div>
   <div>
     Diese Organisation ist gerade nicht freigeschaltet und kann daher nicht
-    genutzt werden. Bitte eine Lizenz kaufen:<br />
-    <button
-      class="btn btn-sm btn-success"
-      (click)="initializeNewSubscription()"
-    >
-      Jetzt Lizenz kaufen
-    </button>
+    genutzt werden. Bitte eine Lizenz kaufen, damit Events öffentlich angezeigt
+    werden.
   </div>
 </div>
-<div>
-  <div *ngFor="let subscription of subscriptions">
-    {{ subscription.id }}
-    <br />
-    für {{ subscription.months }} zu je {{ subscription.pricePerMonth }}€
-    <br />
-    bezahlt: {{ subscription.paid === null ? 'nein' : 'ja' }}
+<div class="alert alert-warning d-flex" *ngIf="subscriptionEndsSoon()">
+  <div style="width: 30px">
+    <i class="fas fa-exclamation-triangle"></i>
   </div>
+  <div>
+    Die Lizenz läuft bald ab! Bitte erwerben Sie eine oder mehr Monatslizenzen,
+    um weiterhin plevents öffentlich nutzen zu können.
+  </div>
+</div>
+<div class="alert alert-secondary">
+  <div>
+    Weitere Monatslizenzen zu je 15€ netto kaufen. Alle bestellten Lizenzen
+    werden auf die Zukunft angerechnet.
+  </div>
+  <br />
+  <form [formGroup]="subscriptionForm">
+    <div class="d-flex flex-wrap" style="line-height: 31px">
+      Lizenz für
+      <select
+        class="form-control form-control-sm w-auto ml-2 mr-2"
+        formControlName="months"
+      >
+        <option>1</option>
+        <option>2</option>
+        <option>3</option>
+        <option>4</option>
+        <option>5</option>
+        <option>6</option>
+        <option>7</option>
+        <option>8</option>
+        <option>9</option>
+        <option>10</option>
+        <option>11</option>
+        <option>12</option>
+      </select>
+      {{ moreMonths() }}
+      <div class="flex-grow-1"></div>
+      <button
+        class="btn btn-sm btn-success"
+        (click)="initializeNewSubscription()"
+      >
+        Jetzt Lizenz kaufen
+      </button>
+    </div>
+  </form>
+</div>
+<div>
+  <label>Bestellhistorie</label>
+  <ul class="list-group">
+    <li
+      class="list-group-item list-group-item-action"
+      *ngFor="let subscription of subscriptions"
+    >
+      Lizenz für {{ subscription.months }}
+      {{ subscription.months === 1 ? 'Monat' : 'Monate' }} zu je
+      {{ subscription.pricePerMonth }}€
+      <div *ngIf="subscription.paid">
+        bezahlt: {{ subscription.paid === null ? 'nein' : 'ja' }}
+      </div>
+      <div *ngIf="!subscription.paid">
+        Bezahlung noch ausstehend -
+        <a href="{{ subscription.paymentLink }}" target="_blank"
+          >jetzt Bezahlvorgang abschließen</a
+        >
+      </div>
+    </li>
+  </ul>
 </div>

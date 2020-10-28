@@ -212,9 +212,11 @@
       <div class="col-12 mt-5">
         <user-management [tenant]="tenant" *ngIf="tenant"></user-management>
       </div>
-      <div class="col-12 mt-5">
-        Subscritions:
-        <subscription [tenant]="tenant" *ngIf="tenant"></subscription>
+      <div
+        class="col-12 mt-5"
+        *ngIf="tenant && appService.hasRole(tenant.id, ROLE.OWNER)"
+      >
+        <subscription [tenant]="tenant"></subscription>
       </div>
       <div
         class="col-12 mt-5"

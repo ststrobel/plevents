@@ -23,6 +23,8 @@ export class Subscription extends BaseEntity implements SubscriptionI {
   pricePerMonth: number;
   @Column({ nullable: true })
   paid: Date = null;
+  @Column({ nullable: true })
+  paymentLink: string = null;
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 }
