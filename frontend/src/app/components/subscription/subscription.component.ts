@@ -26,7 +26,9 @@ export class SubscriptionComponent implements OnInit {
       (subscriptions: Subscription[]) => {
         this.subscriptions = subscriptions;
         // sort the subscriptions by creation date
-        this.subscriptions = sortBy(this.subscriptions, ['createdAt']);
+        this.subscriptions = sortBy(this.subscriptions, [
+          'createdAt',
+        ]).reverse();
       },
       error => {
         console.error(error);
