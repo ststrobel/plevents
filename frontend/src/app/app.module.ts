@@ -33,6 +33,7 @@ import { UserManagementComponent } from './components/user-management/user-manag
 import { PasswordForgottenComponent } from './views/password-forgotten/password-forgotten.component';
 import { IntroComponent } from './views/intro/intro.component';
 import { MyAccountsComponent } from './views/my-accounts/my-accounts.component';
+import { SubscriptionComponent } from './components/subscription/subscription.component';
 
 const cookieConfig: NgcCookieConsentConfig = {
   cookie: {
@@ -82,6 +83,7 @@ const cookieConfig: NgcCookieConsentConfig = {
     PasswordForgottenComponent,
     IntroComponent,
     MyAccountsComponent,
+    SubscriptionComponent,
   ],
   imports: [
     BrowserModule,

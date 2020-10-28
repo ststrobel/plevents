@@ -1,9 +1,9 @@
 <h1 class="mb-5">Bestätigung Ihres Nutzerprofils</h1>
 <p *ngIf="!noCode && !activated && !error && !loggedIn">
-  Wir aktivieren gerade Ihre Organisation ...
+  Wir aktivieren gerade Ihr Profil ...
 </p>
 <div class="alert alert-success text-center" *ngIf="activated">
-  <b>Ihre Organisation wurde freigesschaltet!</b>
+  <b>Ihr Profil wurde freigesschaltet!</b>
   <br />
   Bitte gehen Sie <a [routerLink]="['/login']">zur Login-Seite</a> und loggen
   sich dort ein.

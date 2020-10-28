@@ -101,7 +101,7 @@
             </div>
             <div class="col-12 col-md-6 mb-0">
               <label>Darstellungsfarbe</label><br />
-              <b
+              <span
                 id="tenant-color-picker"
                 class="clickable"
                 [style.color]="color"
@@ -109,7 +109,7 @@
                 [cpPositionOffset]="'50%'"
                 [cpPositionRelativeToArrow]="true"
                 [(colorPicker)]="color"
-                >Legen Sie hier Ihre persönliche Anwendungsfarbe fest</b
+                >Legen Sie hier Ihre persönliche Anwendungsfarbe fest</span
               >
             </div>
             <div class="col-12 text-right mb-0">
@@ -211,6 +211,12 @@
       </div>
       <div class="col-12 mt-5">
         <user-management [tenant]="tenant" *ngIf="tenant"></user-management>
+      </div>
+      <div
+        class="col-12 mt-5"
+        *ngIf="tenant && appService.hasRole(tenant.id, ROLE.OWNER)"
+      >
+        <subscription [tenant]="tenant"></subscription>
       </div>
       <div
         class="col-12 mt-5"

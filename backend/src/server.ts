@@ -11,6 +11,7 @@ import { createConnection } from 'typeorm';
 import { CategoryController } from './controllers/category.controller';
 import headersHandler from './handlers/headers-handler';
 import authenticationHandler from './handlers/authentication-handler';
+import { PaymentController } from './controllers/payment.controller';
 
 // read configuration:
 const dotenv = require('dotenv');
@@ -30,6 +31,7 @@ EventController.register(app);
 PdfController.register(app);
 UserController.register(app);
 CategoryController.register(app);
+PaymentController.register(app);
 
 // connect to the database:
 createConnection()
@@ -45,6 +47,7 @@ createConnection()
         );
         const cronService = new CronService();
         cronService.removeParticipantsData();
+        cronService.checkTenantLicenses();
       }
     );
   })
