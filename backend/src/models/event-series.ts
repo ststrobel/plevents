@@ -1,4 +1,4 @@
-import { EventI } from '../../../common/event';
+import { EventSeriesI } from '../../../common/event-series';
 import {
   BaseEntity,
   PrimaryGeneratedColumn,
@@ -8,26 +8,13 @@ import {
 } from 'typeorm';
 import { Tenant } from './tenant';
 import { Category } from './category';
-import { EventSeries } from './event-series';
 
 @Entity()
-export class Event extends BaseEntity implements EventI {
+export class EventSeries extends BaseEntity implements EventSeriesI {
   @PrimaryGeneratedColumn('uuid')
   id: string;
   @Column()
   name: string;
-  @Column()
-  date: Date;
-  @Column()
-  maxSeats: number;
-  @Column()
-  takenSeats: number;
-  @Column()
-  singleOccurence: boolean;
-  @Column({ nullable: true })
-  registrationOpenFrom: Date;
-  @Column()
-  disabled: boolean;
   @ManyToOne(type => Category, {
     nullable: true,
     cascade: true,
@@ -40,8 +27,4 @@ export class Event extends BaseEntity implements EventI {
   tenant: Tenant;
   @Column()
   tenantId: string;
-  @ManyToOne(type => EventSeries, { nullable: true, eager: true })
-  eventSeries?: EventSeries;
-  @Column({ nullable: true })
-  eventSeriesId: string;
 }

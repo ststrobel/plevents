@@ -280,7 +280,8 @@
       <tr *ngIf="appService.hasRole(tenant.id, ROLE.ADMIN)">
         <th></th>
         <th *ngFor="let uniqueEvent of uniqueEvents; let i = index" class="p-2">
-          <div class="row">
+          <!-- only allow to change/delete events that are not in the past -->
+          <div class="row" *ngIf="!lastEventOfSeries(uniqueEvent).isInPast()">
             <div
               class="col-md-12"
               [ngClass]="{
@@ -333,11 +334,19 @@
             {{ event.displayDate() }}<br />
             <small>{{ event.takenSeats }} / {{ event.maxSeats }} </small
             ><i
+              *ngIf="
+                appService.hasRole(tenant.id, ROLE.ADMIN) ||
+                appService.getCurrentUser().hasAccessToEvent(event)
+              "
               class="fas fa-file-pdf actionableIcon"
               (click)="downloadPdf(event)"
               title="Download Teilnehmerliste"
             ></i
             ><i
+              *ngIf="
+                appService.hasRole(tenant.id, ROLE.ADMIN) ||
+                appService.getCurrentUser().hasAccessToEvent(event)
+              "
               class="fas fa-users actionableIcon"
               (click)="showEventParticipants(event, showParticipantsModal)"
               title="Anzeige Teilnehmer"
@@ -428,11 +437,19 @@
                   {{ event.displayDate() }}<br />
                   <small>{{ event.takenSeats }} / {{ event.maxSeats }} </small
                   ><i
+                    *ngIf="
+                      appService.hasRole(tenant.id, ROLE.ADMIN) ||
+                      appService.getCurrentUser().hasAccessToEvent(event)
+                    "
                     class="fas fa-file-pdf actionableIcon"
                     (click)="downloadPdf(event)"
                     title="Download Teilnehmerliste"
                   ></i
                   ><i
+                    *ngIf="
+                      appService.hasRole(tenant.id, ROLE.ADMIN) ||
+                      appService.getCurrentUser().hasAccessToEvent(event)
+                    "
                     class="fas fa-users actionableIcon"
                     (click)="
                       showEventParticipants(event, showParticipantsModal)
@@ -453,7 +470,8 @@
           </tbody>
         </table>
       </div>
-      <div class="row mt-2">
+      <!-- only allow to change/delete events that are not in the past -->
+      <div class="row mt-2" *ngIf="!lastEventOfSeries(uniqueEvent).isInPast()">
         <div
           class="col-md-12"
           [ngClass]="{
@@ -508,10 +526,10 @@
     <p>
       Ändern Sie hier den Titel des Events, den Tag sowie die Uhrzeit beliebig
       ab.
-      <span *ngIf="!eventBeingEdited.singleOccurence"
-        >Diese Änderung wirkt sich auf alle in der Zukunft liegenden Events
-        aus.</span
-      >
+    </p>
+    <p *ngIf="!eventBeingEdited.singleOccurence">
+      Diese Änderung wirkt sich
+      <b>nur auf alle in der Zukunft liegenden</b> Events aus.
     </p>
     <form [formGroup]="editEventForm">
       <div class="row">

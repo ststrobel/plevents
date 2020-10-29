@@ -310,5 +310,73 @@ export class UserController {
         res.status(400).send({ message: 'Invalid invitation' });
       }
     });
+
+    /*
+     * allow a specific user to have access to a specific single event
+     */
+    app.post(
+      '/secure/tenants/:tenantId/users/:userId/event/:eventId',
+      tenantCorrelationHandler(ROLE.ADMIN),
+      async (req, res) => {
+        const relation = await UserService.allowOnEvent(
+          req.params.userId,
+          req.params.eventId
+        );
+        res.status(201).send(relation);
+      }
+    );
+
+    /*
+     * deny a specific user to have access to a specific single event
+     */
+    app.delete(
+      '/secure/tenants/:tenantId/users/:userId/event/:eventId',
+      tenantCorrelationHandler(ROLE.ADMIN),
+      async (req, res) => {
+        UserService.denyOnEvent(req.params.userId, req.params.eventId);
+        res.status(200).send({ message: 'User removed from event' });
+      }
+    );
+
+    /*
+     * allow a specific user to have access to a specific event series
+     */
+    app.post(
+      '/secure/tenants/:tenantId/users/:userId/eventSeries/:eventSeriesId',
+      tenantCorrelationHandler(ROLE.ADMIN),
+      async (req, res) => {
+        const relation = await UserService.allowOnEventSeries(
+          req.params.userId,
+          req.params.eventSeriesId
+        );
+        res.status(201).send(relation);
+      }
+    );
+
+    /*
+     * deny a specific user to have access to a specific event series
+     */
+    app.delete(
+      '/secure/tenants/:tenantId/users/:userId/eventSeries/:eventSeriesId',
+      tenantCorrelationHandler(ROLE.ADMIN),
+      async (req, res) => {
+        UserService.denyOnEventSeries(
+          req.params.userId,
+          req.params.eventSeriesId
+        );
+        res.status(200).send({ message: 'User removed from event' });
+      }
+    );
+
+    /*
+     * retrieve the event relations that the user has access to
+     */
+    app.get('/secure/event-relations', async (req, res) => {
+      const relations = await UserService.loadEventsWithAccessTo(
+        UserService.username(req)
+      );
+      // now filter out all duplicate invitations for the same account
+      res.status(200).send(relations);
+    });
   }
 }

@@ -1,25 +1,26 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { UserI } from '../../../../common/user';
 import { environment } from 'src/environments/environment';
-import { User } from '../models/user';
-import { TenantService } from './tenant.service';
+import { User, UserAdapter } from '../models/user';
 import { AppService } from './app.service';
 import { ROUTES } from '../../../../common/frontend.routes';
+import { UserI } from '../../../../common/user';
 
 @Injectable({ providedIn: 'root' })
 export class AuthenticationService {
   constructor(
     private router: Router,
     private http: HttpClient,
-    private tenantService: TenantService,
-    private appService: AppService
+    private appService: AppService,
+    private userAdapter: UserAdapter
   ) {
     if (localStorage.getItem('user')) {
-      this.appService.setCurrentUser(JSON.parse(localStorage.getItem('user')));
+      const storedData = JSON.parse(localStorage.getItem('user'));
+      const user = this.userAdapter.adapt(storedData);
+      user.authdata = storedData.authdata;
+      this.appService.setCurrentUser(user);
     }
   }
 
@@ -29,9 +30,9 @@ export class AuthenticationService {
     return this.http
       .post<User>(`${environment.apiUrl}/authenticate`, user)
       .pipe(
-        map((loggedInUser: User) => {
+        map((loggedInUser: UserI) => {
           // store user details and basic auth credentials in local storage to keep user logged in between page refreshes
-          this.update(loggedInUser, password);
+          this.update(this.userAdapter.adapt(loggedInUser), password);
           return loggedInUser;
         })
       );
@@ -46,7 +47,9 @@ export class AuthenticationService {
       }
       let existingUserData: User;
       if (localStorage.getItem('user')) {
-        existingUserData = JSON.parse(localStorage.getItem('user')) as User;
+        existingUserData = this.userAdapter.adapt(
+          JSON.parse(localStorage.getItem('user'))
+        );
       } else {
         existingUserData = user;
       }

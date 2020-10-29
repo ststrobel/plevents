@@ -3,61 +3,14 @@ import { Event } from '../models/event';
 import { ParticipantI } from '../../../common/participant';
 import { EventI } from '../../../common/event';
 import { Participant } from '../models/participant';
-import { each, find } from 'lodash';
 import { Log } from '../models/log';
 import { UserService } from '../services/user.service';
-import { getConnection } from 'typeorm';
 import { Tenant } from '../models/tenant';
 import tenantCorrelationHandler from '../handlers/tenant-correlation-handler';
+import { EventService } from '../services/event.service';
+import { EventSeries } from '../models/event-series';
 
 export class EventController {
-  private static async handleGetEvents(req, res): Promise<void> {
-    // first, get all events
-    let query = getConnection()
-      .createQueryBuilder()
-      .select('event')
-      .from(Event, 'event')
-      .where(`tenantId = '${req.params.tenantId}'`);
-    // construct the where clause
-    if (req.query.start) {
-      query = query.andWhere(`DATE(date) >= '${req.query.start}'`);
-    }
-    if (req.query.end) {
-      query = query.andWhere(`DATE(date) <= '${req.query.end}'`);
-    }
-    query = query.orWhere(`DATE(registrationOpenFrom) <= now()`);
-    query = query.andWhere(`tenantId = '${req.params.tenantId}'`);
-    const allEvents = await query.getMany();
-
-    // then, retrieve the participants per event
-    const promises = [];
-    each(allEvents, (event: Event) => {
-      promises.push(Participant.find({ where: { eventId: event.id } }));
-      event.takenSeats = 0;
-    });
-    // return events with participants count
-    Promise.all(promises).then(
-      (allParticipantsForEvents: Participant[][]) => {
-        each(
-          allParticipantsForEvents,
-          (participantsPerEvent: Participant[]) => {
-            if (participantsPerEvent.length > 0) {
-              find(allEvents, {
-                id: participantsPerEvent[0].eventId,
-              }).takenSeats = participantsPerEvent.length;
-            }
-          }
-        );
-        res.send(allEvents);
-      },
-      (err: any) => {
-        res
-          .status(500)
-          .send({ message: `Error calculating taken seats: ${err}` });
-      }
-    );
-  }
-
   public static register(app: express.Application): void {
     app.get('/tenants/:tenantId/events', async (req, res) => {
       // check if the related tenant is active. if not, respond with an error:
@@ -65,11 +18,21 @@ export class EventController {
       if (!tenant.active) {
         return res.status(402).send({ error: 'Tenant not active' });
       }
-      EventController.handleGetEvents(req, res);
+      const events = await EventService.get().getEvents(
+        tenant.id,
+        req.query.start as string,
+        req.query.end as string
+      );
+      res.status(200).send(events);
     });
 
     app.get('/secure/tenants/:tenantId/events', async (req, res) => {
-      EventController.handleGetEvents(req, res);
+      const events = await EventService.get().getEvents(
+        req.params.tenantId,
+        req.query.start as string,
+        req.query.end as string
+      );
+      res.status(200).send(events);
     });
 
     app.post(
@@ -77,21 +40,25 @@ export class EventController {
       tenantCorrelationHandler(),
       async (req, res) => {
         const eventToCreate = <EventI>req.body;
-        const event = new Event();
-        event.name = eventToCreate.name;
-        event.date = eventToCreate.date;
-        event.categoryId = eventToCreate.categoryId;
-        event.maxSeats = eventToCreate.maxSeats;
-        event.tenantId = req.params.tenantId;
-        event.singleOccurence = eventToCreate.singleOccurence;
-        event.registrationOpenFrom = eventToCreate.registrationOpenFrom;
-        await event.save();
-        Log.write(
+        if (eventToCreate.singleOccurence) {
+          const event = await EventService.get().addEvent(
+            req.params.tenantId,
+            eventToCreate
+          );
+          res.status(201).send(event);
+        } else {
+          const events = await EventService.get().addEventSeries(
+            req.params.tenantId,
+            eventToCreate
+          );
+          res.status(201).send(events);
+        }
+
+        /*Log.write(
           event.tenantId,
           UserService.username(req),
           `Event ${event.id} erstellt`
-        );
-        res.status(200).send(event);
+        );*/
       }
     );
 
@@ -145,19 +112,35 @@ export class EventController {
       '/secure/tenants/:tenantId/events/:eventid',
       tenantCorrelationHandler(),
       async (req, res) => {
-        const eventToUpdate = await Event.findOneOrFail(req.params.eventid);
-        eventToUpdate.name = req.body.name;
-        eventToUpdate.date = req.body.date;
-        eventToUpdate.categoryId = req.body.categoryId;
-        eventToUpdate.maxSeats = req.body.maxSeats;
-        eventToUpdate.registrationOpenFrom = req.body.registrationOpenFrom;
-        await eventToUpdate.save();
+        const eventI = req.body as EventI;
+        const updatedEvent = await EventService.get().updateEvent(
+          req.params.eventid,
+          eventI
+        );
         Log.write(
           req.params.tenantId,
           UserService.username(req),
-          `Event ${eventToUpdate.id} aktualisiert`
+          `Event ${updatedEvent.id} aktualisiert`
         );
-        res.status(200).send(eventToUpdate);
+        res.status(200).send(updatedEvent);
+      }
+    );
+
+    app.put(
+      '/secure/tenants/:tenantId/eventSeries/:eventSeriesId',
+      tenantCorrelationHandler(),
+      async (req, res) => {
+        const eventI = req.body as EventI;
+        const updatedEvents = await EventService.get().updateEventSeries(
+          req.params.eventSeriesId,
+          eventI
+        );
+        Log.write(
+          req.params.tenantId,
+          UserService.username(req),
+          `Eventserie ${req.params.eventSeriesId} aktualisiert`
+        );
+        res.status(200).send(updatedEvents);
       }
     );
 
@@ -195,20 +178,15 @@ export class EventController {
       tenantCorrelationHandler(),
       async (req, res) => {
         // first check if the event exists at all
-        const eventToDelete = (await Event.findOne(req.params.id)) as Event;
+        const eventToDelete = await Event.findOne(req.params.id);
         if (eventToDelete) {
           // now check if the logged-in user belongs to the tenant that the event belongs to
           if (eventToDelete.tenantId === req.params.tenantId) {
-            getConnection()
-              .createQueryBuilder()
-              .delete()
-              .from(Event)
-              .where(`id = '${req.params.id}'`)
-              .execute();
+            EventService.get().deleteEvent(eventToDelete.id);
             Log.write(
               req.params.tenantId,
               UserService.username(req),
-              `Event ${req.params.id} gelöscht`
+              `Event ${eventToDelete.id} gelöscht`
             );
             res.status(200).send({ message: 'Event deleted' });
           } else {
@@ -218,6 +196,33 @@ export class EventController {
           }
         } else {
           res.status(404).send({ error: 'Event not found' });
+        }
+      }
+    );
+
+    app.delete(
+      '/secure/tenants/:tenantId/eventSeries/:id',
+      tenantCorrelationHandler(),
+      async (req, res) => {
+        // first check if the event exists at all
+        const eventSeriesToDelete = await EventSeries.findOne(req.params.id);
+        if (eventSeriesToDelete) {
+          // now check if the logged-in user belongs to the tenant that the event belongs to
+          if (eventSeriesToDelete.tenantId === req.params.tenantId) {
+            EventService.get().deleteEventSeries(eventSeriesToDelete.id);
+            Log.write(
+              req.params.tenantId,
+              UserService.username(req),
+              `Künftige Events der Serie ${eventSeriesToDelete.id} gelöscht`
+            );
+            res.status(200).send({ message: 'Event series deleted' });
+          } else {
+            res.status(403).send({
+              error: 'You are not authorized to delete this event series',
+            });
+          }
+        } else {
+          res.status(404).send({ error: 'Event series not found' });
         }
       }
     );

@@ -9,6 +9,7 @@ import { AppService } from './services/app.service';
 import { ROLE } from '../../../common/tenant-relation';
 import { ROUTES } from '../../../common/frontend.routes';
 import { NgcCookieConsentService } from 'ngx-cookieconsent';
+import { UserService } from './services/user.service';
 
 @Component({
   selector: 'app-root',
@@ -27,7 +28,10 @@ export class AppComponent implements OnInit {
     private authenticationService: AuthenticationService,
     private tenantService: TenantService,
     private appService: AppService,
-    private ccService: NgcCookieConsentService
+    // LEAVE THE NEXT LINE IN THE FILE!!! :-)
+    private ccService: NgcCookieConsentService,
+    // LEAVE THE ABOVE LINE IN THE FILE!!! :-)
+    private userService: UserService
   ) {
     moment.locale('de');
   }
@@ -43,6 +47,10 @@ export class AppComponent implements OnInit {
         this.username = user.name;
         // if there is a user, load all related tenants for this user
         this.loadTenantRelations();
+        // also, load the events that the user has access to
+        this.userService.loadEventsWithAccessTo().subscribe(relations => {
+          user.eventRelations = relations;
+        });
       } else {
         this.username = null;
       }
