@@ -5,6 +5,7 @@ import { TenantRelation } from 'src/app/models/tenant-relation';
 import { AppService } from 'src/app/services/app.service';
 import { TenantService } from 'src/app/services/tenant.service';
 import { UserService } from 'src/app/services/user.service';
+import { ROUTES } from '../../../../../common/frontend.routes';
 
 @Component({
   selector: 'app-my-accounts',
@@ -14,6 +15,7 @@ import { UserService } from 'src/app/services/user.service';
 export class MyAccountsComponent implements OnInit {
   tenantRelations: TenantRelation[] = null;
   invitations: Invitation[] = null;
+  ROUTES = ROUTES;
 
   constructor(
     private tenantService: TenantService,

@@ -17,7 +17,7 @@
           <div class="col-12">
             <a
               class="btn float-right btn-sm btn-outline-success mb-2"
-              [routerLink]="['/account-registrierung']"
+              [routerLink]="['/' + ROUTES.REGISTER_TENANT]"
             >
               Neue Organisation anlegen
             </a>
@@ -51,7 +51,9 @@
               *ngIf="tenantRelation.active"
               [routerLink]="[
                 '/' + tenantRelation.tenant.path,
-                tenantRelation.isAdmin() ? 'verwaltung' : 'dashboard'
+                tenantRelation.isAdmin()
+                  ? ROUTES.TENANT_MANAGEMENT
+                  : ROUTES.TENANT_PLANNER
               ]"
               >{{ tenantRelation.tenant.name }}<br /><small
                 >/{{ tenantRelation.tenant.path }}</small
@@ -129,7 +131,7 @@
           "
         >
           Sie sind noch keiner Organisation zugeordnet. Möchten Sie einen
-          <a [routerLink]="['/account-registrierung']"
+          <a [routerLink]="['/' + ROUTES.REGISTER_TENANT]"
             >neue Organisation erstellen</a
           >?
         </div>
