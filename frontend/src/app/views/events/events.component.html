@@ -1,7 +1,10 @@
 <h2 *ngIf="tenant && tenant.active">Anmeldung zu Aktivität</h2>
+
+<div *ngIf="successfullyRegistered" class="alert alert-success messageBox mb-3">
+  Du hast dich erfolgreich zu <b>{{ selectedEvent.name }}</b> angemeldet!
+</div>
 <div
   *ngIf="
-    !successfullyRegistered &&
     categoryOptions != null &&
     selectedCategory === undefined &&
     tenant &&
@@ -28,7 +31,7 @@
     <div class="category-card">alle Events</div>
   </div>
 </div>
-<div *ngIf="!successfullyRegistered && selectedCategory !== undefined">
+<div *ngIf="selectedCategory !== undefined">
   <div class="back-to-categories" (click)="selectedCategory = undefined">
     <i class="fas fa-chevron-left"></i>
     zurück zur Kategorie-Auswahl
@@ -405,14 +408,6 @@
       </form>
     </div>
   </div>
-</div>
-
-<div *ngIf="successfullyRegistered" class="alert alert-success messageBox">
-  Du hast dich erfolgreich zu <b>{{ selectedEvent.name }}</b> angemeldet!
-  <br />
-  <br />
-  Bitte beachte, dass du dich nicht für weitere Events in dieser Woche anmelden
-  kannst.
 </div>
 
 <div *ngIf="tenant && !tenant.active" class="alert alert-warning messageBox">

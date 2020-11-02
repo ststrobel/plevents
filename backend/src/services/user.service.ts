@@ -7,6 +7,7 @@ import { map } from 'lodash';
 import { Verification, VerificationType } from '../models/verification';
 import { EmailService, EMAIL_TEMPLATES } from './email-service';
 import { ROUTES } from '../../../common/frontend.routes';
+import { EventRelation } from '../models/event-relation';
 
 export class UserService {
   public static async createUserProfile(
@@ -124,5 +125,62 @@ export class UserService {
     } catch (e) {
       throw e;
     }
+  }
+
+  public static async allowOnEvent(
+    userId: string,
+    eventId: string
+  ): Promise<EventRelation> {
+    // first, check that there is no relation yet. if so, just ignore it.
+    const existingRelation = await EventRelation.findOne({
+      where: { userId, eventId },
+    });
+    if (existingRelation) {
+      return existingRelation;
+    }
+    const newRelation = new EventRelation();
+    newRelation.userId = userId;
+    newRelation.eventId = eventId;
+    await newRelation.save();
+    return newRelation;
+  }
+
+  public static async denyOnEvent(
+    userId: string,
+    eventId: string
+  ): Promise<void> {
+    EventRelation.delete({ userId, eventId });
+  }
+
+  public static async allowOnEventSeries(
+    userId: string,
+    eventSeriesId: string
+  ): Promise<EventRelation> {
+    // first, check that there is no relation yet. if so, just ignore it.
+    const existingRelation = await EventRelation.findOne({
+      where: { userId, eventSeriesId },
+    });
+    if (existingRelation) {
+      return existingRelation;
+    }
+    const newRelation = new EventRelation();
+    newRelation.userId = userId;
+    newRelation.eventSeriesId = eventSeriesId;
+    await newRelation.save();
+    return newRelation;
+  }
+
+  public static async denyOnEventSeries(
+    userId: string,
+    eventSeriesId: string
+  ): Promise<void> {
+    EventRelation.delete({ userId, eventSeriesId });
+  }
+
+  public static async loadEventsWithAccessTo(
+    email: string
+  ): Promise<EventRelation[]> {
+    const user = await User.findOneOrFail({ where: { email } });
+    return await EventRelation.find({ userId: user.id });
   }
 }

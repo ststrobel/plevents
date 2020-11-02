@@ -24,20 +24,23 @@
   <button
     class="btn float-right btn-outline-success mb-3 ml-2"
     *ngIf="!newSingleEventFormShown && !newEventSeriesFormShown"
-    (click)="newEventSeriesFormShown = true"
+    (click)="showEventSeriesForm()"
   >
     Neues Serienevent
   </button>
   <button
     class="btn float-right btn-outline-success mb-3 ml-2"
     *ngIf="!newSingleEventFormShown && !newEventSeriesFormShown"
-    (click)="newSingleEventFormShown = true"
+    (click)="showNewSingleEventForm()"
   >
     Neues Einzelevent
   </button>
 </div>
 <!-- form to create a new event series -->
-<div class="newEventContainer" [hidden]="!newEventSeriesFormShown">
+<div
+  class="newEventContainer"
+  *ngIf="newEventSeriesForm && newEventSeriesFormShown"
+>
   <h5>Daten für neues Reihenevent bis Ende dieses Jahres:</h5>
   <button
     type="button"
@@ -123,6 +126,29 @@
           min="1"
         />
       </div>
+      <div class="col-6 col-md-4">
+        <!-- the list of users with role "leader" that have access to this event -->
+        <label>Nutzer mit Zugriff auf Teilnehmerdaten</label>
+        <div class="allowedMembersBox">
+          <div
+            class="clickable"
+            *ngFor="let user of orgMembers"
+            [ngClass]="{
+              'text-secondary': !userIdsAllowedOnNewEvent.includes(user.id)
+            }"
+            (click)="toggleUserOnNewEvent(user)"
+          >
+            <i
+              class="fas mr-1"
+              [ngClass]="{
+                'fa-check-circle': userIdsAllowedOnNewEvent.includes(user.id),
+                'fa-times-circle': !userIdsAllowedOnNewEvent.includes(user.id)
+              }"
+            ></i>
+            {{ user.name }}
+          </div>
+        </div>
+      </div>
       <div class="col-12 col-md-4">
         <button
           class="btn btn-block btn-outline-success"
@@ -138,7 +164,10 @@
 </div>
 
 <!-- form to create a new single event -->
-<div class="newEventContainer" [hidden]="!newSingleEventFormShown">
+<div
+  class="newEventContainer"
+  *ngIf="newSingleEventForm && newSingleEventFormShown"
+>
   <h5>Daten für neues Einzelevent:</h5>
   <button
     type="button"
@@ -239,6 +268,29 @@
           min="{{ today | date: 'yyyy-MM-dd' }}"
         />
       </div>
+      <div class="col-6 col-md-4">
+        <!-- the list of users with role "leader" that have access to this event -->
+        <label>Nutzer mit Zugriff auf Teilnehmerdaten</label>
+        <div class="allowedMembersBox">
+          <div
+            class="clickable"
+            *ngFor="let user of orgMembers"
+            [ngClass]="{
+              'text-secondary': !userIdsAllowedOnNewEvent.includes(user.id)
+            }"
+            (click)="toggleUserOnNewEvent(user)"
+          >
+            <i
+              class="fas mr-1"
+              [ngClass]="{
+                'fa-check-circle': userIdsAllowedOnNewEvent.includes(user.id),
+                'fa-times-circle': !userIdsAllowedOnNewEvent.includes(user.id)
+              }"
+            ></i>
+            {{ user.name }}
+          </div>
+        </div>
+      </div>
       <div class="col-12 col-md-4">
         <button
           class="btn btn-block btn-outline-success"
@@ -280,7 +332,8 @@
       <tr *ngIf="appService.hasRole(tenant.id, ROLE.ADMIN)">
         <th></th>
         <th *ngFor="let uniqueEvent of uniqueEvents; let i = index" class="p-2">
-          <div class="row">
+          <!-- only allow to change/delete events that are not in the past -->
+          <div class="row" *ngIf="!lastEventOfSeries(uniqueEvent).isInPast()">
             <div
               class="col-md-12"
               [ngClass]="{
@@ -329,23 +382,34 @@
             'has-passed': event && event.isInPast()
           }"
         >
-          <div *ngIf="event" style="position: relative">
+          <div
+            *ngIf="event"
+            style="position: relative"
+            [ngClass]="{
+              clickable:
+                event &&
+                (appService.hasRole(tenant.id, ROLE.ADMIN) ||
+                  appService.getCurrentUser().hasAccessToEvent(event))
+            }"
+            (click)="
+              showEventParticipants($event, event, showParticipantsModal)
+            "
+          >
             {{ event.displayDate() }}<br />
             <small>{{ event.takenSeats }} / {{ event.maxSeats }} </small
             ><i
+              *ngIf="
+                appService.hasRole(tenant.id, ROLE.ADMIN) ||
+                appService.getCurrentUser().hasAccessToEvent(event)
+              "
               class="fas fa-file-pdf actionableIcon"
-              (click)="downloadPdf(event)"
+              (click)="downloadPdf($event, event)"
               title="Download Teilnehmerliste"
-            ></i
-            ><i
-              class="fas fa-users actionableIcon"
-              (click)="showEventParticipants(event, showParticipantsModal)"
-              title="Anzeige Teilnehmer"
             ></i>
             <small
               class="stateToggler"
               [ngClass]="{ clickable: !event.isInPast() }"
-              (click)="event.isInPast() || toggleDisabled(event)"
+              (click)="event.isInPast() || toggleDisabled($event, event)"
             >
               <i *ngIf="!event.disabled">aktiv</i>
               <i *ngIf="event.disabled">inaktiv</i>
@@ -422,27 +486,31 @@
               >
                 <div
                   *ngIf="event"
-                  [ngClass]="{ disabled: event.disabled }"
+                  [ngClass]="{
+                    disabled: event.disabled,
+                    clickable:
+                      event &&
+                      (appService.hasRole(tenant.id, ROLE.ADMIN) ||
+                        appService.getCurrentUser().hasAccessToEvent(event))
+                  }"
                   style="position: relative"
+                  (click)="showEventParticipants(event, showParticipantsModal)"
                 >
                   {{ event.displayDate() }}<br />
                   <small>{{ event.takenSeats }} / {{ event.maxSeats }} </small
                   ><i
-                    class="fas fa-file-pdf actionableIcon"
-                    (click)="downloadPdf(event)"
-                    title="Download Teilnehmerliste"
-                  ></i
-                  ><i
-                    class="fas fa-users actionableIcon"
-                    (click)="
-                      showEventParticipants(event, showParticipantsModal)
+                    *ngIf="
+                      appService.hasRole(tenant.id, ROLE.ADMIN) ||
+                      appService.getCurrentUser().hasAccessToEvent(event)
                     "
-                    title="Anzeige Teilnehmer"
+                    class="fas fa-file-pdf actionableIcon"
+                    (click)="downloadPdf($event, event)"
+                    title="Download Teilnehmerliste"
                   ></i>
                   <small
                     class="stateToggler"
                     [ngClass]="{ clickable: !event.isInPast() }"
-                    (click)="event.isInPast() || toggleDisabled(event)"
+                    (click)="event.isInPast() || toggleDisabled($event, event)"
                   >
                     <i *ngIf="!event.disabled">aktiv</i>
                     <i *ngIf="event.disabled">inaktiv</i>
@@ -453,7 +521,8 @@
           </tbody>
         </table>
       </div>
-      <div class="row mt-2">
+      <!-- only allow to change/delete events that are not in the past -->
+      <div class="row mt-2" *ngIf="!lastEventOfSeries(uniqueEvent).isInPast()">
         <div
           class="col-md-12"
           [ngClass]="{
@@ -508,10 +577,10 @@
     <p>
       Ändern Sie hier den Titel des Events, den Tag sowie die Uhrzeit beliebig
       ab.
-      <span *ngIf="!eventBeingEdited.singleOccurence"
-        >Diese Änderung wirkt sich auf alle in der Zukunft liegenden Events
-        aus.</span
-      >
+    </p>
+    <p *ngIf="!eventBeingEdited.singleOccurence">
+      Diese Änderung wirkt sich
+      <b>nur auf alle in der Zukunft liegenden</b> Events aus.
     </p>
     <form [formGroup]="editEventForm">
       <div class="row">

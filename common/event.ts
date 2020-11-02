@@ -1,3 +1,5 @@
+import { EventSeriesI } from './event-series';
+
 export interface EventI {
   name: string;
   date: Date;
@@ -7,4 +9,5 @@ export interface EventI {
   categoryId: string;
   singleOccurence: boolean;
   registrationOpenFrom: Date;
+  eventSeries?: EventSeriesI;
 }

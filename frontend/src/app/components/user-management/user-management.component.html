@@ -21,7 +21,7 @@
           }}</a></small
         >
       </div>
-      <div class="col-5 text-right">
+      <div class="col-5 text-right" style="line-height: 48px">
         <button
           *ngIf="!tenantUserRelation.active"
           class="btn btn-sm btn-outline-success ml-2"
@@ -98,6 +98,16 @@
           >
         </span>
         <i
+          class="fas fa-user-shield clickable ml-4"
+          *ngIf="
+            tenantUserRelation.role === ROLE.MEMBER &&
+            appService.hasRole(tenantUserRelation.tenantId, ROLE.ADMIN)
+          "
+          (click)="
+            showEventRelations(tenantUserRelation.user, showEventRelationsModal)
+          "
+        ></i>
+        <i
           class="fas fa-trash-alt clickable ml-4 text-danger"
           *ngIf="
             tenantUserRelation.role === ROLE.MEMBER ||
@@ -124,7 +134,7 @@
           }}</a></small
         >
       </div>
-      <div class="col-5">
+      <div class="col-5" style="line-height: 48px">
         <button
           class="float-right btn btn-sm btn-outline-danger"
           (click)="revokeInvitation(invitation)"
@@ -157,3 +167,97 @@
     </div>
   </li>
 </ul>
+
+<!-- modal to select which events the user has access to -->
+<ng-template #showEventRelationsModal>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Zugriff auf Teilnehmerdaten</h4>
+    <button
+      type="button"
+      class="close pull-right"
+      aria-label="Close"
+      (click)="modalRef.hide()"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p>
+      Legen Sie fest, zu welchen Veranstaltungen
+      <b>{{ selectedUser.name }}</b> Zugriff auf die Teilnehmerliste erhält:
+    </p>
+    <h5 *ngIf="eventSeries && eventSeries.length > 0">Serienevents</h5>
+    <ul class="list-group mb-4" *ngIf="eventSeries && eventSeries.length > 0">
+      <li
+        class="list-group-item list-group-item-action"
+        *ngFor="let event of eventSeries"
+      >
+        <div class="d-flex">
+          <div class="flex-grow-1">{{ event.name }}</div>
+          <div style="width: 50px">
+            <div
+              class="custom-control custom-switch float-right clickable"
+              (click)="toggleAccessOnEventSeries(event.id)"
+            >
+              <input
+                type="checkbox"
+                class="custom-control-input clickable"
+                [checked]="selectedUser.hasAccessToEvent(event.id)"
+              />
+              <label class="custom-control-label clickable m-0"></label>
+            </div>
+          </div>
+        </div>
+      </li>
+    </ul>
+    <h5 *ngIf="singleEvents && singleEvents.length > 0">
+      Einzelveranstaltungen
+    </h5>
+    <ul class="list-group" *ngIf="singleEvents && singleEvents.length > 0">
+      <li
+        class="list-group-item list-group-item-action"
+        *ngFor="let singleEvent of singleEvents"
+      >
+        <div class="d-flex">
+          <div class="flex-grow-1">{{ singleEvent.name }}</div>
+          <div style="width: 50px">
+            <div
+              class="custom-control custom-switch float-right clickable"
+              (click)="toggleAccessOnEvent(singleEvent.id)"
+            >
+              <input
+                type="checkbox"
+                class="custom-control-input clickable"
+                [checked]="selectedUser.hasAccessToEvent(singleEvent.id)"
+              />
+              <label class="custom-control-label clickable m-0"></label>
+            </div>
+          </div>
+        </div>
+      </li>
+    </ul>
+    <div class="alert alert-light" *ngIf="!singleEvents && !eventSeries">
+      Events werden geladen...
+    </div>
+    <div
+      class="alert alert-secondary"
+      *ngIf="
+        singleEvents &&
+        singleEvents.length === 0 &&
+        eventSeries &&
+        eventSeries.length === 0
+      "
+    >
+      Es sind keine Veranstaltungen vorhanden.
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-outline-secondary"
+      (click)="modalRef.hide()"
+    >
+      Schließen
+    </button>
+  </div>
+</ng-template>

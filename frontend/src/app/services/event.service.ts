@@ -70,9 +70,27 @@ export class EventService {
       );
   }
 
+  updateEventSeries(event: Event): Observable<Event> {
+    return this.http
+      .put(
+        `${environment.apiUrl}/secure/tenants/${event.tenantId}/eventSeries/${event.eventSeries.id}`,
+        event
+      )
+      .pipe(
+        // Adapt the raw items
+        map(data => this.eventAdapter.adapt(data))
+      );
+  }
+
   deleteEvent(tenantId: string, eventId: string): Observable<any> {
     return this.http.delete(
       `${environment.apiUrl}/secure/tenants/${tenantId}/events/${eventId}`
+    );
+  }
+
+  deleteEventSeries(tenantId: string, eventSeriesId: string): Observable<any> {
+    return this.http.delete(
+      `${environment.apiUrl}/secure/tenants/${tenantId}/eventSeries/${eventSeriesId}`
     );
   }
 

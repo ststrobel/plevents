@@ -27,6 +27,7 @@ export class PdfService {
       styles: {},
       defaultStyle: {
         font: 'Helvetica',
+        fontSize: 9,
       },
     };
 
@@ -112,7 +113,7 @@ export class PdfService {
             {
               border: [false, false, false, false],
               table: {
-                widths: ['auto', '*', '*', '*', '*'],
+                widths: ['auto', '*', '*', '*', 'auto'],
                 body: tableBody,
               },
             },

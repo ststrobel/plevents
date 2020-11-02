@@ -4,6 +4,7 @@ import { Adapter } from '../helpers/adapter';
 import * as moment from 'moment';
 import { each, find } from 'lodash';
 import { environment } from 'src/environments/environment';
+import { EventSeriesI } from '../../../../common/event-series';
 
 export class Event implements EventI {
   id?: string;
@@ -19,6 +20,7 @@ export class Event implements EventI {
   tenantId: string;
   singleOccurence: boolean;
   registrationOpenFrom: Date;
+  eventSeries?: EventSeriesI;
 
   downloadLink(): string {
     return `${environment.apiUrl}/secure/tenants/${this.tenantId}/events/${this.id}/pdf`;
@@ -94,6 +96,7 @@ export class EventAdapter implements Adapter<Event> {
     if (item.registrationOpenFrom) {
       event.registrationOpenFrom = moment(item.registrationOpenFrom).toDate();
     }
+    event.eventSeries = item.eventSeries;
     return event;
   }
 }

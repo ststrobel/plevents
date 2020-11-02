@@ -1,16 +1,20 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, TemplateRef } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { reject, findIndex, find } from 'lodash';
+import { reject, findIndex, find, filter, map, uniqBy, sortBy } from 'lodash';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Invitation } from 'src/app/models/invitation';
 import { Tenant } from 'src/app/models/tenant';
 import { TenantRelation } from 'src/app/models/tenant-relation';
 import { User } from 'src/app/models/user';
+import { Event } from 'src/app/models/event';
 import { AppService } from 'src/app/services/app.service';
+import { EventService } from 'src/app/services/event.service';
 import { TenantService } from 'src/app/services/tenant.service';
 import { UserService } from 'src/app/services/user.service';
 import { ROUTES } from '../../../../../common/frontend.routes';
 import { ROLE } from '../../../../../common/tenant-relation';
+import { EventSeriesI } from '../../../../../common/event-series';
 
 @Component({
   selector: 'user-management',
@@ -28,12 +32,18 @@ export class UserManagementComponent implements OnInit {
   invitations: Invitation[];
   invitedUser: string = null;
   userExists: string = null;
+  modalRef: BsModalRef;
+  selectedUser: User = null;
+  singleEvents: Event[];
+  eventSeries: EventSeriesI[];
 
   constructor(
     private userService: UserService,
     private tenantService: TenantService,
     private appService: AppService,
-    private router: Router
+    private modalService: BsModalService,
+    private router: Router,
+    private eventService: EventService
   ) {}
 
   ngOnInit(): void {
@@ -41,13 +51,13 @@ export class UserManagementComponent implements OnInit {
     this.tenantService
       .getUsers(this.tenant.id)
       .subscribe((relations: TenantRelation[]) => {
-        this.tenantUserRelations = relations;
+        this.tenantUserRelations = sortBy(relations, 'user.name');
       });
     if (this.appService.hasRole(this.tenant.id, ROLE.OWNER)) {
       this.tenantService
         .getOpenInvitations(this.tenant.id)
         .subscribe((invitations: Invitation[]) => {
-          this.invitations = invitations;
+          this.invitations = sortBy(invitations, 'email');
         });
     } else {
       this.invitations = null;
@@ -145,6 +155,70 @@ export class UserManagementComponent implements OnInit {
             alert('Es trat ein Fehler auf');
           }
         );
+    }
+  }
+
+  showEventRelations(user: User, template: TemplateRef<any>): void {
+    this.selectedUser = user;
+    this.modalRef = this.modalService.show(template);
+    // load the events for the client
+    this.eventService
+      .getEvents(this.tenant.id, null, null, true)
+      .subscribe((events: Event[]) => {
+        this.singleEvents = filter(events, event => event.singleOccurence);
+        this.eventSeries = uniqBy(
+          map(
+            filter(events, event => event.eventSeries),
+            'eventSeries'
+          ),
+          'id'
+        );
+      });
+  }
+
+  toggleAccessOnEvent(eventId: string): void {
+    if (this.selectedUser.hasAccessToEvent(eventId)) {
+      this.userService
+        .denyAccessToEvent(this.tenant.id, this.selectedUser.id, eventId)
+        .subscribe(() => {
+          this.selectedUser.eventRelations = reject(
+            this.selectedUser.eventRelations,
+            relation => relation.eventId === eventId
+          );
+        });
+    } else {
+      this.userService
+        .allowAccessToEvent(this.tenant.id, this.selectedUser.id, eventId)
+        .subscribe(relation => {
+          this.selectedUser.eventRelations.push(relation);
+        });
+    }
+  }
+
+  toggleAccessOnEventSeries(eventSeriesId: string): void {
+    if (this.selectedUser.hasAccessToEvent(eventSeriesId)) {
+      this.userService
+        .denyAccessToEventSeries(
+          this.tenant.id,
+          this.selectedUser.id,
+          eventSeriesId
+        )
+        .subscribe(() => {
+          this.selectedUser.eventRelations = reject(
+            this.selectedUser.eventRelations,
+            relation => relation.eventSeriesId === eventSeriesId
+          );
+        });
+    } else {
+      this.userService
+        .allowAccessToEventSeries(
+          this.tenant.id,
+          this.selectedUser.id,
+          eventSeriesId
+        )
+        .subscribe(relation => {
+          this.selectedUser.eventRelations.push(relation);
+        });
     }
   }
 }

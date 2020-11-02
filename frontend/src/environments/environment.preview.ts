@@ -7,6 +7,8 @@ export const environment = {
   // this will just append 'api' to the current domain
   apiUrl: 'api',
   domain: 'preview.plevents.de',
+  stripePubKey:
+    'pk_test_51HhiAYFrAXm59OieoGtMgGYnOkrkaT3dVshNy2ENIjLgjSltE0oDfrAj8sYsUwKvemMrhdrN5YO9HM2SqycIHnnY00eHMIY6nq',
 };
 
 /*

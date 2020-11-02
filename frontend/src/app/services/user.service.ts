@@ -7,13 +7,15 @@ import { map } from 'rxjs/operators';
 import { UserI } from '../../../../common/user';
 import { ROLE } from '../../../../common/tenant-relation';
 import { Invitation, InvitationAdapter } from '../models/invitation';
+import { EventRelation, EventRelationAdapter } from '../models/event-relation';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
   constructor(
     private http: HttpClient,
     private userAdapter: UserAdapter,
-    private invitationAdapter: InvitationAdapter
+    private invitationAdapter: InvitationAdapter,
+    private eventRelationAdapter: EventRelationAdapter
   ) {}
 
   register(user: UserI, tenantPath?: string): Observable<User> {
@@ -130,6 +132,61 @@ export class UserService {
     return this.http.post(
       `${environment.apiUrl}/secure/invitations/${invitationId}`,
       null
+    );
+  }
+
+  allowAccessToEvent(
+    tenantId: string,
+    userId: string,
+    eventId: string
+  ): Observable<EventRelation> {
+    return this.http
+      .post(
+        `${environment.apiUrl}/secure/tenants/${tenantId}/users/${userId}/event/${eventId}`,
+        null
+      )
+      .pipe(map(item => this.eventRelationAdapter.adapt(item)));
+  }
+
+  denyAccessToEvent(
+    tenantId: string,
+    userId: string,
+    eventId: string
+  ): Observable<any> {
+    return this.http.delete(
+      `${environment.apiUrl}/secure/tenants/${tenantId}/users/${userId}/event/${eventId}`
+    );
+  }
+
+  allowAccessToEventSeries(
+    tenantId: string,
+    userId: string,
+    eventSeriesId: string
+  ): Observable<EventRelation> {
+    return this.http
+      .post(
+        `${environment.apiUrl}/secure/tenants/${tenantId}/users/${userId}/eventSeries/${eventSeriesId}`,
+        null
+      )
+      .pipe(map(item => this.eventRelationAdapter.adapt(item)));
+  }
+
+  denyAccessToEventSeries(
+    tenantId: string,
+    userId: string,
+    eventSeriesId: string
+  ): Observable<any> {
+    return this.http.delete(
+      `${environment.apiUrl}/secure/tenants/${tenantId}/users/${userId}/eventSeries/${eventSeriesId}`
+    );
+  }
+
+  loadEventsWithAccessTo(): Observable<EventRelation[]> {
+    return this.http.get(`${environment.apiUrl}/secure/event-relations`).pipe(
+      // Adapt the raw items
+      map((data: any[]) =>
+        data.map(item => this.eventRelationAdapter.adapt(item))
+      )
     );
   }
 }
