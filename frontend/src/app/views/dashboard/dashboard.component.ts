@@ -3,7 +3,7 @@ import { Week } from 'src/app/models/week';
 import { EventService } from 'src/app/services/event.service';
 import { Event } from '../../models/event';
 import * as moment from 'moment';
-import { filter, sortBy, each, find, reject } from 'lodash';
+import { filter, sortBy, each, find, reject, map } from 'lodash';
 import {
   FormGroup,
   FormControl,
@@ -21,6 +21,10 @@ import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { Participant } from 'src/app/models/participant';
 import { AppService } from 'src/app/services/app.service';
 import { ROLE } from '../../../../../common/tenant-relation';
+import { User } from 'src/app/models/user';
+import { TenantRelation } from 'src/app/models/tenant-relation';
+import { UserService } from 'src/app/services/user.service';
+import { EventSeriesI } from '../../../../../common/event-series';
 
 @Component({
   selector: 'app-dashboard',
@@ -66,6 +70,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   });
   showAddParticipantForm: boolean = false;
   addParticipantSuccess: string = null;
+  orgMembers: User[];
+  userIdsAllowedOnNewEvent: string[];
 
   constructor(
     private eventService: EventService,
@@ -74,12 +80,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private router: Router,
     private categoryService: CategoryService,
     private modalService: BsModalService,
-    public appService: AppService
+    public appService: AppService,
+    private userService: UserService
   ) {}
 
   ngOnInit() {
-    this.createNewEventSeriesForm();
-    this.createNewSingleEventForm();
     this.eventsOpened = new Array<boolean>();
     // load the tenant information and redirect in case tenant path does not exist:
     this.tenantSubscription = this.tenantService
@@ -99,7 +104,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
       if (tenant && tenant != this.tenant) {
         this.tenant = tenant;
         this.appService.setColor(this.tenant);
-        this.loadAllEvents(tenant);
+        this.loadAllEvents(this.tenant);
+        if (this.appService.hasRole(this.tenant.id, ROLE.ADMIN)) {
+          this.createNewEventSeriesForm();
+          this.createNewSingleEventForm();
+          this.tenantService
+            .getUsers(this.tenant.id)
+            .subscribe((tenantRelations: TenantRelation[]) => {
+              this.orgMembers = map(
+                filter(tenantRelations, tenantRelation => {
+                  return !tenantRelation.isAdmin() && !tenantRelation.isOwner();
+                }),
+                'user'
+              );
+            });
+        }
       }
     });
     this.tenantService.load(this.route.snapshot.params.tenantPath);
@@ -232,12 +251,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
     event.maxSeats = this.newEventSeriesForm.get('maxSeats').value;
     event.date = m.toDate();
     this.eventService.createEvent(this.tenant.id, event).subscribe(
-      () => {
+      (eventSeries: EventSeriesI) => {
         alert('Neue Eventserie angelegt');
         this.loadAllEvents(this.appService.getCurrentTenant());
         this.operationOngoing = false;
         this.newEventSeriesFormShown = false;
         this.newEventSeriesForm.reset();
+        // now add all the users on the event series (if any were selected):
+        each(this.userIdsAllowedOnNewEvent, (userId: string) => {
+          this.userService
+            .allowAccessToEventSeries(this.tenant.id, userId, eventSeries.id)
+            .subscribe();
+        });
       },
       error => {
         console.error(error);
@@ -272,12 +297,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
       event.registrationOpenFrom = startOfRegistration.toDate();
     }
     this.eventService.createEvent(this.tenant.id, event).subscribe(
-      () => {
+      (createdEvent: Event) => {
         alert('Neues Einzelevent angelegt');
         this.loadAllEvents(this.appService.getCurrentTenant());
         this.operationOngoing = false;
         this.newSingleEventFormShown = false;
         this.newSingleEventForm.reset();
+        // now add all the users on the event (if any were selected):
+        each(this.userIdsAllowedOnNewEvent, (userId: string) => {
+          this.userService
+            .allowAccessToEvent(this.tenant.id, userId, createdEvent.id)
+            .subscribe();
+        });
       },
       error => {
         console.error(error);
@@ -291,7 +322,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return formControl.invalid && formControl.touched;
   }
 
-  toggleDisabled(event: Event): void {
+  toggleDisabled(clickEvent: any, event: Event): void {
+    clickEvent.stopPropagation();
     event.disabled = !event.disabled;
     // update it on server side, too
     this.eventService
@@ -350,7 +382,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  downloadPdf(event: Event): void {
+  downloadPdf(clickEvent: any, event: Event): void {
+    clickEvent.stopPropagation();
     this.eventService.downloadPdf(event);
   }
 
@@ -562,5 +595,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }
     });
     return lastEvent;
+  }
+
+  showNewSingleEventForm(): void {
+    this.newSingleEventFormShown = true;
+    this.userIdsAllowedOnNewEvent = new Array<string>();
+  }
+
+  showEventSeriesForm(): void {
+    this.newEventSeriesFormShown = true;
+    this.userIdsAllowedOnNewEvent = new Array<string>();
+  }
+
+  toggleUserOnNewEvent(user: User): void {
+    if (this.userIdsAllowedOnNewEvent.includes(user.id)) {
+      this.userIdsAllowedOnNewEvent = reject(
+        this.userIdsAllowedOnNewEvent,
+        id => id === user.id
+      );
+    } else {
+      this.userIdsAllowedOnNewEvent.push(user.id);
+    }
   }
 }

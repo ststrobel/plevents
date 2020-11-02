@@ -162,16 +162,18 @@ export class UserManagementComponent implements OnInit {
     this.selectedUser = user;
     this.modalRef = this.modalService.show(template);
     // load the events for the client
-    this.eventService.getEvents(this.tenant.id).subscribe((events: Event[]) => {
-      this.singleEvents = filter(events, event => event.singleOccurence);
-      this.eventSeries = uniqBy(
-        map(
-          filter(events, event => event.eventSeries),
-          'eventSeries'
-        ),
-        'id'
-      );
-    });
+    this.eventService
+      .getEvents(this.tenant.id, null, null, true)
+      .subscribe((events: Event[]) => {
+        this.singleEvents = filter(events, event => event.singleOccurence);
+        this.eventSeries = uniqBy(
+          map(
+            filter(events, event => event.eventSeries),
+            'eventSeries'
+          ),
+          'id'
+        );
+      });
   }
 
   toggleAccessOnEvent(eventId: string): void {

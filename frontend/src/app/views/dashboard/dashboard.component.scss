@@ -144,3 +144,24 @@ table {
     background-color: whitesmoke;
   }
 }
+
+.allowedMembersBox {
+  background-color: white;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  padding: 6px;
+  > div {
+    padding: 2px 5px;
+    border: 1px solid grey;
+    background-color: whitesmoke;
+    color: var(--plevents-main-color);
+    font-size: small;
+    border-radius: 10px;
+    width: max-content;
+    display: inline;
+    margin: 5px;
+    &:hover {
+      background-color: #e1e1e1;
+    }
+  }
+}

@@ -47,11 +47,11 @@ export class EventController {
           );
           res.status(201).send(event);
         } else {
-          const events = await EventService.get().addEventSeries(
+          const eventSeries = await EventService.get().addEventSeries(
             req.params.tenantId,
             eventToCreate
           );
-          res.status(201).send(events);
+          res.status(201).send(eventSeries);
         }
 
         /*Log.write(

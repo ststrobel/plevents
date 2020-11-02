@@ -83,7 +83,7 @@ export class EventService {
     return await event.save();
   }
 
-  async addEventSeries(tenantId: string, eventI: EventI): Promise<Event[]> {
+  async addEventSeries(tenantId: string, eventI: EventI): Promise<EventSeries> {
     // first, create an event series object then then the single events afterwards
     const eventSeries = new EventSeries();
     eventSeries.categoryId = eventI.categoryId;
@@ -91,7 +91,6 @@ export class EventService {
     eventSeries.tenantId = tenantId;
     await eventSeries.save();
     // now create the single events until the end of the year
-    const eventPromises = new Array<Promise<Event>>();
     const startDate = moment(eventI.date);
     for (
       let cw = startDate.isoWeek();
@@ -106,9 +105,9 @@ export class EventService {
       event.maxSeats = eventI.maxSeats;
       event.date = startDate.isoWeek(cw).toDate();
       event.tenantId = tenantId;
-      eventPromises.push(event.save());
+      event.save();
     }
-    return await Promise.all(eventPromises);
+    return eventSeries;
   }
 
   /**

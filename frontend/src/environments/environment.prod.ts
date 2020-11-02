@@ -3,4 +3,5 @@ export const environment = {
   // this will just append 'api' to the current domain
   apiUrl: 'api',
   domain: 'plevents.de',
+  stripePubKey: '',
 };
