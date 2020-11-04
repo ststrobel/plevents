@@ -41,6 +41,7 @@ export class PaymentService {
             {
               price: process.env.STRIPE_PRICE_ID,
               quantity: 1,
+              tax_rates: [process.env.STRIPE_VAT_ID],
             },
           ],
           // {CHECKOUT_SESSION_ID} is a string literal; do not change it!
