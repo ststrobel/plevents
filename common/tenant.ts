@@ -11,4 +11,5 @@ export interface TenantI {
   color: string;
   subscriptionUntil: Date;
   stripeUserId?: string;
+  activeUntil?: Date;
 }

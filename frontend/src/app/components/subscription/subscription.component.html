@@ -9,13 +9,13 @@
   </div>
   <div class="flex-grow-1">
     <div>Die Organisation hat eine gültige Lizenz.</div>
-    <button
-      *ngIf="tenant.active"
+    <a
       class="btn btn-sm btn-outline-success float-right"
-      (click)="jumpToStripeCustomerPortal()"
+      [href]="linkToCustomerPortal"
+      target="_blank"
     >
       Zahlungen und Rechnungen verwalten
-    </button>
+    </a>
   </div>
 </div>
 <div
@@ -32,8 +32,14 @@
       genutzt werden. Bitte eine Lizenz kaufen, damit Events öffentlich
       angezeigt werden.
     </div>
+    <a
+      *ngIf="linkToCustomerPortal"
+      [href]="linkToCustomerPortal"
+      target="_blank"
+    >
+      Alte Rechnungen einsehen
+    </a>
     <button
-      *ngIf="!tenant.active"
       class="btn btn-sm btn-outline-success float-right"
       (click)="initializeSubscription()"
     >

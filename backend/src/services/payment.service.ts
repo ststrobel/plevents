@@ -1,5 +1,7 @@
 // Set your secret key. Remember to switch to your live secret key in production!
 
+import moment from 'moment';
+import { getConnection } from 'typeorm';
 import { ROUTES } from '../../../common/frontend.routes';
 import { Tenant } from '../models/tenant';
 
@@ -22,11 +24,18 @@ export class PaymentService {
   /**
    * initiates a new subscription for a given tenant and returns the stripe session ID
    */
-  async initiateSubscription(tenant: Tenant, email: string): Promise<string> {
+  async initiateSubscription(tenantId: string, email: string): Promise<string> {
     // See https://stripe.com/docs/api/checkout/sessions/create
     // for additional parameters to pass.
     try {
       // first, check if the tenant already has a stripe account. if not, create one first
+      const tenant = await getConnection()
+        .createQueryBuilder()
+        .select('tenant')
+        .from(Tenant, 'tenant')
+        .where(`id = '${tenantId}'`)
+        .addSelect('tenant.stripeUserId')
+        .getOne();
       if (!tenant.stripeUserId) {
         tenant.stripeUserId = (await stripe.customers.create()).id;
         await tenant.save();
@@ -67,11 +76,40 @@ export class PaymentService {
           where: { stripeUserId: event.data.object.customer },
         }).then((tenant: Tenant) => {
           tenant.active = true;
+          tenant.activeUntil = null;
           tenant.save();
         });
         break;
-      default:
-        console.error(`Unhandled stripe event type ${event.type}`);
+      case 'customer.subscription.deleted':
+        // a tenant has ended its subscription. set the valid to date
+        const validUntil = moment(event.data.object.current_period_end);
+        validUntil.hours(23).minutes(59).seconds(59);
+        Tenant.findOneOrFail({
+          where: { stripeUserId: event.data.object.customer },
+        }).then((tenant: Tenant) => {
+          tenant.activeUntil = validUntil.toDate();
+          tenant.save();
+        });
+        break;
     }
+  }
+
+  async generateLinkToStripCustomerPortal(tenantId: string): Promise<string> {
+    const tenant = await getConnection()
+      .createQueryBuilder()
+      .select('tenant')
+      .from(Tenant, 'tenant')
+      .where(`id = '${tenantId}'`)
+      .addSelect('tenant.stripeUserId')
+      .getOne();
+    if (!tenant.stripeUserId) {
+      return null;
+    }
+    return (
+      await stripe.billingPortal.sessions.create({
+        customer: tenant.stripeUserId,
+        return_url: `${process.env.DOMAIN}/${tenant.path}/${ROUTES.TENANT_MANAGEMENT}`,
+      })
+    ).url;
   }
 }

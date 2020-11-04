@@ -20,22 +20,16 @@ export class SubscriptionComponent implements OnInit {
   subscriptionForm: FormGroup = new FormGroup({
     months: new FormControl(1, Validators.required),
   });
+  linkToCustomerPortal: string = null;
 
   constructor(private subscriptionService: SubscriptionService) {}
 
   ngOnInit(): void {
-    /*this.subscriptionService.getSubscriptions(this.tenant.id).subscribe(
-      (subscriptions: Subscription[]) => {
-        this.subscriptions = subscriptions;
-        // sort the subscriptions by creation date
-        this.subscriptions = sortBy(this.subscriptions, [
-          'createdAt',
-        ]).reverse();
-      },
-      error => {
-        console.error(error);
-      }
-    );*/
+    this.subscriptionService
+      .getLinkToStripCustomerPortal(this.tenant.id)
+      .subscribe(responseWithLink => {
+        this.linkToCustomerPortal = responseWithLink.link;
+      });
   }
 
   initializeSubscription(): void {
@@ -76,13 +70,5 @@ export class SubscriptionComponent implements OnInit {
       this.tenant.subscriptionUntil &&
       moment(this.tenant.subscriptionUntil).diff(moment(), 'days') <= 7
     );
-  }
-
-  jumpToStripeCustomerPortal(): void {
-    this.subscriptionService
-      .getLinkToStripCustomerPortal(this.tenant.id)
-      .subscribe(responseWithLink => {
-        window.open(responseWithLink.link, '_blank');
-      });
   }
 }

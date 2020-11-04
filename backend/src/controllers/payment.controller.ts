@@ -20,7 +20,7 @@ export class PaymentController {
       async (request, response) => {
         const tenant = await Tenant.findOneOrFail(request.params.tenantId);
         const stripeSessionID = await PaymentService.get().initiateSubscription(
-          tenant,
+          request.params.tenantId,
           UserService.username(request)
         );
         response.status(201).send({ stripeSessionID });
@@ -32,18 +32,10 @@ export class PaymentController {
       '/secure/tenants/:tenantId/subscriptions',
       tenantCorrelationHandler(ROLE.OWNER),
       async (request, response) => {
-        const tenant = await getConnection()
-          .createQueryBuilder()
-          .select('tenant')
-          .from(Tenant, 'tenant')
-          .where(`id = '${request.params.tenantId}'`)
-          .addSelect('tenant.stripeUserId')
-          .getOne();
-        const link = await stripe.billingPortal.sessions.create({
-          customer: tenant.stripeUserId,
-          return_url: `${process.env.DOMAIN}/${tenant.path}/${ROUTES.TENANT_MANAGEMENT}`,
-        });
-        response.status(200).send({ link });
+        const link = PaymentService.get().generateLinkToStripCustomerPortal(
+          request.params.tenantId
+        );
+        response.status(200).send({ link: link });
       }
     );
 
