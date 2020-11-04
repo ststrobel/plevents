@@ -38,6 +38,16 @@ export class AuthenticationService {
       );
   }
 
+  /**
+   * this will update the user object in the application's cache. this can happen in the following scenarios:
+   * - after successful login (with password)
+   * - after update of user profile
+   * - after update of password (with password)
+   * - when opening the profile page
+   * - when loading the stored user object from local storage (with password)
+   * @param user
+   * @param password
+   */
   update(user: User, password?: string): void {
     if (user) {
       if (password) {
@@ -47,9 +57,9 @@ export class AuthenticationService {
       }
       let existingUserData: User;
       if (localStorage.getItem('user')) {
-        existingUserData = this.userAdapter.adapt(
-          JSON.parse(localStorage.getItem('user'))
-        );
+        const storedData = JSON.parse(localStorage.getItem('user'));
+        existingUserData = this.userAdapter.adapt(storedData);
+        existingUserData.authdata = storedData.authdata;
       } else {
         existingUserData = user;
       }

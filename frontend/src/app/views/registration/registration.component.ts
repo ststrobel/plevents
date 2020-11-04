@@ -38,6 +38,7 @@ export class RegistrationComponent implements OnInit, OnDestroy {
       email: new FormControl('', [Validators.required, Validators.email]),
       name: new FormControl('', Validators.required),
       password: new FormControl('', Validators.required),
+      dataPrivacyCheck: new FormControl(false, Validators.required),
     });
   }
 

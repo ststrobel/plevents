@@ -31,7 +31,8 @@
               "src/styles.scss",
               "./node_modules/bootstrap/dist/css/bootstrap.css",
               "./node_modules/@fortawesome/fontawesome-free/css/fontawesome.css",
-              "./node_modules/cookieconsent/build/cookieconsent.min.css"
+              "./node_modules/cookieconsent/build/cookieconsent.min.css",
+              "./node_modules/viewerjs/dist/viewer.min.css"
             ],
             "scripts": [
               "./node_modules/jquery/dist/jquery.min.js",
@@ -125,6 +126,7 @@
             "styles": [
               "./node_modules/bootstrap/dist/css/bootstrap.min.css",
               "./node_modules/ngx-bootstrap/datepicker/bs-datepicker.css",
+              "./node_modules/viewerjs/dist/viewer.min.css",
               "src/styles.scss"
             ],
             "scripts": [],

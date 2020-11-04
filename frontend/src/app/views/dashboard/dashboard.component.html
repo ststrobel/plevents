@@ -126,7 +126,7 @@
           min="1"
         />
       </div>
-      <div class="col-6 col-md-4">
+      <div class="col-6 col-md-4" *ngIf="orgMembers && orgMembers.length > 0">
         <!-- the list of users with role "leader" that have access to this event -->
         <label>Nutzer mit Zugriff auf Teilnehmerdaten</label>
         <div class="allowedMembersBox">
@@ -268,7 +268,7 @@
           min="{{ today | date: 'yyyy-MM-dd' }}"
         />
       </div>
-      <div class="col-6 col-md-4">
+      <div class="col-6 col-md-4" *ngIf="orgMembers && orgMembers.length > 0">
         <!-- the list of users with role "leader" that have access to this event -->
         <label>Nutzer mit Zugriff auf Teilnehmerdaten</label>
         <div class="allowedMembersBox">
@@ -391,9 +391,7 @@
                 (appService.hasRole(tenant.id, ROLE.ADMIN) ||
                   appService.getCurrentUser().hasAccessToEvent(event))
             }"
-            (click)="
-              showEventParticipants($event, event, showParticipantsModal)
-            "
+            (click)="showEventParticipants(event, showParticipantsModal)"
           >
             {{ event.displayDate() }}<br />
             <small>{{ event.takenSeats }} / {{ event.maxSeats }} </small

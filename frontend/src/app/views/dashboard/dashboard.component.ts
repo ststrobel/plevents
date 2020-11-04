@@ -177,7 +177,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           .subtract(4, 'weeks');
         for (
           let kw = today.week() - 4;
-          kw <= moment().date(31).month(11).isoWeek();
+          kw <= moment().date(31).month(12).isoWeek();
           kw++
         ) {
           const week = new Week(kw);
@@ -522,6 +522,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .subscribe(participants => {
         this.participants = participants;
       });
+    console.log(template);
     this.modalRef = this.modalService.show(template, { class: 'modal-xl' });
   }
 

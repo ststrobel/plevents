@@ -1,9 +1,0 @@
-RewriteBase /
-
-RewriteEngine On
-
-# the target was not a file or folder, so we route the request to the index.html (angular client-side routing!)
-RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -f [OR]
-RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -d
-RewriteRule ^.*$ - [NC,L]
-RewriteRule ^(.*) index.html [NC,L]

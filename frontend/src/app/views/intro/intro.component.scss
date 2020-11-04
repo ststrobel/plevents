@@ -17,6 +17,19 @@ ul.no-bullets {
   }
 }
 
+ul#imageGallery {
+  background-color: whitesmoke;
+  @extend .no-bullets;
+  li {
+    background-color: inherit !important;
+    display: inline-block;
+    img {
+      width: 400px;
+      cursor: pointer;
+    }
+  }
+}
+
 .accordion button:focus {
   box-shadow: none;
 }
