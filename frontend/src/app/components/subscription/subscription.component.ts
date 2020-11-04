@@ -4,7 +4,6 @@ import { SubscriptionService } from 'src/app/services/subscription.service';
 import { Subscription } from 'src/app/models/subscription';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import * as moment from 'moment';
-import { sortBy } from 'lodash';
 import { environment } from 'src/environments/environment';
 declare var Stripe: any;
 

@@ -76,18 +76,18 @@ export class PaymentService {
           where: { stripeUserId: event.data.object.customer },
         }).then((tenant: Tenant) => {
           tenant.active = true;
-          tenant.activeUntil = null;
+          tenant.subscriptionUntil = null;
           tenant.save();
         });
         break;
       case 'customer.subscription.deleted':
         // a tenant has ended its subscription. set the valid to date
-        const validUntil = moment(event.data.object.current_period_end);
+        const validUntil = moment.unix(event.data.object.current_period_end);
         validUntil.hours(23).minutes(59).seconds(59);
         Tenant.findOneOrFail({
           where: { stripeUserId: event.data.object.customer },
         }).then((tenant: Tenant) => {
-          tenant.activeUntil = validUntil.toDate();
+          tenant.subscriptionUntil = validUntil.toDate();
           tenant.save();
         });
         break;

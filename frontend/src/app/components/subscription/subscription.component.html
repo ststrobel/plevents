@@ -8,14 +8,35 @@
     <i class="fas fa-check text-success"></i>
   </div>
   <div class="flex-grow-1">
-    <div>Die Organisation hat eine gültige Lizenz.</div>
+    <div>
+      Die Organisation hat<span *ngIf="tenant.subscriptionUntil">
+        noch bis zum
+        <b>{{ tenant.subscriptionUntil | date: 'dd.MM.yyyy' }}</b></span
+      >
+      eine gültige Lizenz.
+    </div>
     <a
+      *ngIf="linkToCustomerPortal && tenant.subscriptionUntil"
+      [href]="linkToCustomerPortal"
+      target="_blank"
+    >
+      Alte Rechnungen einsehen
+    </a>
+    <a
+      *ngIf="!tenant.subscriptionUntil"
       class="btn btn-sm btn-outline-success float-right"
       [href]="linkToCustomerPortal"
       target="_blank"
     >
       Zahlungen und Rechnungen verwalten
     </a>
+    <button
+      *ngIf="tenant.subscriptionUntil"
+      class="btn btn-sm btn-outline-success float-right"
+      (click)="initializeSubscription()"
+    >
+      Neue Lizenz erwerben
+    </button>
   </div>
 </div>
 <div

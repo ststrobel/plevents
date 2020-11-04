@@ -72,12 +72,12 @@ export class CronService {
           .createQueryBuilder()
           .select('tenant')
           .from(Tenant, 'tenant')
-          .where(`activeUntil < NOW()`)
+          .where(`subscriptionUntil < NOW()`)
           .getMany()
           .then((tenants: Tenant[]) => {
             each(tenants, tenant => {
               tenant.active = false;
-              tenant.activeUntil = null;
+              tenant.subscriptionUntil = null;
               tenant.save();
             });
           });

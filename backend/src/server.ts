@@ -22,7 +22,6 @@ const app = express(); // Allow any method from any host and log requests
 
 app.use(headersHandler);
 app.use((req, res, next) => {
-  console.log(req.originalUrl);
   // the stripe webhook requires to receive raw body!
   if (req.originalUrl === '/psp/webhook') {
     next();

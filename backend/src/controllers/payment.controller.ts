@@ -32,7 +32,7 @@ export class PaymentController {
       '/secure/tenants/:tenantId/subscriptions',
       tenantCorrelationHandler(ROLE.OWNER),
       async (request, response) => {
-        const link = PaymentService.get().generateLinkToStripCustomerPortal(
+        const link = await PaymentService.get().generateLinkToStripCustomerPortal(
           request.params.tenantId
         );
         response.status(200).send({ link: link });
