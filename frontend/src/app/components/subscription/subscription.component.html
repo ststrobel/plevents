@@ -23,7 +23,7 @@
       Alte Rechnungen einsehen
     </a>
     <a
-      *ngIf="!tenant.subscriptionUntil"
+      *ngIf="linkToCustomerPortal && !tenant.subscriptionUntil"
       class="btn btn-sm btn-outline-success float-right"
       [href]="linkToCustomerPortal"
       target="_blank"
