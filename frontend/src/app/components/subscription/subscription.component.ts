@@ -4,7 +4,8 @@ import { SubscriptionService } from 'src/app/services/subscription.service';
 import { Subscription } from 'src/app/models/subscription';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import * as moment from 'moment';
-import { sortBy } from 'lodash';
+import { environment } from 'src/environments/environment';
+declare var Stripe: any;
 
 @Component({
   selector: 'subscription',
@@ -18,35 +19,35 @@ export class SubscriptionComponent implements OnInit {
   subscriptionForm: FormGroup = new FormGroup({
     months: new FormControl(1, Validators.required),
   });
+  linkToCustomerPortal: string = null;
 
   constructor(private subscriptionService: SubscriptionService) {}
 
   ngOnInit(): void {
-    this.subscriptionService.getSubscriptions(this.tenant.id).subscribe(
-      (subscriptions: Subscription[]) => {
-        this.subscriptions = subscriptions;
-        // sort the subscriptions by creation date
-        this.subscriptions = sortBy(this.subscriptions, [
-          'createdAt',
-        ]).reverse();
-      },
-      error => {
-        console.error(error);
-      }
-    );
+    this.subscriptionService
+      .getLinkToStripCustomerPortal(this.tenant.id)
+      .subscribe(responseWithLink => {
+        this.linkToCustomerPortal = responseWithLink.link;
+      });
   }
 
-  initializeNewSubscription(): void {
+  initializeSubscription(): void {
     this.subscriptionService
       .initializePayment({
-        months: parseInt(this.subscriptionForm.get('months').value),
         tenantId: this.tenant.id,
         paid: null,
       })
       .subscribe(
-        (responseWithLink: any) => {
+        (responseWithStripeSessionID: any) => {
           // we received a link to the PSP. open a new browser window / tab
-          window.open(responseWithLink.paymentLink, '_blank');
+          const stripe = Stripe(environment.stripePubKey);
+          stripe
+            .redirectToCheckout({
+              sessionId: responseWithStripeSessionID.stripeSessionID,
+            })
+            .then(() => {
+              console.log('success for stripe callback! :-)');
+            });
         },
         error => {
           console.error(error);

@@ -10,6 +10,7 @@ import { SubscriptionI } from '../../../../common/subscription';
 export class SubscriptionService {
   constructor(private http: HttpClient, private adapter: SubscriptionAdapter) {}
 
+  /*
   getSubscriptions(tenantId: string): Observable<Subscription[]> {
     return this.http
       .get(`${environment.apiUrl}/secure/tenants/${tenantId}/subscriptions`)
@@ -17,6 +18,13 @@ export class SubscriptionService {
         // Adapt the raw items
         map((data: any[]) => data.map(item => this.adapter.adapt(item)))
       );
+  }
+  */
+
+  getLinkToStripCustomerPortal(tenantId: string): Observable<any> {
+    return this.http.get(
+      `${environment.apiUrl}/secure/tenants/${tenantId}/subscriptions`
+    );
   }
 
   initializePayment(subscription: SubscriptionI): Observable<any> {

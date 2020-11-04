@@ -10,4 +10,6 @@ export interface TenantI {
   consentText2: string;
   color: string;
   subscriptionUntil: Date;
+  stripeUserId?: string;
+  activeUntil?: Date;
 }

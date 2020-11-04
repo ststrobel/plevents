@@ -68,19 +68,19 @@ export class CronService {
     const job = new CronJob(
       '0 0 0 * * *',
       () => {
-        Tenant.find().then((tenants: Tenant[]) => {
-          const today = moment();
-          each(tenants, tenant => {
-            if (
-              !tenant.subscriptionUntil ||
-              moment(tenant.subscriptionUntil).isBefore(today)
-            ) {
+        getConnection()
+          .createQueryBuilder()
+          .select('tenant')
+          .from(Tenant, 'tenant')
+          .where(`subscriptionUntil < NOW()`)
+          .getMany()
+          .then((tenants: Tenant[]) => {
+            each(tenants, tenant => {
               tenant.active = false;
               tenant.subscriptionUntil = null;
               tenant.save();
-            }
+            });
           });
-        });
       },
       null,
       false,

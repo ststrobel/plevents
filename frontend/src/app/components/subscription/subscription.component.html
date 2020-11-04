@@ -1,89 +1,70 @@
 <h4>Lizenz</h4>
-<div class="alert alert-success d-flex" *ngIf="tenant.active">
-  <div style="width: 30px">
-    <i class="fas fa-check"></i>
+<div
+  class="alert alert-secondary d-flex"
+  *ngIf="tenant.active"
+  style="background-color: whitesmoke"
+>
+  <div style="width: 50px">
+    <i class="fas fa-check text-success"></i>
   </div>
-  <div>
-    Die Organisation hat eine gültige Lizenz<span
+  <div class="flex-grow-1">
+    <div>
+      Die Organisation hat<span *ngIf="tenant.subscriptionUntil">
+        noch bis zum
+        <b>{{ tenant.subscriptionUntil | date: 'dd.MM.yyyy' }}</b></span
+      >
+      eine gültige Lizenz.
+    </div>
+    <a
+      *ngIf="linkToCustomerPortal && tenant.subscriptionUntil"
+      [href]="linkToCustomerPortal"
+      target="_blank"
+    >
+      Alte Rechnungen einsehen
+    </a>
+    <a
+      *ngIf="linkToCustomerPortal && !tenant.subscriptionUntil"
+      class="btn btn-sm btn-outline-success float-right"
+      [href]="linkToCustomerPortal"
+      target="_blank"
+    >
+      Zahlungen und Rechnungen verwalten
+    </a>
+    <button
       *ngIf="tenant.subscriptionUntil"
+      class="btn btn-sm btn-outline-success float-right"
+      (click)="initializeSubscription()"
     >
-      bis zum <b>{{ tenant.subscriptionUntil | date: 'dd.MM.yyyy' }}</b></span
-    >
+      Neue Lizenz erwerben
+    </button>
   </div>
 </div>
-<div class="alert alert-danger d-flex" *ngIf="!tenant.subscriptionUntil">
-  <div style="width: 30px">
-    <i class="fas fa-exclamation-triangle"></i>
+<div
+  class="alert alert-secondary d-flex"
+  *ngIf="!tenant.active"
+  style="background-color: whitesmoke"
+>
+  <div style="width: 50px">
+    <i class="fas fa-exclamation-triangle text-danger"></i>
   </div>
-  <div>
-    Diese Organisation ist gerade nicht freigeschaltet und kann daher nicht
-    genutzt werden. Bitte eine Lizenz kaufen, damit Events öffentlich angezeigt
-    werden.
-  </div>
-</div>
-<div class="alert alert-warning d-flex" *ngIf="subscriptionEndsSoon()">
-  <div style="width: 30px">
-    <i class="fas fa-exclamation-triangle"></i>
-  </div>
-  <div>
-    Die Lizenz läuft bald ab! Bitte erwerben Sie eine oder mehr Monatslizenzen,
-    um weiterhin plevents öffentlich nutzen zu können.
-  </div>
-</div>
-<div class="alert alert-secondary" style="background-color: whitesmoke">
-  <div>
-    Weitere Monatslizenzen zu je 15€ zzgl. MwSt. kaufen. Alle bestellten
-    Lizenzen werden auf die Zukunft angerechnet.
-  </div>
-  <div>Bitte bei Interesse eine Banküberweisung vornehmen an:</div>
-  <table>
-    <tr>
-      <td>Kontoinhaber</td>
-      <td>Stefan Strobel</td>
-    </tr>
-    <tr>
-      <td>IBAN</td>
-      <td>DE40 5001 0517 5431 0186 11</td>
-    </tr>
-    <tr>
-      <td>BIC</td>
-      <td>INGDDEFFXXX</td>
-    </tr>
-    <tr>
-      <td>Bank</td>
-      <td>ING-DiBa</td>
-    </tr>
-  </table>
-  <div>
-    Im Anschluss eine Mail an
-    <a href="mailto:stefan.strobel@s4-consulting.de"
-      >stefan.strobel@s4-consulting.de</a
+  <div class="flex-grow-1">
+    <div>
+      Diese Organisation ist gerade nicht freigeschaltet und kann daher nicht
+      genutzt werden. Bitte eine Lizenz kaufen, damit Events öffentlich
+      angezeigt werden.
+    </div>
+    <a
+      *ngIf="linkToCustomerPortal"
+      [href]="linkToCustomerPortal"
+      target="_blank"
     >
-    schicken, damit die Freischaltung erfolgt.
-  </div>
-</div>
-<div>
-  <label *ngIf="subscriptions && subscriptions.length > 0"
-    >Bestellhistorie</label
-  >
-  <ul class="list-group">
-    <li
-      class="list-group-item list-group-item-action"
-      *ngFor="let subscription of subscriptions"
+      Alte Rechnungen einsehen
+    </a>
+    <button
+      class="btn btn-sm btn-outline-success float-right"
+      (click)="initializeSubscription()"
     >
-      {{ subscription.createdAt | date: 'dd.MM.yyyy' }} - Lizenz für
-      {{ subscription.months }}
-      {{ subscription.months === 1 ? 'Monat' : 'Monate' }} zu je
-      {{ subscription.pricePerMonth }}€
-      <div *ngIf="subscription.paid">
-        bezahlt am {{ subscription.paid | date: 'dd.MM.yyyy' }}
-      </div>
-      <div *ngIf="!subscription.paid">
-        Bezahlung noch ausstehend -
-        <a href="{{ subscription.paymentLink }}" target="_blank"
-          >jetzt Bezahlvorgang abschließen</a
-        >
-      </div>
-    </li>
-  </ul>
+      Jetzt Lizenz erwerben
+    </button>
+  </div>
 </div>

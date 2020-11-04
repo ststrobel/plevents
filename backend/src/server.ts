@@ -12,6 +12,7 @@ import { CategoryController } from './controllers/category.controller';
 import headersHandler from './handlers/headers-handler';
 import authenticationHandler from './handlers/authentication-handler';
 import { PaymentController } from './controllers/payment.controller';
+const bodyParser = require('body-parser');
 
 // read configuration:
 const dotenv = require('dotenv');
@@ -20,8 +21,15 @@ dotenv.config();
 const app = express(); // Allow any method from any host and log requests
 
 app.use(headersHandler);
-// Handle POST requests that come in formatted as JSON
-app.use(express.json());
+app.use((req, res, next) => {
+  // the stripe webhook requires to receive raw body!
+  if (req.originalUrl === '/psp/webhook') {
+    next();
+  } else {
+    // Use JSON parser for all non-webhook routes
+    bodyParser.json()(req, res, next);
+  }
+});
 
 app.use(authenticationHandler);
 
