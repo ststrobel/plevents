@@ -27,4 +27,6 @@ export class Tenant extends BaseEntity implements TenantI {
   consentText2: string;
   @Column({ nullable: true })
   subscriptionUntil: Date;
+  @Column({ nullable: true, select: false })
+  stripeUserId: string = null;
 }

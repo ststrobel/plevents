@@ -7,10 +7,8 @@ export class Subscription implements SubscriptionI {
   id?: string;
   tenant?: TenantI;
   tenantId: string;
-  months: number;
   pricePerMonth?: number;
   paid: Date = null;
-  paymentLink?: string;
   createdAt?: Date;
 
   constructor(item?: any) {
@@ -18,10 +16,8 @@ export class Subscription implements SubscriptionI {
       this.id = item.id;
       this.tenantId = item.tenantId;
       this.tenant = item.tenant;
-      this.months = item.months;
       this.paid = item.paid;
       this.pricePerMonth = item.pricePerMonth;
-      this.paymentLink = item.paymentLink;
       this.createdAt = item.createdAt;
     }
   }

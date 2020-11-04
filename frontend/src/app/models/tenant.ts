@@ -16,6 +16,7 @@ export class Tenant implements TenantI {
   consentText2: string;
   color: string;
   subscriptionUntil: Date;
+  stripeUserId?: string;
   get colorDarkened(): string {
     return shadeColor(this.color, -15);
   }
@@ -40,6 +41,7 @@ export class TenantAdapter implements Adapter<Tenant> {
     t.consentTeaser2 = item.consentTeaser2;
     t.consentText2 = item.consentText2;
     t.color = item.color;
+    t.stripeUserId = item.stripeUserId;
     if (item.logo && item.logo.length > 0) {
       t.logo = this.sanitizer.bypassSecurityTrustResourceUrl(
         item.logo

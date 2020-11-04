@@ -35,6 +35,20 @@
     Weitere Monatslizenzen zu je 15€ zzgl. MwSt. kaufen. Alle bestellten
     Lizenzen werden auf die Zukunft angerechnet.
   </div>
+  <button
+    *ngIf="!tenant.active"
+    class="btn btn-sm btn-outline-success"
+    (click)="initializeSubscription()"
+  >
+    Neue Lizenz kaufen
+  </button>
+  <button
+    *ngIf="tenant.active"
+    class="btn btn-sm btn-outline-success"
+    (click)="jumpToStripeCustomerPortal()"
+  >
+    Zahlungen und Rechnungen verwalten
+  </button>
   <div>Bitte bei Interesse eine Banküberweisung vornehmen an:</div>
   <table>
     <tr>

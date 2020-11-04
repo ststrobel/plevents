@@ -27,6 +27,7 @@
     "nodemailer": "^6.4.14",
     "pdfmake": "^0.1.68",
     "reflect-metadata": "^0.1.13",
+    "stripe": "^8.119.0",
     "ts-node": "^8.10.2",
     "ts-node-dev": "^1.0.0-pre.56",
     "tslint": "^6.1.2",
