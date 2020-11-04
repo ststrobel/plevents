@@ -59,12 +59,12 @@ export class PaymentController {
             sig,
             process.env.STRIPE_WEBHOOK_SECRET
           );
-          PaymentService.get().handleStripeCallback(event);
-          // Return a response to acknowledge receipt of the event
-          response.json({ received: true });
         } catch (err) {
-          response.status(400).send(`Webhook Error: ${err.message}`);
+          return response.status(400).send(`Webhook Error: ${err.message}`);
         }
+        PaymentService.get().handleStripeCallback(event);
+        // Return a response to acknowledge receipt of the event
+        response.json({ received: true });
       }
     );
   }

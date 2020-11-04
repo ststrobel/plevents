@@ -58,7 +58,6 @@ export class PaymentService {
   }
 
   handleStripeCallback(event: any): void {
-    console.log(event);
     // Handle the event from stripe
     switch (event.type) {
       case 'invoice.payment_succeeded':
