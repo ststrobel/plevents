@@ -8,6 +8,8 @@ import { PaymentService } from '../services/payment.service';
 import { UserService } from '../services/user.service';
 // See your keys here: https://dashboard.stripe.com/account/apikey
 const stripe = require('stripe')(process.env.STRIPE_API_KEY);
+// Use body-parser to retrieve the raw body as a buffer
+const bodyParser = require('body-parser');
 
 export class PaymentController {
   public static register(app: express.Application): void {
@@ -45,8 +47,10 @@ export class PaymentController {
       }
     );
 
-    app.post('/psp/webhook', (request, response) => {
-      try {
+    app.post(
+      '/psp/webhook',
+      bodyParser.raw({ type: 'application/json' }),
+      (request, response) => {
         const sig = request.headers['stripe-signature'];
         let event: any;
         try {
@@ -55,15 +59,13 @@ export class PaymentController {
             sig,
             process.env.STRIPE_WEBHOOK_SECRET
           );
+          PaymentService.get().handleStripeCallback(event);
+          // Return a response to acknowledge receipt of the event
+          response.json({ received: true });
         } catch (err) {
           response.status(400).send(`Webhook Error: ${err.message}`);
         }
-        PaymentService.get().handleStripeCallback(event);
-        // Return a response to acknowledge receipt of the event
-        response.json({ received: true });
-      } catch (err) {
-        response.status(400).send(`Webhook Error: ${err.message}`);
       }
-    });
+    );
   }
 }

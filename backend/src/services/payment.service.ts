@@ -67,6 +67,7 @@ export class PaymentService {
           where: { stripeUserId: event.data.object.customer },
         }).then((tenant: Tenant) => {
           tenant.active = true;
+          tenant.save();
         });
         break;
       default:
