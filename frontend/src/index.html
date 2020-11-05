@@ -1,9 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
   <head>
-    <script src="https://js.stripe.com/v3/"></script>
+    <script src="https://js.stripe.com/v3/" async="true"></script>
     <meta charset="utf-8" />
-    <title>plEvents</title>
+    <title>plevents - Teilnehmer smart erfassen</title>
+    <meta
+      name="description"
+      content="Erfassen Sie die laut Corona-Verordnung notwendigen Teilnehmerdaten und planen Sie öffentliche Veranstaltungen - einmalig oder wiederkehrend."
+    />
     <base href="/" />
     <meta
       name="viewport"
@@ -31,6 +35,19 @@
     <meta name="theme-color" content="#ffffff" />
   </head>
   <body>
+    <h1 style="display: none">
+      Teilnehmererfassung für einmalige und wiederkehrende Veranstaltungen
+    </h1>
+    <a style="display: none" href="/login"
+      >Zur Anmeldung in den internen Bereich von plevents</a
+    >
+    <a style="display: none" href="/nutzer-registrierung"
+      >Registrieren Sie sich bei plevents</a
+    >
+    <a style="display: none" href="/home"
+      >Informieren Sie sich zu den umfangreichen Funktionen, die Ihnen plevents
+      für die Teilnehmererfassung bietet</a
+    >
     <app-root></app-root>
   </body>
 </html>
