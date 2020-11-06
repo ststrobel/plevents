@@ -2,7 +2,7 @@
   <a
     class="nav-link nav-logo"
     *ngIf="tenant"
-    [routerLink]="[tenant.path, ROUTES.TENANT_EVENTS]"
+    [routerLink]="[ROUTES.TENANT_PREFIX, tenant.path, ROUTES.TENANT_EVENTS]"
   >
     <img *ngIf="tenant.logo" [src]="tenant.logo" />
     <img
@@ -49,7 +49,11 @@
       <li class="nav-item" *ngIf="tenant">
         <a
           class="nav-link"
-          [routerLink]="[tenant.path, ROUTES.TENANT_EVENTS]"
+          [routerLink]="[
+            ROUTES.TENANT_PREFIX,
+            tenant.path,
+            ROUTES.TENANT_EVENTS
+          ]"
           routerLinkActive="active"
           [routerLinkActiveOptions]="{
             __change_detection_hack__: [tenant.path]
@@ -62,7 +66,11 @@
       <li class="nav-item" *ngIf="isMemberOfCurrentTenant()">
         <a
           class="nav-link"
-          [routerLink]="[tenant.path, ROUTES.TENANT_PLANNER]"
+          [routerLink]="[
+            ROUTES.TENANT_PREFIX,
+            tenant.path,
+            ROUTES.TENANT_PLANNER
+          ]"
           routerLinkActive="active"
           [routerLinkActiveOptions]="{
             __change_detection_hack__: [tenant.path]
@@ -75,7 +83,11 @@
       <li class="nav-item" *ngIf="isAdminOfCurrentTenant()">
         <a
           class="nav-link"
-          [routerLink]="[tenant.path, ROUTES.TENANT_MANAGEMENT]"
+          [routerLink]="[
+            ROUTES.TENANT_PREFIX,
+            tenant.path,
+            ROUTES.TENANT_MANAGEMENT
+          ]"
           routerLinkActive="active"
           [routerLinkActiveOptions]="{
             __change_detection_hack__: [tenant.path]
@@ -108,7 +120,11 @@
       <li class="nav-item" *ngIf="!isLoggedIn()">
         <a
           class="nav-link"
-          [routerLink]="tenant ? [tenant.path, ROUTES.LOGIN] : [ROUTES.LOGIN]"
+          [routerLink]="
+            tenant
+              ? [ROUTES.TENANT_PREFIX, tenant.path, ROUTES.LOGIN]
+              : [ROUTES.LOGIN]
+          "
           routerLinkActive="active"
           data-toggle="collapse"
           data-target="#navbarSupportedContent"

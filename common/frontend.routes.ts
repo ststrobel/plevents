@@ -8,6 +8,7 @@ export enum ROUTES {
   LEGAL = 'rechtliches',
   REGISTER_USER_FINISH = 'registrierung',
   PROFILE = 'profil',
+  TENANT_PREFIX = 'o',
   TENANT_PLANNER = 'planner',
   TENANT_MANAGEMENT = 'verwaltung',
   TENANT_EVENTS = 'events',

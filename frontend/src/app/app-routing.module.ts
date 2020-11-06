@@ -76,7 +76,7 @@ const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
-    path: ':tenantPath',
+    path: 'o/:tenantPath',
     children: [
       {
         path: ROUTES.LOGIN,

@@ -25,6 +25,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   error = '';
   tenant: Tenant;
   userSubscription: Subscription;
+  ROUTES = ROUTES;
 
   constructor(
     private route: ActivatedRoute,
