@@ -21,6 +21,7 @@ export class PasswordResetComponent implements OnInit, OnDestroy {
   });
   noCode: boolean = false;
   passwordSet: boolean = false;
+  ROUTES = ROUTES;
 
   constructor(
     private route: ActivatedRoute,

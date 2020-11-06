@@ -60,15 +60,21 @@
             <a
               [routerLink]="
                 tenantPath()
-                  ? ['/' + tenantPath(), 'nutzer-registrierung']
-                  : ['/nutzer-registrierung']
+                  ? [
+                      '/' + ROUTES.TENANT_PREFIX,
+                      tenantPath(),
+                      ROUTES.REGISTER_USER
+                    ]
+                  : ['/' + ROUTES.REGISTER_USER]
               "
               >Hier registrieren</a
             >
           </div>
           <div>
             > Passwort vergessen?
-            <a [routerLink]="['/passwort-vergessen']">Hier zurücksetzen</a>
+            <a [routerLink]="['/' + ROUTES.PASSWORD_FORGOTTEN]"
+              >Hier zurücksetzen</a
+            >
           </div>
           <div *ngIf="error" class="alert alert-danger mt-3 mb-0">
             {{ error }}

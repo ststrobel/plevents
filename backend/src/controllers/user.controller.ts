@@ -171,7 +171,7 @@ export class UserController {
                 }),
                 'user'
               );
-              const linkToUserManagement = `${process.env.DOMAIN}/${tenant.path}/${ROUTES.TENANT_MANAGEMENT}`;
+              const linkToUserManagement = `${process.env.DOMAIN}/${ROUTES.TENANT_PREFIX}/${tenant.path}/${ROUTES.TENANT_MANAGEMENT}`;
               each(owners, owner => {
                 EmailService.get().send(
                   EMAIL_TEMPLATES.PENDING_USER_APPROVAL,

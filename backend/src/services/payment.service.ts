@@ -56,8 +56,8 @@ export class PaymentService {
           // {CHECKOUT_SESSION_ID} is a string literal; do not change it!
           // the actual Session ID is returned in the query parameter when your customer
           // is redirected to the success page.
-          success_url: `${process.env.DOMAIN}/${tenant.path}/${ROUTES.TENANT_MANAGEMENT}?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${process.env.DOMAIN}/${tenant.path}/${ROUTES.TENANT_MANAGEMENT}`,
+          success_url: `${process.env.DOMAIN}/${ROUTES.TENANT_PREFIX}/${tenant.path}/${ROUTES.TENANT_MANAGEMENT}?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${process.env.DOMAIN}/${ROUTES.TENANT_PREFIX}/${tenant.path}/${ROUTES.TENANT_MANAGEMENT}`,
         })
       ).id;
       return stripeSessionID;
@@ -108,7 +108,7 @@ export class PaymentService {
     return (
       await stripe.billingPortal.sessions.create({
         customer: tenant.stripeUserId,
-        return_url: `${process.env.DOMAIN}/${tenant.path}/${ROUTES.TENANT_MANAGEMENT}`,
+        return_url: `${process.env.DOMAIN}/${ROUTES.TENANT_PREFIX}/${tenant.path}/${ROUTES.TENANT_MANAGEMENT}`,
       })
     ).url;
   }
