@@ -15,6 +15,7 @@ import { UserService } from 'src/app/services/user.service';
 import { ROUTES } from '../../../../../common/frontend.routes';
 import { ROLE } from '../../../../../common/tenant-relation';
 import { EventSeriesI } from '../../../../../common/event-series';
+import { NotificationService } from 'src/app/services/notification.service';
 
 @Component({
   selector: 'user-management',
@@ -43,7 +44,8 @@ export class UserManagementComponent implements OnInit {
     private appService: AppService,
     private modalService: BsModalService,
     private router: Router,
-    private eventService: EventService
+    private eventService: EventService,
+    private notification: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -106,30 +108,36 @@ export class UserManagementComponent implements OnInit {
         },
         error => {
           console.error(error);
-          alert('Es trat ein Fehler auf');
+          this.notification.error('Es trat ein Fehler auf');
         }
       );
   }
 
   delete(user: User): void {
-    if (confirm('Wirklich diesen Nutzer entfernen?')) {
-      this.userService.removeFromTenant(this.tenant.id, user.id).subscribe(
-        () => {
-          this.tenantUserRelations = reject(this.tenantUserRelations, {
-            userId: user.id,
-          });
-          // if the user removed himself, jump to the profile:
-          if (user.id === this.appService.getCurrentUser().id) {
-            this.tenantService.getAll().subscribe();
-            this.router.navigate([`/${ROUTES.PROFILE}`]);
+    this.notification.confirm({
+      title: 'Nutzer entfernen?',
+      text: 'Wirklich diesen Nutzer entfernen?',
+      yesButtonClass: 'btn-danger',
+      yesButtonText: 'Entfernen',
+      yesCallback: () => {
+        this.userService.removeFromTenant(this.tenant.id, user.id).subscribe(
+          () => {
+            this.tenantUserRelations = reject(this.tenantUserRelations, {
+              userId: user.id,
+            });
+            // if the user removed himself, jump to the profile:
+            if (user.id === this.appService.getCurrentUser().id) {
+              this.tenantService.getAll().subscribe();
+              this.router.navigate([`/${ROUTES.PROFILE}`]);
+            }
+          },
+          error => {
+            console.error(error);
+            this.notification.error('Beim Löschen trat leider ein Fehler auf!');
           }
-        },
-        error => {
-          console.error(error);
-          alert('Beim Löschen trat leider ein Fehler auf!');
-        }
-      );
-    }
+        );
+      },
+    });
   }
 
   assignRole(relation: TenantRelation, role: ROLE): void {
@@ -137,25 +145,31 @@ export class UserManagementComponent implements OnInit {
     this.userService
       .setRole(relation.tenantId, relation.userId, role)
       .subscribe(() => {
-        alert('Rolle zugewiesen');
+        this.notification.success('Rolle zugewiesen');
       });
   }
 
   revokeInvitation(invitation: Invitation): void {
-    if (confirm('Möchten Sie die Einladung wirklich zurückziehen?')) {
-      this.tenantService
-        .revokeOpenInvitations(invitation.tenantId, invitation.id)
-        .subscribe(
-          () => {
-            alert('Die Einladung wurde zurückgezogen');
-            this.invitations = reject(this.invitations, invitation);
-          },
-          error => {
-            console.error(error);
-            alert('Es trat ein Fehler auf');
-          }
-        );
-    }
+    this.notification.confirm({
+      title: 'Einladung zurückziehen?',
+      text: 'Möchten Sie die Einladung wirklich zurückziehen?',
+      yesButtonClass: 'btn-danger',
+      yesButtonText: 'Ja',
+      yesCallback: () => {
+        this.tenantService
+          .revokeOpenInvitations(invitation.tenantId, invitation.id)
+          .subscribe(
+            () => {
+              this.notification.success('Die Einladung wurde zurückgezogen');
+              this.invitations = reject(this.invitations, invitation);
+            },
+            error => {
+              console.error(error);
+              this.notification.error('Es trat ein Fehler auf');
+            }
+          );
+      },
+    });
   }
 
   showEventRelations(user: User, template: TemplateRef<any>): void {

@@ -8,6 +8,7 @@ import { TenantRelation } from 'src/app/models/tenant-relation';
 import { AppService } from 'src/app/services/app.service';
 import { ROLE } from '../../../../../common/tenant-relation';
 import { ROUTES } from '../../../../../common/frontend.routes';
+import { NotificationService } from 'src/app/services/notification.service';
 
 @Component({
   selector: 'app-tenant-registration',
@@ -26,7 +27,8 @@ export class TenantRegistrationComponent implements OnInit {
   constructor(
     private tenantService: TenantService,
     private router: Router,
-    private appService: AppService
+    private appService: AppService,
+    private notification: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -83,7 +85,7 @@ export class TenantRegistrationComponent implements OnInit {
       },
       error => {
         console.error(error);
-        alert('Es trat leider ein Fehler auf');
+        this.notification.error('Es trat leider ein Fehler auf');
         this.loading = false;
       }
     );

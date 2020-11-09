@@ -3,6 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { clone } from 'lodash';
 import { User } from 'src/app/models/user';
 import { AuthenticationService } from 'src/app/services/authentication.service';
+import { NotificationService } from 'src/app/services/notification.service';
 import { UserService } from 'src/app/services/user.service';
 
 @Component({
@@ -24,7 +25,8 @@ export class ProfileComponent implements OnInit {
 
   constructor(
     private userService: UserService,
-    private authService: AuthenticationService
+    private authService: AuthenticationService,
+    private notification: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -66,11 +68,12 @@ export class ProfileComponent implements OnInit {
       (updatedUser: User) => {
         this.user = updatedUser;
         this.authService.update(this.user);
-        alert('Name geändert');
+        this.notification.success('Name geändert');
         this.operationOngoing = false;
       },
       error => {
         console.error(error);
+        this.notification.error('Es trat ein Fehler auf');
         this.operationOngoing = false;
       }
     );
@@ -89,39 +92,43 @@ export class ProfileComponent implements OnInit {
       )
       .subscribe(
         () => {
-          alert('Passwort geändert');
+          this.notification.success('Passwort geändert');
           this.authService.update(
             this.user,
             this.passwordForm.get('newPassword').value
           );
           this.operationOngoing = false;
+          this.passwordForm.reset();
         },
         error => {
           console.error(error);
-          alert('Fehler bei Passwort-Änderung');
+          this.notification.error('Es trat ein Fehler auf');
           this.operationOngoing = false;
         }
       );
   }
 
   deleteProfile(): void {
-    if (
-      confirm(
-        'Möchten Sie wirklich Ihr persönliches Profil löschen? Alle Daten werden sofort gelöscht. Diese Aktion kann nicht rückgängig gemacht werden!'
-      )
-    ) {
-      this.operationOngoing = true;
-      this.userService.deleteProfile().subscribe(
-        () => {
-          alert('Ihr Profil wurde gelöscht');
-          this.authService.logout();
-        },
-        error => {
-          console.error(error);
-          alert('Es trat ein Fehler auf');
-          this.operationOngoing = false;
-        }
-      );
-    }
+    this.notification.confirm({
+      title: 'Account löschen?',
+      text:
+        'Möchten Sie wirklich Ihr persönliches Profil löschen? Alle Daten werden sofort gelöscht. Diese Aktion kann nicht rückgängig gemacht werden!',
+      yesButtonClass: 'btn-danger',
+      yesButtonText: 'Löschen',
+      yesCallback: () => {
+        this.operationOngoing = true;
+        this.userService.deleteProfile().subscribe(
+          () => {
+            this.notification.success('Ihr Profil wurde gelöscht');
+            this.authService.logout();
+          },
+          error => {
+            console.error(error);
+            this.notification.error('Es trat ein Fehler auf');
+            this.operationOngoing = false;
+          }
+        );
+      },
+    });
   }
 }

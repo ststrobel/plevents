@@ -25,6 +25,7 @@ import { User } from 'src/app/models/user';
 import { TenantRelation } from 'src/app/models/tenant-relation';
 import { UserService } from 'src/app/services/user.service';
 import { EventSeriesI } from '../../../../../common/event-series';
+import { NotificationService } from 'src/app/services/notification.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -81,7 +82,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private categoryService: CategoryService,
     private modalService: BsModalService,
     public appService: AppService,
-    private userService: UserService
+    private userService: UserService,
+    private notification: NotificationService
   ) {}
 
   ngOnInit() {
@@ -252,7 +254,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     event.date = m.toDate();
     this.eventService.createEvent(this.tenant.id, event).subscribe(
       (eventSeries: EventSeriesI) => {
-        alert('Neue Eventserie angelegt');
+        this.notification.success('Neue Eventserie angelegt');
         this.loadAllEvents(this.appService.getCurrentTenant());
         this.operationOngoing = false;
         this.newEventSeriesFormShown = false;
@@ -266,7 +268,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       },
       error => {
         console.error(error);
-        alert('Es trat leider ein Fehler auf');
+        this.notification.error('Es trat ein Fehler auf');
         this.operationOngoing = false;
       }
     );
@@ -298,7 +300,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     this.eventService.createEvent(this.tenant.id, event).subscribe(
       (createdEvent: Event) => {
-        alert('Neues Einzelevent angelegt');
+        this.notification.success('Neues Einzelevent angelegt');
         this.loadAllEvents(this.appService.getCurrentTenant());
         this.operationOngoing = false;
         this.newSingleEventFormShown = false;
@@ -312,7 +314,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       },
       error => {
         console.error(error);
-        alert('Es trat leider ein Fehler auf');
+        this.notification.error('Es trat ein Fehler auf');
         this.operationOngoing = false;
       }
     );
@@ -334,51 +336,58 @@ export class DashboardComponent implements OnInit, OnDestroy {
   deleteEventSeries(uniqueEventSeriesIndex: number): void {
     const eventToDelete = this.uniqueEvents[uniqueEventSeriesIndex];
     if (eventToDelete.singleOccurence) {
-      if (
-        confirm(
-          'Wollen Sie wirklich dieses Event löschen? Alle Daten gehen unwiderbringlich verloren'
-        )
-      ) {
-        this.operationOngoing = true;
-        this.eventService
-          .deleteEvent(this.tenant.id, eventToDelete.id)
-          .subscribe(
-            () => {
-              alert('Event gelöscht');
-              this.loadAllEvents(this.appService.getCurrentTenant());
-              this.operationOngoing = false;
-            },
-            error => {
-              console.error(error);
-              alert('Es trat ein Fehler auf, Event wurde nicht gelöscht');
-              this.operationOngoing = false;
-            }
-          );
-      }
+      this.notification.confirm({
+        title: 'Event löschen?',
+        text:
+          'Wollen Sie wirklich dieses Event löschen? Alle Daten gehen unwiderbringlich verloren?',
+        yesButtonClass: 'btn-danger',
+        yesButtonText: 'Löschen',
+        yesCallback: () => {
+          this.operationOngoing = true;
+          this.eventService
+            .deleteEvent(this.tenant.id, eventToDelete.id)
+            .subscribe(
+              () => {
+                this.notification.success('Event gelöscht');
+                this.loadAllEvents(this.appService.getCurrentTenant());
+                this.operationOngoing = false;
+              },
+              error => {
+                console.error(error);
+                this.notification.error(
+                  'Es trat ein Fehler auf, Event wurde nicht gelöscht'
+                );
+                this.operationOngoing = false;
+              }
+            );
+        },
+      });
     } else {
-      if (
-        confirm(
-          'Wollen Sie alle KÜNFTIGEN Events in dieser Spalte wirklich löschen? Alle Daten dieser Events gehen unwiderbringlich verloren!'
-        )
-      ) {
-        this.operationOngoing = true;
-        this.eventService
-          .deleteEventSeries(this.tenant.id, eventToDelete.eventSeries.id)
-          .subscribe(
-            () => {
-              alert('zukünftige Serienevents gelöscht');
-              this.loadAllEvents(this.appService.getCurrentTenant());
-              this.operationOngoing = false;
-            },
-            error => {
-              console.error(error);
-              alert(
-                'Es trat ein Fehler auf, nicht alle Events wurden gelöscht'
-              );
-              this.operationOngoing = false;
-            }
-          );
-      }
+      this.notification.confirm({
+        title: 'Künftige Events löschen?',
+        text:
+          'Wollen Sie alle KÜNFTIGEN Events in dieser Spalte wirklich löschen? Alle Daten dieser Events gehen unwiderbringlich verloren!',
+        yesButtonClass: 'btn-danger',
+        yesButtonText: 'Löschen',
+        yesCallback: () => {
+          this.operationOngoing = true;
+          this.eventService
+            .deleteEventSeries(this.tenant.id, eventToDelete.eventSeries.id)
+            .subscribe(
+              () => {
+                this.notification.success('Zukünftige Serienevents gelöscht');
+                this.loadAllEvents(this.appService.getCurrentTenant());
+                this.operationOngoing = false;
+              },
+              error => {
+                this.notification.error(
+                  'Es trat ein Fehler auf, die Eventserie wurde nicht gelöscht'
+                );
+                this.operationOngoing = false;
+              }
+            );
+        },
+      });
     }
   }
 
@@ -449,7 +458,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   updateEvents(): void {
     if (this.editEventForm.invalid) {
-      alert('Bitte erst alle Felder korrekt ausfüllen');
+      this.notification.error('Bitte erst alle Felder korrekt ausfüllen');
       return;
     }
     const updatedEventData: any = {
@@ -476,13 +485,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
       updatedEventData.id = this.eventBeingEdited.id;
       this.eventService.updateEvent(updatedEventData).subscribe(
         () => {
-          alert('Eventdaten aktualisiert');
+          this.notification.success('Eventdaten aktualisiert');
           this.modalRef.hide();
           this.loadAllEvents(this.appService.getCurrentTenant());
         },
         error => {
           console.error(error);
-          alert('Es ist ein Fehler aufgetreten');
+          this.notification.error('Es trat ein Fehler auf');
         }
       );
     } else {
@@ -495,13 +504,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
       updatedEventData.eventSeries = this.eventBeingEdited.eventSeries;
       this.eventService.updateEventSeries(updatedEventData).subscribe(
         () => {
-          alert('Alle künftigen Events aktualisiert');
+          this.notification.success('Alle künftigen Events aktualisiert');
           this.modalRef.hide();
           this.loadAllEvents(this.appService.getCurrentTenant());
         },
         error => {
           console.error(error);
-          alert('Es ist ein Fehler aufgetreten');
+          this.notification.error('Es trat ein Fehler auf');
         }
       );
     }
@@ -527,21 +536,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   deleteParticipant(participant: Participant): void {
-    if (
-      confirm('Möchten Sie diesen Teilnehmer wirklich von der Liste entfernen?')
-    ) {
-      this.eventService
-        .deleteParticipant(
-          this.tenant.id,
-          this.selectedEvent.id,
-          participant.id
-        )
-        .subscribe(() => {
-          alert('Teilnehmer von Aktivität entfernt');
-          this.participants = reject(this.participants, { id: participant.id });
-          this.selectedEvent.takenSeats -= 1;
-        });
-    }
+    this.notification.confirm({
+      title: 'Teilnehmer entfernen?',
+      text: 'Möchten Sie diesen Teilnehmer wirklich von der Liste entfernen?',
+      yesButtonClass: 'btn-danger',
+      yesButtonText: 'Entfernen',
+      yesCallback: () => {
+        this.eventService
+          .deleteParticipant(
+            this.tenant.id,
+            this.selectedEvent.id,
+            participant.id
+          )
+          .subscribe(() => {
+            this.notification.success('Teilnehmer von Aktivität entfernt');
+            this.participants = reject(this.participants, {
+              id: participant.id,
+            });
+            this.selectedEvent.takenSeats -= 1;
+          });
+      },
+    });
   }
 
   addParticipant(): void {

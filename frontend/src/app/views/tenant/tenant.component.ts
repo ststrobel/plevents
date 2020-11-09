@@ -8,6 +8,7 @@ import { Subscription } from 'rxjs';
 import { AppService } from 'src/app/services/app.service';
 import { ROLE } from '../../../../../common/tenant-relation';
 import { ROUTES } from '../../../../../common/frontend.routes';
+import { NotificationService } from 'src/app/services/notification.service';
 
 @Component({
   selector: 'app-tenant',
@@ -39,7 +40,8 @@ export class TenantComponent implements OnInit, OnDestroy {
     private tenantService: TenantService,
     private route: ActivatedRoute,
     private router: Router,
-    public appService: AppService
+    public appService: AppService,
+    private notification: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -86,7 +88,7 @@ export class TenantComponent implements OnInit, OnDestroy {
       this.pathCheck.pathTaken ||
       this.logoValidationError
     ) {
-      alert('Bitte alle Felder korrekt ausfüllen');
+      this.notification.error('Bitte alle Felder korrekt ausfüllen');
       this.tenantForm.markAllAsTouched();
       return;
     }
@@ -113,12 +115,12 @@ export class TenantComponent implements OnInit, OnDestroy {
           this.tenant = tenant;
           this.setFormValues();
         }
-        alert('Erfolgreich gespeichert');
+        this.notification.success('Erfolgreich gespeichert');
         this.operationOngoing = false;
       },
       error => {
         console.error(error);
-        alert('Beim Speichern trat leider ein Fehler auf!');
+        this.notification.error('Beim Speichern trat leider ein Fehler auf!');
         this.operationOngoing = false;
       }
     );
@@ -126,7 +128,7 @@ export class TenantComponent implements OnInit, OnDestroy {
 
   updateLegalTexts(): void {
     if (this.legalForm.invalid) {
-      alert('Bitte alle Felder korrekt ausfüllen');
+      this.notification.error('Bitte alle Felder korrekt ausfüllen');
       this.legalForm.markAllAsTouched();
       return;
     }
@@ -148,28 +150,34 @@ export class TenantComponent implements OnInit, OnDestroy {
         }
         this.appService.setCurrentTenantRelations(relations);
         this.appService.setCurrentTenant(tenant);
-        alert('Erfolgreich gespeichert');
+        this.notification.success('Erfolgreich gespeichert');
         this.operationOngoing = false;
       },
       error => {
         console.error(error);
-        alert('Beim Speichern trat leider ein Fehler auf!');
+        this.notification.error('Beim Speichern trat leider ein Fehler auf!');
         this.operationOngoing = false;
       }
     );
   }
 
   deleteTenant(): void {
-    if (confirm('Wirklich die gesamte Organisation löschen?')) {
-      this.operationOngoing = true;
-      this.tenantService.delete(this.tenant.id).subscribe(() => {
-        alert('Organisation gelöscht!');
-        // go to profile view
-        this.appService.setCurrentTenant(null);
-        this.tenantService.getAll().subscribe();
-        this.router.navigate([`/${ROUTES.PROFILE}`]);
-      });
-    }
+    this.notification.confirm({
+      title: 'Organisation löschen?',
+      text: 'Wirklich die gesamte Organisation löschen?',
+      yesButtonClass: 'btn-danger',
+      yesButtonText: 'Löschen',
+      yesCallback: () => {
+        this.operationOngoing = true;
+        this.tenantService.delete(this.tenant.id).subscribe(() => {
+          this.notification.success('Organisation gelöscht!');
+          // go to profile view
+          this.appService.setCurrentTenant(null);
+          this.tenantService.getAll().subscribe();
+          this.router.navigate([`/${ROUTES.PROFILE}`]);
+        });
+      },
+    });
   }
 
   checkPath(): void {

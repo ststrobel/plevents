@@ -6,6 +6,7 @@ import { Category } from 'src/app/models/category';
 import { Tenant } from 'src/app/models/tenant';
 import { AppService } from 'src/app/services/app.service';
 import { CategoryService } from 'src/app/services/category.service';
+import { NotificationService } from 'src/app/services/notification.service';
 import { ROLE } from '../../../../../common/tenant-relation';
 
 @Component({
@@ -56,7 +57,8 @@ export class CategoryManagementComponent implements OnInit {
   constructor(
     private categoryService: CategoryService,
     public appService: AppService,
-    private modalService: BsModalService
+    private modalService: BsModalService,
+    private notification: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -99,11 +101,11 @@ export class CategoryManagementComponent implements OnInit {
             1
           );
           this.categoryForm.removeControl(category.id);
-          alert('Kategorie aktualisiert');
+          this.notification.success('Kategorie aktualisiert');
         },
         error => {
           console.error(error);
-          alert('Fehler beim Erstellen der neuen Kategorie');
+          this.notification.error('Fehler beim Erstellen der neuen Kategorie');
         }
       );
     } else {
@@ -118,38 +120,46 @@ export class CategoryManagementComponent implements OnInit {
           this.categories.push(createdCategory);
           this.newCategory = new Category();
           this.categoryForm.get('newCategory').reset();
-          alert('Neue Kategorie erstellt');
+          this.notification.success('Neue Kategorie erstellt');
         },
         error => {
           console.error(error);
-          alert('Fehler beim Erstellen der neuen Kategorie');
+          this.notification.error('Fehler beim Erstellen der neuen Kategorie');
         }
       );
     }
   }
 
   deleteCategory(category: Category): void {
-    if (confirm('Möchten Sie diese Kategorie wirklich löschen?')) {
-      this.categoryService.deleteCategory(category.id).subscribe(
-        () => {
-          this.categories = reject(this.categories, { id: category.id });
-          alert('Kategorie gelöscht');
-        },
-        error => {
-          console.error(error);
-          alert('Fehler beim Löschen der Kategorie');
-        }
-      );
-    }
+    this.notification.confirm({
+      title: 'Kategorie löschen?',
+      text: 'Möchten Sie diese Kategorie wirklich löschen?',
+      yesButtonClass: 'btn-danger',
+      yesButtonText: 'Löschen',
+      yesCallback: () => {
+        this.categoryService.deleteCategory(category.id).subscribe(
+          () => {
+            this.categories = reject(this.categories, { id: category.id });
+            this.notification.success('Kategorie gelöscht');
+          },
+          error => {
+            console.error(error);
+            this.notification.error('Fehler beim Löschen der Kategorie');
+          }
+        );
+      },
+    });
   }
 
   validationPassed(category: Category): boolean {
     if (category.name.length === 0) {
-      alert('Bitte vergeben Sie einen Namen für die Kategorie');
+      this.notification.success(
+        'Bitte vergeben Sie einen Namen für die Kategorie'
+      );
       return false;
     }
     if (!this.isCategoryUnique(category)) {
-      alert('Diese Kategorie existiert bereits');
+      this.notification.error('Diese Kategorie existiert bereits');
       return false;
     }
     return true;
