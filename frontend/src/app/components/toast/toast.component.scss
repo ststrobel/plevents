@@ -1,0 +1,25 @@
+:host {
+  margin-left: -15px;
+  position: fixed;
+  top: 80px;
+  width: 100%;
+  text-align: center;
+}
+
+.toast-container {
+  display: inline-block;
+  max-width: 90%;
+  ::ng-deep .toast.show {
+    width: 800px;
+    max-width: 100%;
+    background-color: #f5f5f5e3 !important;
+    &.toast-success {
+      border: 1px solid var(--green);
+      color: var(--green) !important;
+    }
+    &.toast-error {
+      border: 1px solid var(--danger);
+      color: var(--danger) !important;
+    }
+  }
+}

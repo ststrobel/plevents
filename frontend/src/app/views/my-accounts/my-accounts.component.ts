@@ -3,6 +3,7 @@ import { reject } from 'lodash';
 import { Invitation } from 'src/app/models/invitation';
 import { TenantRelation } from 'src/app/models/tenant-relation';
 import { AppService } from 'src/app/services/app.service';
+import { NotificationService } from 'src/app/services/notification.service';
 import { TenantService } from 'src/app/services/tenant.service';
 import { UserService } from 'src/app/services/user.service';
 import { ROUTES } from '../../../../../common/frontend.routes';
@@ -20,7 +21,8 @@ export class MyAccountsComponent implements OnInit {
   constructor(
     private tenantService: TenantService,
     private userService: UserService,
-    private appService: AppService
+    private appService: AppService,
+    private notification: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -43,62 +45,78 @@ export class MyAccountsComponent implements OnInit {
   }
 
   detach(tenantRelation: TenantRelation): void {
-    if (confirm('Möchten Sie sich wirklich von dieser Organisation trennen?')) {
-      this.userService
-        .removeFromTenant(tenantRelation.tenantId, tenantRelation.userId)
-        .subscribe(
-          () => {
-            alert(
-              'Sie haben sich von Organisation "' +
-                tenantRelation.tenant.name +
-                '" getrennt'
-            );
-            if (
-              this.appService.getCurrentTenant() &&
-              this.appService.getCurrentTenant().id === tenantRelation.tenantId
-            ) {
-              this.appService.setCurrentTenant(null);
-            }
-            this.tenantRelations = reject(this.tenantRelations, tenantRelation);
-          },
-          error => {
-            if (error === 'Conflict') {
-              alert(
-                'Sie sind der einzige Administrator für diese Organisation und können sich daher nicht von ihr trennen'
+    this.notification.confirm({
+      title: 'Von Organisation trennen?',
+      text: 'Möchten Sie sich wirklich von dieser Organisation trennen?',
+      yesButtonClass: 'btn-danger',
+      yesButtonText: 'Ja',
+      yesCallback: () => {
+        this.userService
+          .removeFromTenant(tenantRelation.tenantId, tenantRelation.userId)
+          .subscribe(
+            () => {
+              this.notification.success(
+                'Sie haben sich von Organisation "' +
+                  tenantRelation.tenant.name +
+                  '" getrennt'
               );
-            } else {
-              alert('Es trat ein Fehler auf');
+              if (
+                this.appService.getCurrentTenant() &&
+                this.appService.getCurrentTenant().id ===
+                  tenantRelation.tenantId
+              ) {
+                this.appService.setCurrentTenant(null);
+              }
+              this.tenantRelations = reject(
+                this.tenantRelations,
+                tenantRelation
+              );
+            },
+            error => {
+              if (error === 'Conflict') {
+                this.notification.success(
+                  'Sie sind der einzige Administrator für diese Organisation und können sich daher nicht von ihr trennen'
+                );
+              } else {
+                this.notification.error('Es trat ein Fehler auf');
+              }
             }
-          }
-        );
-    }
+          );
+      },
+    });
   }
 
   join(invitation: Invitation): void {
     this.userService.acceptInvitation(invitation.id).subscribe(
       (tenantRelation: TenantRelation) => {
         this.loadTenantsAndInvitations();
-        alert('Accout beigetreten');
+        this.notification.success('Accout beigetreten');
       },
       error => {
         console.error(error);
-        alert('Es trat ein Fehler auf');
+        this.notification.error('Es trat ein Fehler auf');
       }
     );
   }
 
   decline(invitation: Invitation): void {
-    if (confirm('Möchten Sie die Einladung wirklich ablehnen?')) {
-      this.userService.declineInvitation(invitation.tenantId).subscribe(
-        () => {
-          alert('Einladung abgelehnt');
-          this.invitations = reject(this.invitations, invitation);
-        },
-        error => {
-          console.error(error);
-          alert('Ein technischer Fehler ist aufgetreten');
-        }
-      );
-    }
+    this.notification.confirm({
+      title: 'Einladung ablehnen?',
+      text: 'Möchten Sie die Einladung wirklich ablehnen?',
+      yesButtonClass: 'btn-danger',
+      yesButtonText: 'Ja',
+      yesCallback: () => {
+        this.userService.declineInvitation(invitation.tenantId).subscribe(
+          () => {
+            this.notification.success('Einladung abgelehnt');
+            this.invitations = reject(this.invitations, invitation);
+          },
+          error => {
+            console.error(error);
+            this.notification.error('Es trat ein Fehler auf');
+          }
+        );
+      },
+    });
   }
 }
