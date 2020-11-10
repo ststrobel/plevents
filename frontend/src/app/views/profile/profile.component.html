@@ -18,7 +18,7 @@
           sichtbar. Ihr Name wird allerdings nicht auf öffentlich zugänglichen
           Seiten angezeigt.
         </p>
-        <form [formGroup]="nameForm">
+        <form [formGroup]="nameForm" *ngIf="user">
           <div class="row">
             <div class="col-12" [ngClass]="{ invalid: isInvalid('name') }">
               <label for="name">Name *</label>
@@ -34,13 +34,20 @@
               <button
                 class="btn btn-outline-success"
                 (click)="updateName()"
-                [disabled]="operationOngoing"
+                [disabled]="operationOngoing.nameChange"
               >
+                <loading
+                  *ngIf="operationOngoing.nameChange"
+                  textClass="text-success"
+                ></loading>
                 Speichern
               </button>
             </div>
           </div>
         </form>
+        <div class="text-center">
+          <loading *ngIf="!user"></loading>
+        </div>
       </div>
       <div class="col-12 mt-5 mb-5">
         <h4>Passwort</h4>
@@ -49,7 +56,7 @@
           neues Passwort und bestätigen Sie die Änderung durch Eingabe Ihres
           bisherigen / aktuellen Passworts.
         </p>
-        <form [formGroup]="passwordForm">
+        <form [formGroup]="passwordForm" *ngIf="user">
           <div class="row">
             <div
               class="col-12 col-md-6"
@@ -81,13 +88,20 @@
               <button
                 class="btn btn-outline-success"
                 (click)="changePassword()"
-                [disabled]="operationOngoing"
+                [disabled]="operationOngoing.passwordChange"
               >
+                <loading
+                  *ngIf="operationOngoing.passwordChange"
+                  textClass="text-success"
+                ></loading>
                 Passwort ändern
               </button>
             </div>
           </div>
         </form>
+        <div class="text-center">
+          <loading *ngIf="!user"></loading>
+        </div>
       </div>
     </div>
   </div>
@@ -105,14 +119,21 @@
         Die Löschung erfolgt sofort und kann <b>nicht</b> rückgängig gemacht
         werden!
       </div>
-      <div class="col-12 text-right">
+      <div class="col-12 text-right" *ngIf="user">
         <button
           class="btn btn-outline-danger"
           (click)="deleteProfile()"
-          [disabled]="operationOngoing"
+          [disabled]="operationOngoing.accountDeletion"
         >
+          <loading
+            *ngIf="operationOngoing.accountDeletion"
+            textClass="text-danger"
+          ></loading>
           Mein Profil löschen
         </button>
+      </div>
+      <div class="col-12 text-center">
+        <loading *ngIf="!user"></loading>
       </div>
     </div>
   </div>

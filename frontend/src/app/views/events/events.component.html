@@ -4,6 +4,14 @@
   Du hast dich erfolgreich zu <b>{{ selectedEvent.name }}</b> angemeldet!
 </div>
 <div
+  class="alert text-center"
+  style="margin-top: 100px"
+  *ngIf="!categoryOptions"
+>
+  <loading></loading>
+  Events werden geladen...
+</div>
+<div
   *ngIf="
     categoryOptions != null &&
     selectedCategory === undefined &&
