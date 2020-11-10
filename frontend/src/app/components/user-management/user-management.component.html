@@ -120,6 +120,12 @@
     </div>
   </li>
   <li
+    class="list-group-item list-group-item-action text-center"
+    *ngIf="!tenantUserRelations"
+  >
+    <loading></loading> Nutzer werden geladen
+  </li>
+  <li
     class="list-group-item list-group-item-action"
     *ngFor="let invitation of invitations"
     style="background-color: whitesmoke"

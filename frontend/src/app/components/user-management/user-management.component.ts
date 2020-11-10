@@ -27,7 +27,7 @@ export class UserManagementComponent implements OnInit {
   inviteAdminForm: FormGroup = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
   });
-  tenantUserRelations: TenantRelation[] = new Array<TenantRelation>();
+  tenantUserRelations: TenantRelation[] = null;
   @Input()
   tenant: Tenant;
   invitations: Invitation[];

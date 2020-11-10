@@ -36,6 +36,7 @@ import { MyAccountsComponent } from './views/my-accounts/my-accounts.component';
 import { SubscriptionComponent } from './components/subscription/subscription.component';
 import { ToastComponent } from './components/toast/toast.component';
 import { NotificationService } from './services/notification.service';
+import { LoadingComponent } from './components/loading/loading.component';
 
 const cookieConfig: NgcCookieConsentConfig = {
   cookie: {
@@ -87,6 +88,7 @@ const cookieConfig: NgcCookieConsentConfig = {
     MyAccountsComponent,
     SubscriptionComponent,
     ToastComponent,
+    LoadingComponent,
   ],
   imports: [
     BrowserModule,

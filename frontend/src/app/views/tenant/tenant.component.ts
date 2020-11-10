@@ -19,7 +19,11 @@ export class TenantComponent implements OnInit, OnDestroy {
   tenant: Tenant = null;
   logoValidationError: string = null;
   private tenantSubscription: Subscription;
-  operationOngoing: boolean = false;
+  operationOngoing = {
+    updateCore: false,
+    updateLegal: false,
+    deleteTenant: false,
+  };
   pathCheck = {
     pathTaken: false,
   };
@@ -92,7 +96,7 @@ export class TenantComponent implements OnInit, OnDestroy {
       this.tenantForm.markAllAsTouched();
       return;
     }
-    this.operationOngoing = true;
+    this.operationOngoing.updateCore = true;
     const updatedTenant = clone(this.tenant);
     updatedTenant.name = this.tenantForm.get('name').value;
     updatedTenant.path = this.tenantForm.get('path').value;
@@ -116,12 +120,12 @@ export class TenantComponent implements OnInit, OnDestroy {
           this.setFormValues();
         }
         this.notification.success('Erfolgreich gespeichert');
-        this.operationOngoing = false;
+        this.operationOngoing.updateCore = false;
       },
       error => {
         console.error(error);
         this.notification.error('Beim Speichern trat leider ein Fehler auf!');
-        this.operationOngoing = false;
+        this.operationOngoing.updateCore = false;
       }
     );
   }
@@ -132,7 +136,7 @@ export class TenantComponent implements OnInit, OnDestroy {
       this.legalForm.markAllAsTouched();
       return;
     }
-    this.operationOngoing = true;
+    this.operationOngoing.updateLegal = true;
     const updatedTenant = clone(this.tenant);
     updatedTenant.consentTeaser1 = this.legalForm.get('consentTeaser1').value;
     updatedTenant.consentText1 = this.legalForm.get('consentText1').value;
@@ -151,12 +155,12 @@ export class TenantComponent implements OnInit, OnDestroy {
         this.appService.setCurrentTenantRelations(relations);
         this.appService.setCurrentTenant(tenant);
         this.notification.success('Erfolgreich gespeichert');
-        this.operationOngoing = false;
+        this.operationOngoing.updateLegal = false;
       },
       error => {
         console.error(error);
-        this.notification.error('Beim Speichern trat leider ein Fehler auf!');
-        this.operationOngoing = false;
+        this.notification.error('Beim Speichern trat leider ein Fehler auf');
+        this.operationOngoing.updateLegal = false;
       }
     );
   }
@@ -168,14 +172,20 @@ export class TenantComponent implements OnInit, OnDestroy {
       yesButtonClass: 'btn-danger',
       yesButtonText: 'Löschen',
       yesCallback: () => {
-        this.operationOngoing = true;
-        this.tenantService.delete(this.tenant.id).subscribe(() => {
-          this.notification.success('Organisation gelöscht!');
-          // go to profile view
-          this.appService.setCurrentTenant(null);
-          this.tenantService.getAll().subscribe();
-          this.router.navigate([`/${ROUTES.PROFILE}`]);
-        });
+        this.operationOngoing.deleteTenant = true;
+        this.tenantService.delete(this.tenant.id).subscribe(
+          () => {
+            this.notification.success('Organisation gelöscht!');
+            // go to profile view
+            this.appService.setCurrentTenant(null);
+            this.tenantService.getAll().subscribe();
+            this.router.navigate([`/${ROUTES.PROFILE}`]);
+          },
+          error => {
+            this.notification.error('Es trat ein Fehler auf');
+            this.operationOngoing.deleteTenant = false;
+          }
+        );
       },
     });
   }

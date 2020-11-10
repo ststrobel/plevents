@@ -70,6 +70,12 @@
         </div>
       </li>
       <li
+        class="list-group-item list-group-item-action text-center"
+        *ngIf="!categories"
+      >
+        <loading></loading> Kategorien werden geladen
+      </li>
+      <li
         class="list-group-item list-group-item-action"
         *ngIf="appService.hasRole(tenant.id, ROLE.OWNER)"
       >

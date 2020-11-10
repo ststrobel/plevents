@@ -20,8 +20,11 @@ export class ProfileComponent implements OnInit {
     oldPassword: new FormControl('', Validators.required),
     newPassword: new FormControl('', Validators.required),
   });
-
-  operationOngoing: boolean = false;
+  operationOngoing = {
+    nameChange: false,
+    passwordChange: false,
+    accountDeletion: false,
+  };
 
   constructor(
     private userService: UserService,
@@ -30,12 +33,10 @@ export class ProfileComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.operationOngoing = true;
     this.userService.getProfile().subscribe((user: User) => {
       this.user = user;
       this.authService.update(this.user);
       this.nameForm.get('name').setValue(this.user.name);
-      this.operationOngoing = false;
     });
   }
 
@@ -61,7 +62,7 @@ export class ProfileComponent implements OnInit {
       this.nameForm.markAllAsTouched();
       return;
     }
-    this.operationOngoing = true;
+    this.operationOngoing.nameChange = true;
     const updatePayload = clone(this.user);
     updatePayload.name = this.nameForm.get('name').value;
     this.userService.updateProfile(updatePayload).subscribe(
@@ -69,12 +70,12 @@ export class ProfileComponent implements OnInit {
         this.user = updatedUser;
         this.authService.update(this.user);
         this.notification.success('Name geändert');
-        this.operationOngoing = false;
+        this.operationOngoing.nameChange = false;
       },
       error => {
         console.error(error);
         this.notification.error('Es trat ein Fehler auf');
-        this.operationOngoing = false;
+        this.operationOngoing.nameChange = false;
       }
     );
   }
@@ -84,7 +85,7 @@ export class ProfileComponent implements OnInit {
       this.passwordForm.markAllAsTouched();
       return;
     }
-    this.operationOngoing = true;
+    this.operationOngoing.passwordChange = true;
     this.userService
       .updatePassword(
         this.passwordForm.get('oldPassword').value,
@@ -97,13 +98,13 @@ export class ProfileComponent implements OnInit {
             this.user,
             this.passwordForm.get('newPassword').value
           );
-          this.operationOngoing = false;
+          this.operationOngoing.passwordChange = false;
           this.passwordForm.reset();
         },
         error => {
           console.error(error);
           this.notification.error('Es trat ein Fehler auf');
-          this.operationOngoing = false;
+          this.operationOngoing.passwordChange = false;
         }
       );
   }
@@ -116,7 +117,7 @@ export class ProfileComponent implements OnInit {
       yesButtonClass: 'btn-danger',
       yesButtonText: 'Löschen',
       yesCallback: () => {
-        this.operationOngoing = true;
+        this.operationOngoing.accountDeletion = true;
         this.userService.deleteProfile().subscribe(
           () => {
             this.notification.success('Ihr Profil wurde gelöscht');
@@ -125,7 +126,7 @@ export class ProfileComponent implements OnInit {
           error => {
             console.error(error);
             this.notification.error('Es trat ein Fehler auf');
-            this.operationOngoing = false;
+            this.operationOngoing.accountDeletion = false;
           }
         );
       },

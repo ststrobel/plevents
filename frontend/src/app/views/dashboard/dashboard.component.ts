@@ -461,6 +461,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.notification.error('Bitte erst alle Felder korrekt ausfüllen');
       return;
     }
+    this.operationOngoing = true;
     const updatedEventData: any = {
       name: this.editEventForm.get('name').value,
       maxSeats: this.editEventForm.get('maxSeats').value,
@@ -485,12 +486,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
       updatedEventData.id = this.eventBeingEdited.id;
       this.eventService.updateEvent(updatedEventData).subscribe(
         () => {
+          this.operationOngoing = false;
           this.notification.success('Eventdaten aktualisiert');
           this.modalRef.hide();
           this.loadAllEvents(this.appService.getCurrentTenant());
         },
         error => {
           console.error(error);
+          this.operationOngoing = false;
           this.notification.error('Es trat ein Fehler auf');
         }
       );
@@ -564,6 +567,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.addParticipantForm.markAllAsTouched();
       return;
     }
+    this.operationOngoing = true;
     const participant = new Participant();
     participant.firstname = this.addParticipantForm.get('firstname').value;
     participant.lastname = this.addParticipantForm.get('lastname').value;
@@ -573,9 +577,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     participant.zip = this.addParticipantForm.get('zip').value;
     participant.city = this.addParticipantForm.get('city').value;
     participant.eventId = this.selectedEvent.id;
-    this.eventService
-      .addParticipant(participant)
-      .subscribe((createdParticipant: Participant) => {
+    this.eventService.addParticipant(participant).subscribe(
+      (createdParticipant: Participant) => {
         this.addParticipantForm.reset();
         this.addParticipantSuccess =
           'Teilnehmer ' +
@@ -584,7 +587,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
           participant.lastname +
           ' zur Veranstaltung hinzugefügt';
         this.participants.push(createdParticipant);
-      });
+        this.operationOngoing = false;
+      },
+      error => {
+        this.notification.error('Es trat leider ein Fehler auf');
+        this.operationOngoing = false;
+      }
+    );
   }
 
   /**

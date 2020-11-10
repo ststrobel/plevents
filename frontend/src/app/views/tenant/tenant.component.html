@@ -28,7 +28,7 @@
     <div class="row">
       <div class="col-12">
         <h4>Allgemein</h4>
-        <form [formGroup]="tenantForm">
+        <form [formGroup]="tenantForm" *ngIf="tenant">
           <div class="row">
             <div
               class="col-12 col-md-6"
@@ -116,13 +116,20 @@
               <button
                 class="btn btn-outline-success"
                 (click)="updateTenant()"
-                [disabled]="operationOngoing"
+                [disabled]="operationOngoing.updateCore"
               >
+                <loading
+                  *ngIf="operationOngoing.updateCore"
+                  textClass="text-success"
+                ></loading>
                 Speichern
               </button>
             </div>
           </div>
         </form>
+        <div class="text-center" *ngIf="!tenant">
+          <loading></loading>
+        </div>
       </div>
       <div class="col-12 mt-5">
         <h4>Einwilligungserklärung</h4>
@@ -131,7 +138,7 @@
           weitere Datenschutz- bzw. Einwilligungserklärungen hinterlegen, die
           die Teilnehmer durch aktives Setzen eines Häkchens akzeptieren müssen.
         </p>
-        <form [formGroup]="legalForm">
+        <form [formGroup]="legalForm" *ngIf="tenant">
           <div class="row">
             <div class="col-12">
               <label for="consentTeaser1"
@@ -191,13 +198,20 @@
               <button
                 class="btn btn-outline-success"
                 (click)="updateLegalTexts()"
-                [disabled]="operationOngoing"
+                [disabled]="operationOngoing.updateLegal"
               >
+                <loading
+                  *ngIf="operationOngoing.updateLegal"
+                  textClass="text-success"
+                ></loading>
                 Speichern
               </button>
             </div>
           </div>
         </form>
+        <div class="text-center" *ngIf="!tenant">
+          <loading></loading>
+        </div>
       </div>
     </div>
   </div>
@@ -238,10 +252,18 @@
           class="btn btn-block btn-sm mt-3"
           id="delete-account-button"
           (click)="deleteTenant()"
-          [disabled]="operationOngoing"
+          [disabled]="operationOngoing.deleteTenant"
+          *ngIf="tenant"
         >
+          <loading
+            *ngIf="operationOngoing.deleteTenant"
+            textClass="text-danger"
+          ></loading>
           Organisation löschen
         </button>
+        <div class="text-center" *ngIf="!tenant">
+          <loading></loading>
+        </div>
       </div>
     </div>
   </div>

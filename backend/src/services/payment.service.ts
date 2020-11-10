@@ -44,7 +44,7 @@ export class PaymentService {
       const stripeSessionID = (
         await stripe.checkout.sessions.create({
           mode: 'subscription',
-          payment_method_types: ['card', 'giropay', 'sofort'],
+          payment_method_types: ['card'],
           customer: tenant.stripeUserId,
           line_items: [
             {
