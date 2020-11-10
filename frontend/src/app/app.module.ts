@@ -37,6 +37,7 @@ import { SubscriptionComponent } from './components/subscription/subscription.co
 import { ToastComponent } from './components/toast/toast.component';
 import { NotificationService } from './services/notification.service';
 import { LoadingComponent } from './components/loading/loading.component';
+import { CalendarComponent } from './components/calendar/calendar.component';
 
 const cookieConfig: NgcCookieConsentConfig = {
   cookie: {
@@ -89,6 +90,7 @@ const cookieConfig: NgcCookieConsentConfig = {
     SubscriptionComponent,
     ToastComponent,
     LoadingComponent,
+    CalendarComponent,
   ],
   imports: [
     BrowserModule,
