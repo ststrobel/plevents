@@ -1,0 +1,106 @@
+@import '../../../styles-variables.scss';
+
+table {
+  table-layout: fixed;
+  thead {
+    background-color: #e6e6de;
+    tr th {
+      border-left: 1px solid white;
+      div.row {
+        margin: 0px;
+        > div {
+          padding: 2px;
+        }
+      }
+    }
+  }
+  tbody {
+    tr {
+      height: 53px;
+      td {
+        vertical-align: top;
+        min-height: 25px;
+
+        &.currentCW {
+          background-color: var(--plevents-main-color);
+          color: white;
+        }
+        > div {
+          position: relative;
+          padding-top: 20px;
+          > b {
+            position: absolute;
+            top: 0px;
+            left: 2px;
+            font-size: small;
+          }
+        }
+      }
+    }
+  }
+}
+
+.greyedOut {
+  background-color: whitesmoke;
+  color: $plevents-grey-dark;
+  border: 1px solid white;
+  line-height: 25px;
+  * {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.happening {
+  background-color: lightgreen;
+  border-radius: 2px;
+  color: darkgreen;
+  font-weight: bold;
+  padding: 0px 2px;
+  margin: 2px;
+  & > div.row {
+    margin: 0px;
+    & > div {
+      padding: 0px !important;
+    }
+  }
+  &.empty {
+    background-color: #8cbf8c5c;
+    color: #006400bd;
+    &.has-passed {
+      background: repeating-linear-gradient(
+        -45deg,
+        #90ee905c,
+        #90ee905c 8px,
+        #d7d7d7 8px,
+        #d7d7d7 9px
+      );
+    }
+  }
+  &.has-passed {
+    background: repeating-linear-gradient(
+      -45deg,
+      lightgreen,
+      lightgreen 8px,
+      #b7b7b7 8px,
+      #b7b7b7 9px
+    );
+  }
+}
+
+.stateToggler {
+  border: 1px solid $plevents-grey-dark;
+  padding: 0px 5px;
+  border-radius: 10px;
+  line-height: 15px;
+  color: $plevents-grey-dark;
+  &.clickable {
+    color: inherit;
+    cursor: pointer;
+    background-color: lighten($plevents-grey-light, 5%);
+    &:hover {
+      background-color: $plevents-grey-light;
+    }
+  }
+}

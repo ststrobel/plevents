@@ -3,6 +3,7 @@ import { Component, Injectable, OnInit, TemplateRef } from '@angular/core';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
 export interface ConfirmOptions {
+  id?: number;
   title: string;
   text: string;
   yesCallback?: Function;
@@ -56,7 +57,9 @@ export class NotificationService {
       : 'Ja';
     options.noButtonText = options.noButtonText ? options.noButtonText : 'Nein';
     this.confirmOptions = options;
+    options.id = Math.ceil(Math.random() * 100000);
     this.modalRef = this.modalService.show(ConfirmModalComponent, {
+      id: options.id,
       class: 'modal-md modal-dialog-centered',
       initialState: this.confirmOptions,
       ignoreBackdropClick: true,
@@ -98,6 +101,7 @@ export class NotificationService {
   `,
 })
 export class ConfirmModalComponent implements OnInit {
+  id: number;
   title: string;
   text: string;
   yesCallback: Function;
@@ -107,7 +111,10 @@ export class ConfirmModalComponent implements OnInit {
   noButtonClass: string = 'btn-light';
   yesButtonClass: string = 'btn-light';
 
-  constructor(public modalRef: BsModalRef) {}
+  constructor(
+    private modalService: BsModalService,
+    public modalRef: BsModalRef
+  ) {}
 
   ngOnInit() {}
 
@@ -115,13 +122,13 @@ export class ConfirmModalComponent implements OnInit {
     if (this.yesCallback) {
       this.yesCallback();
     }
-    this.modalRef.hide();
+    this.modalService.hide(this.id);
   }
 
   confirmNo(): void {
     if (this.noCallback) {
       this.noCallback();
     }
-    this.modalRef.hide();
+    this.modalService.hide(this.id);
   }
 }

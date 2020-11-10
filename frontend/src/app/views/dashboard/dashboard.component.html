@@ -1,5 +1,5 @@
 <h2>Übersicht über alle anstehenden Events</h2>
-<!-- button to show the "new event" form -->
+<!-- notification in case tenant is not active -->
 <div
   class="alert alert-warning d-flex flex-row"
   *ngIf="tenant && !tenant.active"
@@ -16,26 +16,58 @@
     >
   </div>
 </div>
-<div
-  class="action-buttons-container"
-  *ngIf="tenant && appService.hasRole(tenant.id, ROLE.ADMIN)"
->
-  <div></div>
-  <button
-    class="btn float-right btn-outline-success mb-3 ml-2"
-    *ngIf="!newSingleEventFormShown && !newEventSeriesFormShown"
-    (click)="showEventSeriesForm()"
-  >
-    Neues Serienevent
-  </button>
-  <button
-    class="btn float-right btn-outline-success mb-3 ml-2"
-    *ngIf="!newSingleEventFormShown && !newEventSeriesFormShown"
-    (click)="showNewSingleEventForm()"
-  >
-    Neues Einzelevent
-  </button>
+
+<!-- action buttons to create new events or change the view -->
+<div class="row" *ngIf="tenant && appService.hasRole(tenant.id, ROLE.ADMIN)">
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="btn-group btn-block mb-3" role="group">
+      <button
+        class="w-50 btn"
+        [ngClass]="{
+          'btn-outline-success': view !== VIEW.LIST,
+          'btn-success': view === VIEW.LIST
+        }"
+        (click)="view = VIEW.LIST"
+      >
+        <i class="fas fa-list mr-2"></i>
+        Liste
+      </button>
+      <button
+        class="w-50 btn"
+        [ngClass]="{
+          'btn-outline-success': view !== VIEW.CALENDAR,
+          'btn-success': view === VIEW.CALENDAR
+        }"
+        (click)="view = VIEW.CALENDAR"
+      >
+        <i class="fas fa-calendar-alt mr-2"></i>
+        Kalender
+      </button>
+    </div>
+  </div>
+  <!--<div class="flex-grow-1"></div>-->
+  <div class="col-12 col-md-6 col-lg-4 offset-lg-4">
+    <div
+      class="btn-group btn-block"
+      role="group"
+      *ngIf="!newSingleEventFormShown && !newEventSeriesFormShown"
+    >
+      <button
+        class="w-50 btn btn-outline-success"
+        (click)="showEventSeriesForm()"
+      >
+        Neues Serienevent
+      </button>
+      <button
+        class="w-50 btn btn-outline-success"
+        (click)="showNewSingleEventForm()"
+      >
+        Neues Einzelevent
+      </button>
+    </div>
+  </div>
 </div>
+
 <!-- form to create a new event series -->
 <div
   class="newEventContainer"
@@ -307,8 +339,21 @@
   </form>
 </div>
 
+<!-- calendar view -->
+<calendar
+  *ngIf="allEvents && view === VIEW.CALENDAR"
+  [events]="allEvents"
+  [tenant]="tenant"
+  (eventClicked)="showEventParticipants($event, showParticipantsModal)"
+  (statusToggled)="toggleDisabled($event)"
+></calendar>
+
 <!-- display on wide screens -->
-<div class="w-100 d-none d-xl-block mt-3" style="overflow-x: auto">
+<div
+  class="w-100 d-none d-xl-block mt-3"
+  style="overflow-x: auto"
+  *ngIf="view === VIEW.LIST"
+>
   <table class="w-100" *ngIf="uniqueEvents">
     <thead>
       <tr>
@@ -409,7 +454,7 @@
             <small
               class="stateToggler"
               [ngClass]="{ clickable: !event.isInPast() }"
-              (click)="event.isInPast() || toggleDisabled($event, event)"
+              (click)="event.isInPast() || toggleDisabled(event, $event)"
             >
               <i *ngIf="!event.disabled">aktiv</i>
               <i *ngIf="event.disabled">inaktiv</i>
@@ -422,7 +467,7 @@
 </div>
 
 <!-- display on small screens -->
-<div class="d-xl-none mt-3" *ngIf="uniqueEvents">
+<div class="d-xl-none mt-3" *ngIf="uniqueEvents && view === VIEW.LIST">
   <div
     class="card w-100 mb-3"
     *ngFor="let uniqueEvent of uniqueEvents; let i = index"
@@ -510,7 +555,7 @@
                   <small
                     class="stateToggler"
                     [ngClass]="{ clickable: !event.isInPast() }"
-                    (click)="event.isInPast() || toggleDisabled($event, event)"
+                    (click)="event.isInPast() || toggleDisabled(event, $event)"
                   >
                     <i *ngIf="!event.disabled">aktiv</i>
                     <i *ngIf="event.disabled">inaktiv</i>
@@ -553,6 +598,7 @@
   </div>
 </div>
 
+<!-- loading message -->
 <div
   class="alert alert-secondary text-center"
   style="margin-top: 100px"
@@ -562,6 +608,7 @@
   Daten werden geladen...
 </div>
 
+<!-- modal to edit events -->
 <ng-template #editSeriesEventModal>
   <div class="modal-header">
     <h4 class="modal-title pull-left">Event bearbeiten</h4>
@@ -704,6 +751,7 @@
   </div>
 </ng-template>
 
+<!-- modal to display and edit participants -->
 <ng-template #showParticipantsModal>
   <div class="modal-header">
     <h4 class="modal-title pull-left">Teilnehmer</h4>
@@ -888,7 +936,7 @@
           </div>
         </div>
       </form>
-      <div class="text-right" *ngIf="tenant && tenant.active">
+      <div class="text-right mt-2" *ngIf="tenant && tenant.active">
         <button
           type="button"
           *ngIf="!showAddParticipantForm"

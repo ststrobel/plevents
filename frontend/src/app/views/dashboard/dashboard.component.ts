@@ -27,13 +27,18 @@ import { UserService } from 'src/app/services/user.service';
 import { EventSeriesI } from '../../../../../common/event-series';
 import { NotificationService } from 'src/app/services/notification.service';
 
+export enum VIEW {
+  CALENDAR,
+  LIST,
+}
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  private allEvents: Event[];
+  allEvents: Event[];
   weeks: Week[] = new Array<Week>();
   uniqueEvents: Event[] = null;
   newEventSeriesForm: FormGroup;
@@ -73,6 +78,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   addParticipantSuccess: string = null;
   orgMembers: User[];
   userIdsAllowedOnNewEvent: string[];
+  VIEW = VIEW;
+  view: VIEW = VIEW.LIST;
 
   constructor(
     private eventService: EventService,
@@ -324,8 +331,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return formControl.invalid && formControl.touched;
   }
 
-  toggleDisabled(clickEvent: any, event: Event): void {
-    clickEvent.stopPropagation();
+  toggleDisabled(event: Event, clickEvent?: any): void {
+    if (clickEvent) {
+      clickEvent.stopPropagation();
+    }
     event.disabled = !event.disabled;
     // update it on server side, too
     this.eventService
@@ -534,7 +543,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .subscribe(participants => {
         this.participants = participants;
       });
-    console.log(template);
     this.modalRef = this.modalService.show(template, { class: 'modal-xl' });
   }
 
@@ -588,6 +596,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           ' zur Veranstaltung hinzugefügt';
         this.participants.push(createdParticipant);
         this.operationOngoing = false;
+        this.selectedEvent.takenSeats++;
       },
       error => {
         this.notification.error('Es trat leider ein Fehler auf');

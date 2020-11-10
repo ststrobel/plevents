@@ -1,0 +1,71 @@
+<div *ngFor="let month of months" class="mb-4">
+  <h2>{{ displayMonth(month) }}</h2>
+  <table class="w-100">
+    <thead>
+      <tr>
+        <th style="width: 9%">KW</th>
+        <th style="width: 13%" class="text-center">Mo</th>
+        <th style="width: 13%" class="text-center">Di</th>
+        <th style="width: 13%" class="text-center">Mi</th>
+        <th style="width: 13%" class="text-center">Do</th>
+        <th style="width: 13%" class="text-center">Fr</th>
+        <th style="width: 13%" class="text-center">Sa</th>
+        <th style="width: 13%" class="text-center">So</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let week of weeksInMonth(month)">
+        <td [ngClass]="{ currentCW: week.number === currentCW() }">
+          {{ week.number }}
+          <small *ngIf="week.number === currentCW()"
+            ><br />aktuelle Woche</small
+          >
+        </td>
+        <!-- each day gets a box -->
+        <td
+          *ngFor="let day of daysInWeek(week, month)"
+          [ngClass]="{ greyedOut: day >= 0 }"
+        >
+          <div>
+            <b>{{ dayOfMonth(day) }}</b>
+            <div
+              *ngFor="let event of eventsOnDay(day, week)"
+              style="position: relative"
+              [ngClass]="{
+                'happening': event,
+                'unavailable': event && event.takenSeats >= event.maxSeats,
+                'disabled': event && event.disabled,
+                'empty': event && event.takenSeats === 0,
+                'has-passed': event && event.isInPast(),
+                'clickable':
+                  event &&
+                  (appService.hasRole(tenant.id, ROLE.ADMIN) ||
+                    appService.getCurrentUser().hasAccessToEvent(event))
+              }"
+              (click)="clickOn(event)"
+            >
+              <div class="row">
+                <div class="col-12 col-xl-6">
+                  {{ event.name }}
+                </div>
+                <div class="col-12 col-sm-6 col-xl-3">
+                  <small>{{ event.takenSeats }} / {{ event.maxSeats }} </small>
+                </div>
+                <div class="col-12 col-sm-6 col-xl-3">
+                  <small
+                    class="stateToggler"
+                    [ngClass]="{ clickable: !event.isInPast() }"
+                    (click)="event.isInPast() || toggleDisabled($event, event)"
+                  >
+                    <i *ngIf="!event.disabled">aktiv</i>
+                    <i *ngIf="event.disabled">inaktiv</i>
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
