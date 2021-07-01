@@ -25,6 +25,9 @@
         <td
           *ngFor="let day of daysInWeek(week, month)"
           [ngClass]="{ greyedOut: day >= 0 }"
+          [ngStyle]="{
+            border: day === today ? '2px solid var(--plevents-main-color)' : ''
+          }"
         >
           <div>
             <b>{{ dayOfMonth(day) }}</b>

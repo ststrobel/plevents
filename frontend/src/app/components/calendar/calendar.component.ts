@@ -26,6 +26,7 @@ export class CalendarComponent implements OnInit {
   weeks: Week[];
   months: number[];
   ROLE = ROLE;
+  today = moment().dayOfYear();
 
   constructor(public appService: AppService) {}
 
@@ -115,9 +116,10 @@ export class CalendarComponent implements OnInit {
       .clone()
       .endOf('week')
       .subtract(4, 'weeks');
+    
     for (
       let kw = today.week() - 4;
-      kw <= moment().date(31).month(12).isoWeek();
+      kw <= moment().date(31).month(11).isoWeek();
       kw++
     ) {
       const week = new Week(kw);

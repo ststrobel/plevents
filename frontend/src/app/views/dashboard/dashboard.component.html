@@ -340,13 +340,19 @@
 </div>
 
 <!-- calendar view -->
-<calendar
-  *ngIf="allEvents && view === VIEW.CALENDAR"
-  [events]="allEvents"
-  [tenant]="tenant"
-  (eventClicked)="showEventParticipants($event, showParticipantsModal)"
-  (statusToggled)="toggleDisabled($event)"
-></calendar>
+<div *ngIf="allEvents && view === VIEW.CALENDAR">
+  <p>
+    <i class="fas mr-1 fa-info-circle"></i> In der Kalenderansicht ist es nicht
+    möglich, Termine zu editieren oder löschen. Verwenden Sie hierzu bitte die
+    Listenansicht.
+  </p>
+  <calendar
+    [events]="allEvents"
+    [tenant]="tenant"
+    (eventClicked)="showEventParticipants($event, showParticipantsModal)"
+    (statusToggled)="toggleDisabled($event)"
+  ></calendar>
+</div>
 
 <!-- display on wide screens -->
 <div
